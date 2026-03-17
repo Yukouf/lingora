@@ -284,6 +284,42 @@ enum SubscriptionStatus {
   UNPAID
 }
 
+// ===== PROMO CODES =====
+
+model PromoCode {
+  id          String   @id @default(cuid())
+  code        String   @unique // normalized lowercase
+  label       String   // "Fondateur", "Early Bird", etc.
+  maxUses     Int?     // null = unlimited
+  currentUses Int      @default(0)
+  expiresAt   DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  redemptions PromoRedemption[]
+}
+
+model PromoRedemption {
+  id          String   @id @default(cuid())
+  promoCodeId String
+  userId      String
+  redeemedAt  DateTime @default(now())
+
+  promoCode PromoCode @relation(fields: [promoCodeId], references: [id])
+
+  @@unique([promoCodeId, userId]) // each user can redeem a code only once
+}
+
+// ===== STRIPE WEBHOOK IDEMPOTENCY =====
+
+model ProcessedWebhookEvent {
+  id          String   @id // Stripe event ID (evt_xxx)
+  type        String   // event type
+  processedAt DateTime @default(now())
+
+  @@index([processedAt])
+}
+
 // ===== API USAGE TRACKING =====
 
 model ApiUsageLog {

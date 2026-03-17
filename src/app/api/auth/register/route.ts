@@ -3,11 +3,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { sendWelcomeEmail } from "@/lib/email";
-
-// Valid promo codes → grant full premium access
-const PROMO_CODES: Record<string, { label: string }> = {
-  youssefleplusbeau: { label: "Fondateur" },
-};
+import { checkAuthRateLimit } from "@/lib/rate-limit";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
@@ -18,6 +14,16 @@ const registerSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 5 attempts per 15 min per IP
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const rlCheck = await checkAuthRateLimit(ip);
+  if (!rlCheck.allowed) {
+    return NextResponse.json(
+      { error: "Trop de tentatives — réessaie dans 15 minutes" },
+      { status: 429, headers: { "Retry-After": "900" } }
+    );
+  }
+
   try {
     const body = await req.json();
     const { name, email, password, nativeLanguage, promoCode } = registerSchema.parse(body);
@@ -30,21 +36,53 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check promo code validity
+    // Check promo code validity from DB
     const normalizedCode = promoCode?.toLowerCase().trim();
-    const promo = normalizedCode ? PROMO_CODES[normalizedCode] : null;
+    let promoRecord: { id: string; label: string } | null = null;
 
-    if (promoCode && !promo) {
-      return NextResponse.json(
-        { error: "Code promo invalide" },
-        { status: 400 }
-      );
+    if (normalizedCode) {
+      const dbPromo = await db.promoCode.findUnique({
+        where: { code: normalizedCode },
+      });
+
+      if (!dbPromo) {
+        return NextResponse.json(
+          { error: "Code promo invalide" },
+          { status: 400 }
+        );
+      }
+
+      // Check if expired
+      if (dbPromo.expiresAt && dbPromo.expiresAt < new Date()) {
+        return NextResponse.json(
+          { error: "Ce code promo a expiré" },
+          { status: 400 }
+        );
+      }
+
+      // Check if deactivated
+      if (!dbPromo.isActive) {
+        return NextResponse.json(
+          { error: "Ce code promo n'est plus valide" },
+          { status: 400 }
+        );
+      }
+
+      // Check max uses
+      if (dbPromo.maxUses !== null && dbPromo.currentUses >= dbPromo.maxUses) {
+        return NextResponse.json(
+          { error: "Ce code promo a atteint sa limite d'utilisation" },
+          { status: 400 }
+        );
+      }
+
+      promoRecord = { id: dbPromo.id, label: dbPromo.label };
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // If valid promo → ACTIVE subscription (full premium, no expiry)
-    const subscriptionStatus = promo ? "ACTIVE" : "FREE";
+    const subscriptionStatus = promoRecord ? "ACTIVE" : "FREE";
 
     const user = await db.user.create({
       data: {
@@ -55,8 +93,7 @@ export async function POST(req: NextRequest) {
         subscription: {
           create: {
             status: subscriptionStatus,
-            // Premium via promo: no Stripe, no expiry — permanent access
-            ...(promo
+            ...(promoRecord
               ? {
                   currentPeriodStart: new Date(),
                   currentPeriodEnd: new Date("2099-12-31"),
@@ -67,14 +104,27 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Track promo code redemption
+    if (promoRecord) {
+      await db.$transaction([
+        db.promoRedemption.create({
+          data: { promoCodeId: promoRecord.id, userId: user.id },
+        }),
+        db.promoCode.update({
+          where: { id: promoRecord.id },
+          data: { currentUses: { increment: 1 } },
+        }),
+      ]);
+    }
+
     // Send welcome email (non-blocking — don't delay registration)
     sendWelcomeEmail(email, name).catch(() => {});
 
     return NextResponse.json(
       {
         data: { id: user.id, name: user.name, email: user.email },
-        message: promo
-          ? `Compte créé avec accès Premium ! (${promo.label})`
+        message: promoRecord
+          ? `Compte créé avec accès Premium ! (${promoRecord.label})`
           : "Compte créé avec succès",
       },
       { status: 201 }

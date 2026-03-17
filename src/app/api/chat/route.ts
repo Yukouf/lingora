@@ -3,26 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { scenarios, buildSystemPrompt } from "@/lib/ai/scenarios";
 import { chatStream, estimateCost } from "@/lib/ai";
-
-// Rate limit: track per user (simple in-memory for now)
-const userMessageCounts = new Map<string, { count: number; resetAt: number }>();
-
-function checkRateLimit(userId: string, isPremium: boolean): boolean {
-  const now = Date.now();
-  const limit = isPremium ? 200 : 15;
-  const entry = userMessageCounts.get(userId);
-
-  if (!entry || now > entry.resetAt) {
-    const tomorrow = new Date();
-    tomorrow.setHours(24, 0, 0, 0);
-    userMessageCounts.set(userId, { count: 1, resetAt: tomorrow.getTime() });
-    return true;
-  }
-
-  if (entry.count >= limit) return false;
-  entry.count++;
-  return true;
-}
+import { checkChatRateLimit, checkIpRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -34,6 +15,16 @@ export async function POST(req: NextRequest) {
   }
 
   const userId = session.user.id;
+
+  // Global IP rate limit (30 req/min)
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ipCheck = await checkIpRateLimit(ip);
+  if (!ipCheck.allowed) {
+    return new Response(
+      JSON.stringify({ error: "Trop de requêtes — réessaie dans une minute" }),
+      { status: 429, headers: { "Content-Type": "application/json", "Retry-After": "60" } }
+    );
+  }
 
   try {
     const { scenarioId, conversationId, message } = await req.json();
@@ -72,12 +63,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!checkRateLimit(userId, isPremium)) {
+    const rateCheck = await checkChatRateLimit(userId, isPremium);
+    if (!rateCheck.allowed) {
       return new Response(
         JSON.stringify({
           error: isPremium
             ? "Limite quotidienne atteinte (200 messages/jour)"
             : "Limite gratuite atteinte (15 messages/jour). Passe en premium pour continuer !",
+          remaining: rateCheck.remaining,
         }),
         {
           status: 429,

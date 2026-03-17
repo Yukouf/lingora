@@ -37,6 +37,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Idempotency: skip already-processed events
+  const alreadyProcessed = await db.processedWebhookEvent.findUnique({
+    where: { id: event.id },
+  });
+
+  if (alreadyProcessed) {
+    return NextResponse.json({ received: true, skipped: true });
+  }
+
   try {
     switch (event.type) {
       case "checkout.session.completed": {
@@ -140,6 +149,11 @@ export async function POST(req: NextRequest) {
         break;
       }
     }
+
+    // Mark event as processed
+    await db.processedWebhookEvent.create({
+      data: { id: event.id, type: event.type },
+    });
 
     return NextResponse.json({ received: true });
   } catch (error) {

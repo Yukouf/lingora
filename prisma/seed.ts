@@ -541,6 +541,28 @@ async function main() {
     },
   ]);
 
+  // ═══════ PROMO CODES ═══════
+  console.log("🎟️  Seeding promo codes...");
+
+  const promoCodes = [
+    { code: "youssefleplusbeau", label: "Fondateur", maxUses: null, expiresAt: null },
+  ];
+
+  for (const pc of promoCodes) {
+    await prisma.promoCode.upsert({
+      where: { code: pc.code },
+      create: {
+        code: pc.code,
+        label: pc.label,
+        maxUses: pc.maxUses,
+        expiresAt: pc.expiresAt,
+        isActive: true,
+      },
+      update: {},
+    });
+    console.log(`  ✅ Promo code: ${pc.code} (${pc.label})`);
+  }
+
   console.log("\n✅ Seed completed!\n");
 }
 
