@@ -29,6 +29,48 @@ export async function GET() {
     return NextResponse.redirect(new URL("/learn", process.env.NEXTAUTH_URL));
   }
 
+  // Verify all chapters/lessons in current level are completed
+  const currentLevel = userLang.level;
+  const coursesAtLevel = await db.course.findMany({
+    where: {
+      languageId: userLang.languageId,
+      level: currentLevel,
+    },
+    include: {
+      chapters: {
+        include: {
+          lessons: {
+            include: {
+              exercises: { select: { id: true } },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  // Check that every exercise has been completed by this user
+  const allExerciseIds = coursesAtLevel.flatMap((c) =>
+    c.chapters.flatMap((ch) =>
+      ch.lessons.flatMap((l) => l.exercises.map((e) => e.id))
+    )
+  );
+
+  if (allExerciseIds.length > 0) {
+    const completedCount = await db.userProgress.count({
+      where: {
+        userId,
+        exerciseId: { in: allExerciseIds },
+        completed: true,
+      },
+    });
+
+    if (completedCount < allExerciseIds.length) {
+      // Not all exercises completed — cannot level up
+      return NextResponse.redirect(new URL("/learn", process.env.NEXTAUTH_URL));
+    }
+  }
+
   const nextLevel = LEVELS[currentIdx + 1];
 
   // Check premium requirement

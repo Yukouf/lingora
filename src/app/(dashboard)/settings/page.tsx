@@ -26,12 +26,21 @@ export default function SettingsPage() {
 
   const isPremium = sub?.status === "ACTIVE";
 
+  function isStripeUrl(url: string): boolean {
+    try {
+      const parsed = new URL(url);
+      return parsed.hostname.endsWith(".stripe.com");
+    } catch {
+      return false;
+    }
+  }
+
   async function handleUpgrade() {
     setLoading(true);
     try {
       const res = await fetch("/api/stripe/checkout", { method: "POST" });
       const json = await res.json();
-      if (json.data?.url) {
+      if (json.data?.url && isStripeUrl(json.data.url)) {
         window.location.href = json.data.url;
       }
     } catch {
@@ -46,7 +55,7 @@ export default function SettingsPage() {
     try {
       const res = await fetch("/api/stripe/portal", { method: "POST" });
       const json = await res.json();
-      if (json.data?.url) {
+      if (json.data?.url && isStripeUrl(json.data.url)) {
         window.location.href = json.data.url;
       }
     } catch {

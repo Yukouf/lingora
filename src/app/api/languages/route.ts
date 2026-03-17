@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+
+const selectLanguageSchema = z.object({
+  languageId: z.string().min(1),
+  level: z.enum(["A1", "A2", "B1", "B2", "C1", "C2"]).default("A1"),
+});
 
 // GET: list available languages
 export async function GET() {
@@ -19,15 +25,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Non autorise" }, { status: 401 });
   }
 
-  const { languageId, level } = await req.json();
+  const body = await req.json();
+  const parsed = selectLanguageSchema.safeParse(body);
 
-  if (!languageId) {
-    return NextResponse.json({ error: "languageId requis" }, { status: 400 });
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Données invalides" }, { status: 400 });
   }
 
-  // Validate level
-  const validLevels = ["A1", "A2", "B1", "B2", "C1", "C2"];
-  const selectedLevel = validLevels.includes(level) ? level : "A1";
+  const { languageId, level: selectedLevel } = parsed.data;
 
   // Check if language exists
   const language = await db.language.findUnique({ where: { id: languageId } });
