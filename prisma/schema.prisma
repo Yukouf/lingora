@@ -1,0 +1,303 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ===== AUTH (NextAuth) =====
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  nativeLanguage String   @default("fr")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  userLanguages  UserLanguage[]
+  userProgress   UserProgress[]
+  flashcards     Flashcard[]
+  conversations  Conversation[]
+  subscription   Subscription?
+  apiUsageLogs   ApiUsageLog[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ===== LANGUES & COURS =====
+
+model Language {
+  id        String   @id @default(cuid())
+  code      String   @unique // "en", "es", "de", "ja", "ar", "zh"
+  name      String           // "Anglais", "Espagnol"
+  flag      String           // emoji flag "🇬🇧"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  courses       Course[]
+  userLanguages UserLanguage[]
+}
+
+model UserLanguage {
+  id         String   @id @default(cuid())
+  userId     String
+  languageId String
+  level      CECRLevel @default(A1)
+  isActive   Boolean   @default(true)
+  startedAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  language Language @relation(fields: [languageId], references: [id])
+
+  @@unique([userId, languageId])
+}
+
+enum CECRLevel {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
+model Course {
+  id          String    @id @default(cuid())
+  languageId  String
+  level       CECRLevel
+  title       String    // "Anglais - Débutant (A1)"
+  description String?
+  order       Int       @default(0)
+  isPremium   Boolean   @default(false)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  language Language @relation(fields: [languageId], references: [id])
+  chapters Chapter[]
+}
+
+model Chapter {
+  id          String   @id @default(cuid())
+  courseId    String
+  title       String   // "Au restaurant", "En voyage"
+  description String?
+  icon        String?  // emoji or icon name
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+}
+
+model Lesson {
+  id          String     @id @default(cuid())
+  chapterId   String
+  title       String     // "Commander un plat"
+  description String?
+  content     Json?      // structured lesson content (vocabulary, dialogues, grammar notes)
+  order       Int        @default(0)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+
+  chapter      Chapter        @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  exercises    Exercise[]
+  userProgress UserProgress[]
+}
+
+// ===== EXERCICES =====
+
+model Exercise {
+  id         String       @id @default(cuid())
+  lessonId   String
+  type       ExerciseType
+  question   Json         // { text, audio_url, image_url, options, correct_answer, hints }
+  order      Int          @default(0)
+  isActive   Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+
+  lesson       Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  userProgress UserProgress[]
+}
+
+enum ExerciseType {
+  MULTIPLE_CHOICE    // QCM contextuel
+  FILL_IN_BLANK      // Compléter la phrase
+  TRANSLATION        // Traduction (dans les deux sens)
+  LISTENING          // Compréhension orale
+  WRITING            // Production écrite (évaluée par IA)
+  REORDER            // Remettre les mots dans l'ordre
+  MATCHING           // Associer les paires
+  CONTEXT_GUESS      // Deviner le sens d'un mot par le contexte (profil immersif)
+  SPOT_ERROR         // Trouver et corriger l'erreur dans une phrase (profil analytique)
+  DIALOGUE_COMPLETE  // Compléter un dialogue réaliste (profil communicatif)
+  FREE_PRODUCTION    // Production libre évaluée par IA (profil actif)
+}
+
+// ===== PROGRESSION =====
+
+model UserProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String?
+  exerciseId  String?
+  score       Int?     // 0-100
+  completed   Boolean  @default(false)
+  attempts    Int      @default(0)
+  timeSpent   Int      @default(0) // in seconds
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson   Lesson?   @relation(fields: [lessonId], references: [id])
+  exercise Exercise? @relation(fields: [exerciseId], references: [id])
+
+  @@unique([userId, lessonId])
+  @@unique([userId, exerciseId])
+}
+
+// ===== FLASHCARDS SRS =====
+
+model Flashcard {
+  id            String         @id @default(cuid())
+  userId        String
+  front         String         // word/phrase in target language
+  back          String         // translation + context
+  audioUrl      String?
+  languageCode  String         // "en", "es"
+  source        FlashcardSource @default(LESSON)
+
+  // SRS fields (SM-2+ algorithm)
+  easeFactor    Float          @default(2.5)
+  interval      Int            @default(0)   // days
+  repetitions   Int            @default(0)
+  nextReview    DateTime       @default(now())
+  lastReview    DateTime?
+  mastery       MasteryLevel   @default(NEW)
+
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, nextReview])
+  @@index([userId, languageCode])
+}
+
+enum FlashcardSource {
+  LESSON
+  MANUAL
+  CONVERSATION
+}
+
+enum MasteryLevel {
+  NEW
+  LEARNING
+  ACQUIRED
+  MASTERED
+}
+
+// ===== CONVERSATIONS IA =====
+
+model Conversation {
+  id           String   @id @default(cuid())
+  userId       String
+  scenarioId   String   // references a predefined scenario
+  languageCode String
+  messages     Json     // array of { role, content, timestamp }
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, languageCode])
+}
+
+// ===== ABONNEMENT =====
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  status               SubscriptionStatus @default(FREE)
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum SubscriptionStatus {
+  FREE
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+}
+
+// ===== API USAGE TRACKING =====
+
+model ApiUsageLog {
+  id             String   @id @default(cuid())
+  userId         String
+  endpoint       String   // "/api/chat", "/api/exercises/evaluate"
+  modelUsed      String   // "claude-haiku-4-5", "claude-sonnet-4-6"
+  inputTokens    Int
+  outputTokens   Int
+  costEstimated  Float    // in USD
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
