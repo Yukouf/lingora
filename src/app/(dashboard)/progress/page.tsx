@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { BookOpen, MessageSquare, Layers, Clock, Flame, TrendingUp, Loader2 } from "lucide-react";
+import { useI18n } from "@/lib/i18n/context";
 
 interface ProgressData {
   wordsLearned: number;
@@ -17,15 +18,6 @@ interface ProgressData {
   skills: Record<string, number>;
 }
 
-const skillLabels: Record<string, string> = {
-  listening: "Compréhension orale",
-  reading: "Compréhension écrite",
-  writing: "Production écrite",
-  speaking: "Production orale",
-  grammar: "Grammaire",
-  vocabulary: "Vocabulaire",
-};
-
 const skillColors: Record<string, string> = {
   listening: "from-blue-500 to-blue-400",
   reading: "from-emerald-500 to-emerald-400",
@@ -36,8 +28,18 @@ const skillColors: Record<string, string> = {
 };
 
 export default function ProgressPage() {
+  const { t } = useI18n();
   const [data, setData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const skillLabels: Record<string, string> = {
+    listening: t.dashboard.progressPage.listening,
+    reading: t.dashboard.progressPage.reading,
+    writing: t.dashboard.progressPage.writing,
+    speaking: t.dashboard.progressPage.speaking,
+    grammar: t.dashboard.progressPage.grammar,
+    vocabulary: t.dashboard.progressPage.vocabulary,
+  };
 
   useEffect(() => {
     fetch("/api/progress")
@@ -58,27 +60,27 @@ export default function ProgressPage() {
   if (!data) {
     return (
       <div className="flex h-[60vh] flex-col items-center justify-center text-center">
-        <p className="text-white/40">Impossible de charger les données</p>
+        <p className="text-white/40">{t.dashboard.progressPage.loadError}</p>
       </div>
     );
   }
 
   const statCards = [
-    { label: "Mots appris", value: data.wordsLearned, icon: BookOpen, color: "text-blue-400", bg: "bg-blue-500/10" },
-    { label: "Leçons terminées", value: data.lessonsCompleted, icon: TrendingUp, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-    { label: "Conversations", value: data.conversationsHeld, icon: MessageSquare, color: "text-purple-400", bg: "bg-purple-500/10" },
-    { label: "Heures de pratique", value: `${data.practiceHours}h`, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
-    { label: "Flashcards", value: data.flashcardTotal, icon: Layers, color: "text-pink-400", bg: "bg-pink-500/10" },
-    { label: "Jours consécutifs", value: data.currentStreak, icon: Flame, color: "text-red-400", bg: "bg-red-500/10" },
+    { label: t.dashboard.progressPage.wordsLearned, value: data.wordsLearned, icon: BookOpen, color: "text-blue-400", bg: "bg-blue-500/10" },
+    { label: t.dashboard.progressPage.lessonsCompleted, value: data.lessonsCompleted, icon: TrendingUp, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+    { label: t.dashboard.progressPage.conversations, value: data.conversationsHeld, icon: MessageSquare, color: "text-purple-400", bg: "bg-purple-500/10" },
+    { label: t.dashboard.progressPage.practiceHours, value: `${data.practiceHours}h`, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
+    { label: t.dashboard.nav.flashcards, value: data.flashcardTotal, icon: Layers, color: "text-pink-400", bg: "bg-pink-500/10" },
+    { label: t.dashboard.progressPage.streak, value: data.currentStreak, icon: Flame, color: "text-red-400", bg: "bg-red-500/10" },
   ];
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white/90">Ma progression</h1>
+        <h1 className="text-2xl font-bold text-white/90">{t.dashboard.progressPage.title}</h1>
         <p className="text-sm text-white/40">
-          {data.language ? `${data.language.flag} ${data.language.name}` : "Aucune langue"} — Niveau {data.currentLevel}
+          {data.language ? data.language.name : t.dashboard.progressPage.noLanguage} — {t.dashboard.common.level} {data.currentLevel}
         </p>
       </div>
 
@@ -86,16 +88,16 @@ export default function ProgressPage() {
       <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-5">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-white/30 uppercase tracking-wider">Progression vers</p>
-            <p className="mt-0.5 text-lg font-bold text-white/90">Niveau {data.nextLevel}</p>
+            <p className="text-xs text-white/30 uppercase tracking-wider">{t.dashboard.progressPage.towardLevel}</p>
+            <p className="mt-0.5 text-lg font-bold text-white/90">{t.dashboard.common.level} {data.nextLevel}</p>
           </div>
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#5353ff]/20 text-lg font-bold text-[#818cf8]">
+          <span className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-white/50">
             {data.currentLevel}
-          </div>
+          </span>
         </div>
-        <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-white/5">
+        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#5353ff] to-[#a78bfa] transition-all duration-700"
+            className="h-full rounded-full bg-white/60 transition-all duration-700"
             style={{ width: `${data.levelProgress}%` }}
           />
         </div>
@@ -125,7 +127,7 @@ export default function ProgressPage() {
       {/* Skills */}
       <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50">
-          Compétences
+          {t.dashboard.progressPage.skills}
         </h2>
         <div className="mt-4 space-y-4">
           {Object.entries(data.skills).map(([key, value]) => (
@@ -134,7 +136,7 @@ export default function ProgressPage() {
                 <span className="text-white/60">{skillLabels[key] ?? key}</span>
                 <span className="font-mono text-xs text-white/40">{value}%</span>
               </div>
-              <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/5">
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
                 <div
                   className={`h-full rounded-full bg-gradient-to-r ${skillColors[key] ?? "from-gray-500 to-gray-400"} transition-all duration-700`}
                   style={{ width: `${value}%` }}
@@ -146,7 +148,7 @@ export default function ProgressPage() {
 
         {Object.values(data.skills).every((v) => v === 0) && (
           <p className="mt-4 text-center text-xs text-white/20">
-            Commence des exercices et conversations pour voir tes compétences évoluer
+            {t.dashboard.progressPage.noSkillsYet}
           </p>
         )}
       </div>

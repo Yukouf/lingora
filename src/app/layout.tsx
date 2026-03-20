@@ -18,6 +18,23 @@ export const metadata: Metadata = {
   title: "Lingyou — Apprendre une langue, pour de vrai",
   description:
     "La plateforme qui t'apprend vraiment une langue. Conversations IA, exercices contextuels, répétition espacée. Pas de gamification creuse.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://lingyou.app"),
+  openGraph: {
+    title: "Lingyou — Apprendre une langue, pour de vrai",
+    description:
+      "Conversations IA, exercices contextuels, répétition espacée. Gratuit jusqu'au niveau A2.",
+    siteName: "Lingyou",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lingyou — Apprendre une langue, pour de vrai",
+    description:
+      "Conversations IA, exercices contextuels, répétition espacée. Gratuit jusqu'au niveau A2.",
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({

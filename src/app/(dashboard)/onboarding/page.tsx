@@ -12,6 +12,7 @@ import {
   Sparkles,
   ArrowLeft,
 } from "lucide-react";
+import { useI18n } from "@/lib/i18n/context";
 
 interface Language {
   id: string;
@@ -33,6 +34,7 @@ type Step = "language" | "choice" | "test" | "result";
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const [step, setStep] = useState<Step>("language");
   const [languages, setLanguages] = useState<Language[]>([]);
   const [selectedLang, setSelectedLang] = useState<Language | null>(null);
@@ -166,8 +168,8 @@ export default function OnboardingPage() {
               <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-[#5353ff]/20 mx-auto mb-4">
                 <Globe className="h-8 w-8 text-[#818cf8]" />
               </div>
-              <h1 className="text-2xl font-bold text-white">Quelle langue veux-tu apprendre ?</h1>
-              <p className="text-[#7e8590] mt-2">Choisis ta langue cible pour commencer</p>
+              <h1 className="text-2xl font-bold text-white">{t.dashboard.onboarding.chooseLanguage}</h1>
+              <p className="text-white/40 mt-2">{t.dashboard.onboarding.chooseLanguageDesc}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -177,8 +179,10 @@ export default function OnboardingPage() {
                   onClick={() => handleSelectLanguage(lang)}
                   className="p-4 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-[#5353ff]/40 transition-all text-left group"
                 >
-                  <span className="text-3xl block mb-2">{lang.flag}</span>
-                  <span className="font-medium text-white group-hover:text-[#818cf8] transition-colors">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 block mb-2">
+                    {lang.code}
+                  </span>
+                  <span className="font-medium text-white group-hover:text-white/80 transition-colors">
                     {lang.name}
                   </span>
                 </button>
@@ -197,16 +201,18 @@ export default function OnboardingPage() {
           >
             <button
               onClick={() => setStep("language")}
-              className="flex items-center gap-2 text-sm text-[#7e8590] hover:text-white transition-colors mb-6"
+              className="flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors mb-6"
             >
               <ArrowLeft className="h-4 w-4" />
-              Changer de langue
+              {t.dashboard.onboarding.changeLanguage}
             </button>
 
             <div className="text-center mb-8">
-              <span className="text-4xl block mb-3">{selectedLang.flag}</span>
+              <span className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-white/50 inline-block mb-3">
+                {selectedLang.code}
+              </span>
               <h1 className="text-2xl font-bold text-white">{selectedLang.name}</h1>
-              <p className="text-[#7e8590] mt-2">Quel est ton niveau actuel ?</p>
+              <p className="text-white/40 mt-2">{t.dashboard.onboarding.whatLevel}</p>
             </div>
 
             <div className="space-y-3">
@@ -221,8 +227,8 @@ export default function OnboardingPage() {
                       <Sparkles className="h-6 w-6 text-emerald-400" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-white">Je suis debutant</h3>
-                      <p className="text-sm text-white/50">Commencer depuis le niveau A1</p>
+                      <h3 className="font-semibold text-white">{t.dashboard.onboarding.beginner}</h3>
+                      <p className="text-sm text-white/50">{t.dashboard.onboarding.beginnerDesc}</p>
                     </div>
                   </div>
                   {saving ? (
@@ -244,8 +250,8 @@ export default function OnboardingPage() {
                       <GraduationCap className="h-6 w-6 text-[#818cf8]" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-white">J&apos;ai deja des bases</h3>
-                      <p className="text-sm text-white/50">Passer le test de niveau (2 min)</p>
+                      <h3 className="font-semibold text-white">{t.dashboard.onboarding.hasBasics}</h3>
+                      <p className="text-sm text-white/50">{t.dashboard.onboarding.hasBasicsDesc}</p>
                     </div>
                   </div>
                   {loading ? (
@@ -270,14 +276,14 @@ export default function OnboardingPage() {
             {/* Progress */}
             <div className="mb-6">
               <div className="flex items-center justify-between text-sm mb-2">
-                <span className="text-[#7e8590]">Test de niveau</span>
+                <span className="text-white/40">{t.dashboard.onboarding.placementTest}</span>
                 <span className="text-white/60 font-medium">
                   {currentQ + 1}/{questions.length}
                 </span>
               </div>
-              <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div className="h-1 rounded-full bg-white/[0.06] overflow-hidden">
                 <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-[#5353ff] to-[#bd89ff]"
+                  className="h-full rounded-full bg-white/60"
                   animate={{ width: `${((currentQ + 1) / questions.length) * 100}%` }}
                   transition={{ duration: 0.3 }}
                 />
@@ -356,7 +362,7 @@ export default function OnboardingPage() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 150, delay: 0.2 }}
-                className="mx-auto mb-6 w-24 h-24 rounded-full bg-gradient-to-br from-[#5353ff] to-[#bd89ff] flex items-center justify-center shadow-[0_0_60px_rgba(83,83,255,0.4)]"
+                className="mx-auto mb-6 w-24 h-24 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center"
               >
                 <span className="text-3xl font-bold text-white">{result.recommendedLevel}</span>
               </motion.div>
@@ -367,10 +373,10 @@ export default function OnboardingPage() {
                 transition={{ delay: 0.4 }}
               >
                 <h1 className="text-2xl font-bold text-white mb-2">
-                  Ton niveau : {result.recommendedLevel}
+                  {t.dashboard.onboarding.yourLevel} {result.recommendedLevel}
                 </h1>
-                <p className="text-[#7e8590]">
-                  {result.totalCorrect}/{result.totalQuestions} bonnes reponses
+                <p className="text-white/40">
+                  {result.totalCorrect}/{result.totalQuestions} {t.dashboard.onboarding.correctAnswers}
                 </p>
               </motion.div>
 
@@ -389,7 +395,7 @@ export default function OnboardingPage() {
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <>
-                      Commencer au niveau {result.recommendedLevel}
+                      {t.dashboard.onboarding.startAtLevel} {result.recommendedLevel}
                       <ChevronRight className="h-4 w-4" />
                     </>
                   )}
@@ -400,7 +406,7 @@ export default function OnboardingPage() {
                   disabled={saving}
                   className="w-full py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 font-medium transition-all"
                 >
-                  Reprendre depuis le debut (A1)
+                  {t.dashboard.onboarding.restartA1}
                 </button>
               </motion.div>
             </div>

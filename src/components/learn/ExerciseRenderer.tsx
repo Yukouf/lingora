@@ -15,8 +15,11 @@ import {
   AlertTriangle,
   Sparkles,
   HelpCircle,
+  Mic,
 } from "lucide-react";
 import { SpeakButton } from "@/components/ui/speak-button";
+import PronunciationExercise from "@/components/learn/PronunciationExercise";
+import { useI18n } from "@/lib/i18n/context";
 
 // Color themes for each exercise type
 const exerciseThemes: Record<string, { bg: string; border: string; accent: string; glow: string; icon: React.ReactNode; label: string }> = {
@@ -108,33 +111,112 @@ const exerciseThemes: Record<string, { bg: string; border: string; accent: strin
     icon: <Sparkles className="h-5 w-5" />,
     label: "Production libre",
   },
+  PRONUNCIATION: {
+    bg: "from-rose-500/20 to-pink-600/10",
+    border: "border-rose-500/40",
+    accent: "bg-rose-500",
+    glow: "shadow-[0_0_30px_rgba(244,63,94,0.3)]",
+    icon: <Mic className="h-5 w-5" />,
+    label: "Prononciation",
+  },
 };
 
-interface ExerciseQuestion {
-  text: string;
+interface ExerciseQuestionRaw {
+  text?: string;
   options?: string[];
-  correct_answer: string;
+  correct_answer?: string;
+  correctAnswer?: string | number;
+  hint?: string;
   hints?: string[];
   audio_url?: string;
   image_url?: string;
   context?: string;
   sentence_with_error?: string;
   correct_sentence?: string;
+  correctSentence?: string;
   error_explanation?: string;
+  errorExplanation?: string;
+  errorWord?: string;
+  dialogue?: Array<{ speaker: string; text: string }>;
+  blank_position?: string;
+  blankPosition?: string;
+  prompt?: string;
+  instruction?: string;
+  criteria?: string[];
+  words_to_order?: string[];
+  wordsToOrder?: string[];
+  pairs?: Array<{ left: string; right: string }>;
+  word_to_guess?: string;
+  targetWord?: string;
+  sentence_with_word?: string;
+  sentenceWithWord?: string;
+  direction?: string;
+}
+
+// Normalize seed data (camelCase + index) to renderer format (snake_case + string)
+function normalizeQuestion(raw: ExerciseQuestionRaw): ExerciseQuestion {
+  const options = raw.options ?? [];
+  let correctAnswer = raw.correct_answer ?? "";
+  // If correctAnswer is a number (index), resolve it from options
+  const rawCA = raw.correctAnswer;
+  if (typeof rawCA === "number" && options[rawCA]) {
+    correctAnswer = options[rawCA];
+  } else if (typeof rawCA === "string" && !correctAnswer) {
+    correctAnswer = rawCA;
+  }
+  return {
+    text: raw.text ?? raw.instruction ?? "",
+    options,
+    correct_answer: correctAnswer,
+    hints: raw.hints ?? (raw.hint ? [raw.hint] : []),
+    audio_url: raw.audio_url,
+    image_url: raw.image_url,
+    context: raw.context,
+    sentence_with_error: raw.sentence_with_error,
+    correct_sentence: raw.correct_sentence ?? raw.correctSentence,
+    error_explanation: raw.error_explanation ?? raw.errorExplanation,
+    errorWord: raw.errorWord,
+    dialogue: raw.dialogue,
+    blank_position: raw.blank_position ?? raw.blankPosition,
+    prompt: raw.prompt,
+    instruction: raw.instruction,
+    criteria: raw.criteria,
+    words_to_order: raw.words_to_order ?? raw.wordsToOrder,
+    pairs: raw.pairs,
+    word_to_guess: raw.word_to_guess ?? raw.targetWord,
+    sentence_with_word: raw.sentence_with_word ?? raw.sentenceWithWord ?? raw.context,
+    direction: raw.direction,
+  };
+}
+
+interface ExerciseQuestion {
+  text: string;
+  options: string[];
+  correct_answer: string;
+  hints: string[];
+  audio_url?: string;
+  image_url?: string;
+  context?: string;
+  sentence_with_error?: string;
+  correct_sentence?: string;
+  error_explanation?: string;
+  errorWord?: string;
   dialogue?: Array<{ speaker: string; text: string }>;
   blank_position?: string;
   prompt?: string;
+  instruction?: string;
   criteria?: string[];
   words_to_order?: string[];
   pairs?: Array<{ left: string; right: string }>;
   word_to_guess?: string;
   sentence_with_word?: string;
+  direction?: string;
 }
 
 interface ExerciseData {
   id: string;
   type: string;
-  question: ExerciseQuestion;
+  question: ExerciseQuestionRaw;
   order: number;
 }
 
@@ -146,6 +228,7 @@ interface ExerciseRendererProps {
 }
 
 export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageCode = "en" }: ExerciseRendererProps) {
+  const { t } = useI18n();
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [textInput, setTextInput] = useState("");
   const [showResult, setShowResult] = useState(false);
@@ -156,8 +239,23 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
   const [reorderedWords, setReorderedWords] = useState<string[]>([]);
   const [availableWords, setAvailableWords] = useState<string[]>([]);
 
-  const theme = exerciseThemes[exercise.type] || exerciseThemes.MULTIPLE_CHOICE;
-  const q = exercise.question;
+  const baseTheme = exerciseThemes[exercise.type] || exerciseThemes.MULTIPLE_CHOICE;
+  const exerciseTypeLabels: Record<string, string> = {
+    MULTIPLE_CHOICE: t.dashboard.exerciseTypes.multipleChoice,
+    FILL_IN_BLANK: t.dashboard.exerciseTypes.fillInBlank,
+    TRANSLATION: t.dashboard.exerciseTypes.translation,
+    LISTENING: t.dashboard.exerciseTypes.listening,
+    WRITING: t.dashboard.exerciseTypes.freeProduction,
+    REORDER: t.dashboard.exerciseTypes.reorder,
+    MATCHING: t.dashboard.exerciseTypes.matching,
+    CONTEXT_GUESS: t.dashboard.exerciseTypes.contextGuess,
+    SPOT_ERROR: t.dashboard.exerciseTypes.spotError,
+    DIALOGUE_COMPLETE: t.dashboard.exerciseTypes.dialogueComplete,
+    FREE_PRODUCTION: t.dashboard.exerciseTypes.freeProduction,
+    PRONUNCIATION: t.dashboard.exerciseTypes.pronunciation,
+  };
+  const theme = { ...baseTheme, label: exerciseTypeLabels[exercise.type] || baseTheme.label };
+  const q = normalizeQuestion(exercise.question);
 
   const resetState = () => {
     setSelectedAnswer(null);
@@ -172,7 +270,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
   };
 
   const checkAnswer = (answer: string) => {
-    const correct = answer.toLowerCase().trim() === q.correct_answer.toLowerCase().trim();
+    const correct = (answer ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
     setIsCorrect(correct);
     setShowResult(true);
     onAnswer(correct, correct ? 100 : 0);
@@ -191,10 +289,10 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
         <SpeakButton text={q.text} lang={languageCode} size="sm" className="mt-0.5 shrink-0" />
       </div>
       <div className="grid gap-3">
-        {q.options?.map((option, i) => {
+        {q.options?.filter(Boolean).map((option, i) => {
           const isSelected = selectedAnswer === option;
           const showCorrectness = showResult;
-          const optionIsCorrect = option.toLowerCase().trim() === q.correct_answer.toLowerCase().trim();
+          const optionIsCorrect = (option ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
 
           return (
             <motion.button
@@ -375,10 +473,10 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       <p className="text-lg font-medium text-white text-center">{q.text}</p>
 
       <div className="grid gap-3">
-        {q.options?.map((option, i) => {
+        {q.options?.filter(Boolean).map((option, i) => {
           const isSelected = selectedAnswer === option;
           const showCorrectness = showResult;
-          const optionIsCorrect = option.toLowerCase().trim() === q.correct_answer.toLowerCase().trim();
+          const optionIsCorrect = (option ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
 
           return (
             <motion.button
@@ -579,10 +677,10 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       <p className="text-center text-white/60 text-sm">Que signifie ce mot selon le contexte ?</p>
 
       <div className="grid gap-3">
-        {q.options?.map((option, i) => {
+        {q.options?.filter(Boolean).map((option, i) => {
           const isSelected = selectedAnswer === option;
           const showCorrectness = showResult;
-          const optionIsCorrect = option.toLowerCase().trim() === q.correct_answer.toLowerCase().trim();
+          const optionIsCorrect = (option ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
 
           return (
             <motion.button
@@ -838,6 +936,16 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
         return renderSpotError();
       case "DIALOGUE_COMPLETE":
         return renderDialogueComplete();
+      case "PRONUNCIATION":
+        return (
+          <PronunciationExercise
+            targetText={q.text}
+            hint={q.hints?.[0]}
+            languageCode={languageCode}
+            exerciseId={exercise.id}
+            onAnswer={onAnswer}
+          />
+        );
       default:
         return renderMultipleChoice();
     }
@@ -872,7 +980,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
             className="mt-4 flex items-center gap-2 text-sm text-white/40 hover:text-white/60 transition-colors"
           >
             <Lightbulb className="h-4 w-4" />
-            {showHint ? "Cacher l'indice" : "Voir un indice"}
+            {showHint ? t.dashboard.exercise.showHint : t.dashboard.exercise.showHint}
           </motion.button>
         )}
 
@@ -916,8 +1024,8 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
                     <CheckCircle2 className="h-6 w-6 text-emerald-400" />
                   </motion.div>
                   <div>
-                    <p className="font-medium text-emerald-300">Excellent !</p>
-                    <p className="text-sm text-emerald-300/60">Continue comme ça 🎉</p>
+                    <p className="font-medium text-emerald-300">{t.dashboard.exercise.excellent}</p>
+                    <p className="text-sm text-emerald-300/60">{t.dashboard.exercise.keepGoing}</p>
                   </div>
                 </>
               ) : (
@@ -929,8 +1037,8 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
                     <XCircle className="h-6 w-6 text-red-400" />
                   </motion.div>
                   <div>
-                    <p className="font-medium text-red-300">Pas tout à fait...</p>
-                    <p className="text-sm text-red-300/60">Tu feras mieux la prochaine fois</p>
+                    <p className="font-medium text-red-300">{t.dashboard.exercise.wrongAnswer}</p>
+                    <p className="text-sm text-red-300/60">{t.dashboard.exercise.tryAgain}</p>
                   </div>
                 </>
               )}
@@ -943,7 +1051,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
               onClick={handleNext}
               className="w-full py-4 bg-white/10 hover:bg-white/15 border border-white/20 text-white rounded-2xl font-medium transition-all flex items-center justify-center gap-2"
             >
-              Continuer
+              {t.dashboard.exercise.next}
               <ArrowRight className="h-4 w-4" />
             </motion.button>
           </motion.div>

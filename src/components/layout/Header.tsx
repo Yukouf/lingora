@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useI18n } from "@/lib/i18n/context";
-import { locales, localeLabels, type Locale } from "@/lib/i18n/locales";
+import { uiLocales, localeLabels, type Locale } from "@/lib/i18n/locales";
 import { Menu, X } from "lucide-react";
 
 interface HeaderProps {
@@ -71,7 +71,7 @@ export function Header({ onNavigate }: HeaderProps) {
           <div className="hidden items-center gap-4 md:flex">
             {/* Language switcher */}
             <div className="flex items-center gap-1 rounded-full border border-white/10 px-1 py-0.5">
-              {locales.map((l) => (
+              {uiLocales.map((l) => (
                 <button
                   key={l}
                   onClick={() => setLocale(l)}
@@ -109,7 +109,7 @@ export function Header({ onNavigate }: HeaderProps) {
           <div className="flex items-center gap-2 md:hidden">
             {/* Language switcher — always visible */}
             <div className="flex items-center gap-0.5 rounded-full border border-white/10 px-0.5 py-0.5">
-              {locales.map((l) => (
+              {uiLocales.map((l) => (
                 <button
                   key={l}
                   onClick={() => setLocale(l)}

@@ -1682,3 +1682,39 @@
 }
 
 } /* end @layer components */
+
+/* ===== Chapter icon animations ===== */
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(14deg); }
+  75% { transform: rotate(-8deg); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(6deg); }
+  75% { transform: rotate(-6deg); }
+}
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+@keyframes pulse-soft {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.85; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  33% { transform: translateY(-2px); }
+  66% { transform: translateY(1px); }
+}
+@keyframes fly {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(2px, -3px) rotate(-4deg); }
+}
+
+.animate-wave { animation: wave 2s ease-in-out infinite; }
+.animate-wiggle { animation: wiggle 2.5s ease-in-out infinite; }
+.animate-bounce-slow { animation: bounce-slow 2s ease-in-out infinite; }
+.animate-pulse-soft { animation: pulse-soft 2.5s ease-in-out infinite; }
+.animate-float { animation: float 3s ease-in-out infinite; }
+.animate-fly { animation: fly 3s ease-in-out infinite; }

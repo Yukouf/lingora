@@ -264,9 +264,9 @@ export default function Home() {
                   <span className="relative font-mono text-[10px] uppercase tracking-[0.2em] text-white/50 transition-colors group-hover:text-white/80">
                     {langName}
                   </span>
-                  {/* Emoji flag small */}
-                  <span className="absolute -right-1 -top-1 text-sm opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110">
-                    {lang.flag}
+                  {/* Language code badge on hover */}
+                  <span className="absolute -right-1 -top-1 rounded bg-white/10 px-1.5 py-0.5 font-mono text-[9px] uppercase text-white/60 opacity-0 transition-all duration-300 group-hover:opacity-100">
+                    {lang.code}
                   </span>
                 </motion.button>
               );
@@ -331,26 +331,49 @@ export default function Home() {
             viewport={{ once: true, margin: "-40px" }}
             className="mt-12 grid gap-4 sm:grid-cols-2"
           >
-            {t.imagine.scenes.map((scene: { emoji: string; city: string; text: string }, i: number) => (
-              <motion.div
-                key={i}
-                custom={i}
-                variants={fadeUp}
-                className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-500 hover:border-[#fbbf24]/20 hover:bg-white/[0.05]"
-              >
-                <div className="flex items-start gap-4">
-                  <span className="text-3xl">{scene.emoji}</span>
-                  <div>
-                    <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#fbbf24]/50">
-                      {scene.city}
-                    </p>
-                    <p className="mt-2 text-[15px] leading-relaxed text-white/70 transition-colors group-hover:text-white/90">
-                      {scene.text}
-                    </p>
+            {t.imagine.scenes.map((scene: { emoji: string; city: string; text: string }, i: number) => {
+              const cityImages: Record<string, string> = {
+                "Tokyo": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80",
+                "Londres": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80",
+                "London": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80",
+                "Barcelone": "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=600&q=80",
+                "Barcelona": "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=600&q=80",
+                "Berlin": "https://images.unsplash.com/photo-1560969184-10fe8719e047?w=600&q=80",
+              };
+              const bgImage = cityImages[scene.city] || "";
+              return (
+                <motion.div
+                  key={i}
+                  custom={i}
+                  variants={fadeUp}
+                  className="group relative h-48 overflow-hidden rounded-2xl border border-white/[0.06] transition-all duration-500 hover:border-[#fbbf24]/30"
+                >
+                  {/* Background image — visible on hover with zoom */}
+                  <div
+                    className="absolute inset-0 bg-cover bg-center opacity-0 transition-all duration-700 ease-out group-hover:opacity-100 group-hover:scale-110"
+                    style={{ backgroundImage: `url(${bgImage})` }}
+                  />
+                  {/* Dark overlay */}
+                  <div className="absolute inset-0 bg-[#0a1628]/80 transition-opacity duration-500 group-hover:bg-[#0a1628]/50" />
+                  {/* Gradient bottom for text readability */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628]/95 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  {/* Content */}
+                  <div className="relative z-10 flex h-full flex-col justify-end p-6">
+                    <div className="flex items-start gap-4">
+                      <span className="text-3xl drop-shadow-lg">{scene.emoji}</span>
+                      <div>
+                        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#fbbf24]/50 transition-colors duration-500 group-hover:text-[#fbbf24]/80">
+                          {scene.city}
+                        </p>
+                        <p className="mt-2 text-[15px] leading-relaxed text-white/70 transition-colors duration-500 group-hover:text-white">
+                          {scene.text}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </motion.div>
 
           <motion.p

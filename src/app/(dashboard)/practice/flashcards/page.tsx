@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, X, RotateCcw, ArrowLeft, Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { SpeakButton } from "@/components/ui/speak-button";
+import { useI18n } from "@/lib/i18n/context";
 
 interface FlashcardData {
   id: string;
@@ -21,14 +22,15 @@ const masteryColors: Record<string, string> = {
   MASTERED: "bg-purple-500/20 text-purple-300 border-purple-500/30",
 };
 
-const masteryLabels: Record<string, string> = {
-  NEW: "Nouveau",
-  LEARNING: "En cours",
-  ACQUIRED: "Acquis",
-  MASTERED: "Maîtrisé",
-};
-
 export default function FlashcardsPage() {
+  const { t } = useI18n();
+
+  const masteryLabels: Record<string, string> = {
+    NEW: t.dashboard.flashcardLabels.new,
+    LEARNING: t.dashboard.flashcardLabels.learning,
+    ACQUIRED: t.dashboard.flashcardLabels.acquired,
+    MASTERED: t.dashboard.flashcardLabels.mastered,
+  };
   const [cards, setCards] = useState<FlashcardData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -110,7 +112,7 @@ export default function FlashcardsPage() {
     setAddError("");
 
     if (!newFront.trim() || !newBack.trim()) {
-      setAddError("Remplis les deux champs");
+      setAddError(t.dashboard.flashcardLabels.fillBoth);
       return;
     }
 
@@ -123,7 +125,7 @@ export default function FlashcardsPage() {
 
       if (!res.ok) {
         const data = await res.json();
-        setAddError(data.error || "Erreur");
+        setAddError(data.error || t.dashboard.common.error);
         return;
       }
 
@@ -132,7 +134,7 @@ export default function FlashcardsPage() {
       setShowAddForm(false);
       fetchCards();
     } catch {
-      setAddError("Erreur de connexion");
+      setAddError(t.dashboard.chat.connectionError);
     }
   }
 
@@ -152,9 +154,9 @@ export default function FlashcardsPage() {
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5 text-3xl">
           📇
         </div>
-        <h1 className="mt-4 text-xl font-bold text-white/90">Aucune flashcard</h1>
+        <h1 className="mt-4 text-xl font-bold text-white/90">{t.dashboard.flashcardLabels.noCards}</h1>
         <p className="mt-2 text-sm text-white/40">
-          Ajoute tes premiers mots de vocabulaire pour commencer à réviser.
+          {t.dashboard.flashcardLabels.noCardsDesc}
         </p>
         <div className="mt-6 flex gap-3">
           <Link
@@ -162,14 +164,14 @@ export default function FlashcardsPage() {
             className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/60 transition-colors hover:bg-white/10"
           >
             <ArrowLeft className="mr-1.5 inline h-4 w-4" />
-            Retour
+            {t.dashboard.common.back}
           </Link>
           <button
             onClick={() => setShowAddForm(true)}
             className="rounded-lg bg-[#5353ff] px-4 py-2 text-sm text-white transition-colors hover:bg-[#4343ef]"
           >
             <Plus className="mr-1.5 inline h-4 w-4" />
-            Ajouter un mot
+            {t.dashboard.flashcardLabels.addWord}
           </button>
         </div>
 
@@ -191,9 +193,9 @@ export default function FlashcardsPage() {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-16 text-center">
         <div className="text-5xl">✅</div>
-        <h1 className="mt-4 text-xl font-bold text-white/90">Tout est révisé !</h1>
+        <h1 className="mt-4 text-xl font-bold text-white/90">{t.dashboard.flashcardLabels.allReviewed}</h1>
         <p className="mt-2 text-sm text-white/40">
-          Aucune carte à revoir pour le moment. Reviens plus tard !
+          {t.dashboard.flashcardLabels.allReviewedDesc}
         </p>
 
         {/* Stats */}
@@ -215,14 +217,14 @@ export default function FlashcardsPage() {
             className="rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/60 transition-colors hover:bg-white/10"
           >
             <ArrowLeft className="mr-1.5 inline h-4 w-4" />
-            Retour
+            {t.dashboard.common.back}
           </Link>
           <button
             onClick={() => setShowAddForm(true)}
             className="rounded-lg bg-[#5353ff] px-4 py-2 text-sm text-white transition-colors hover:bg-[#4343ef]"
           >
             <Plus className="mr-1.5 inline h-4 w-4" />
-            Ajouter un mot
+            {t.dashboard.flashcardLabels.addWord}
           </button>
         </div>
 
@@ -248,15 +250,15 @@ export default function FlashcardsPage() {
     return (
       <div className="mx-auto flex max-w-md flex-col items-center pt-12 text-center">
         <div className="text-5xl">{percentage >= 80 ? "🎉" : percentage >= 50 ? "💪" : "📚"}</div>
-        <h1 className="mt-4 text-2xl font-bold text-white/90">Session terminée</h1>
+        <h1 className="mt-4 text-2xl font-bold text-white/90">{t.dashboard.flashcardLabels.sessionDone}</h1>
         <p className="mt-2 text-white/50">
-          <span className="text-lg font-bold text-white/80">{correct}</span>/{total} mots connus
+          <span className="text-lg font-bold text-white/80">{correct}</span>/{total} {t.dashboard.flashcardLabels.wordsKnown}
         </p>
 
         {/* Progress bar */}
-        <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/5">
+        <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#5353ff] to-[#a78bfa] transition-all"
+            className="h-full rounded-full bg-white/60 transition-all"
             style={{ width: `${percentage}%` }}
           />
         </div>
@@ -267,13 +269,13 @@ export default function FlashcardsPage() {
             className="flex items-center rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/60 transition-colors hover:bg-white/10"
           >
             <RotateCcw className="mr-2 h-4 w-4" />
-            Recommencer
+            {t.dashboard.flashcardLabels.restart}
           </button>
           <Link
             href="/practice"
             className="flex items-center rounded-lg bg-[#5353ff] px-4 py-2.5 text-sm text-white transition-colors hover:bg-[#4343ef]"
           >
-            Retour
+            {t.dashboard.common.back}
           </Link>
         </div>
       </div>
@@ -295,7 +297,7 @@ export default function FlashcardsPage() {
           <button
             onClick={() => setShowAddForm(!showAddForm)}
             className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 text-white/30 transition-colors hover:bg-white/5 hover:text-white/60"
-            title="Ajouter une carte"
+            title={t.dashboard.flashcardLabels.addCard}
           >
             <Plus className="h-4 w-4" />
           </button>
@@ -306,9 +308,9 @@ export default function FlashcardsPage() {
       </div>
 
       {/* Progress bar */}
-      <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
+      <div className="h-1 overflow-hidden rounded-full bg-white/[0.06]">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-[#5353ff] to-[#a78bfa] transition-all duration-300"
+          className="h-full rounded-full bg-white/60 transition-all duration-300"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -345,7 +347,7 @@ export default function FlashcardsPage() {
                   masteryColors[currentCard.mastery] || masteryColors.NEW
                 }`}
               >
-                {masteryLabels[currentCard.mastery] || "Nouveau"}
+                {masteryLabels[currentCard.mastery] || t.dashboard.flashcardLabels.new}
               </span>
 
               <div className="mt-8 flex flex-col items-center gap-3">
@@ -361,7 +363,7 @@ export default function FlashcardsPage() {
 
               {!flipped && (
                 <p className="mt-6 text-xs text-white/25">
-                  Clique pour voir la traduction
+                  {t.dashboard.flashcardLabels.clickToFlip}
                 </p>
               )}
 
@@ -388,7 +390,7 @@ export default function FlashcardsPage() {
             disabled={saving}
           >
             <X className="h-4 w-4" />
-            Pas su
+            {t.dashboard.flashcardLabels.didntKnow}
           </button>
           <button
             className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#5353ff] py-3 text-sm font-medium text-white transition-all hover:bg-[#4343ef] disabled:opacity-50"
@@ -396,7 +398,7 @@ export default function FlashcardsPage() {
             disabled={saving}
           >
             <Check className="h-4 w-4" />
-            Su
+            {t.dashboard.flashcardLabels.knew}
           </button>
         </motion.div>
       )}
@@ -422,6 +424,8 @@ function AddCardForm({
   onSubmit: (e: React.FormEvent) => void;
   onCancel: () => void;
 }) {
+  const { t } = useI18n();
+
   return (
     <motion.form
       initial={{ opacity: 0, height: 0 }}
@@ -432,7 +436,7 @@ function AddCardForm({
     >
       <input
         type="text"
-        placeholder="Mot / phrase (langue cible)"
+        placeholder={t.dashboard.flashcardLabels.wordPlaceholder}
         value={newFront}
         onChange={(e) => setNewFront(e.target.value)}
         className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/90 placeholder:text-white/20 focus:border-[#5353ff]/50 focus:outline-none"
@@ -440,7 +444,7 @@ function AddCardForm({
       />
       <input
         type="text"
-        placeholder="Traduction (français)"
+        placeholder={t.dashboard.flashcardLabels.translationPlaceholder}
         value={newBack}
         onChange={(e) => setNewBack(e.target.value)}
         className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/90 placeholder:text-white/20 focus:border-[#5353ff]/50 focus:outline-none"
@@ -454,13 +458,13 @@ function AddCardForm({
           onClick={onCancel}
           className="flex-1 rounded-lg border border-white/10 py-2 text-xs text-white/40 transition-colors hover:bg-white/5"
         >
-          Annuler
+          {t.dashboard.common.cancel}
         </button>
         <button
           type="submit"
           className="flex-1 rounded-lg bg-[#5353ff] py-2 text-xs text-white transition-colors hover:bg-[#4343ef]"
         >
-          Ajouter
+          {t.dashboard.common.add}
         </button>
       </div>
     </motion.form>

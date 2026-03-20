@@ -1,8 +1,33 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, ArrowLeft, RotateCcw, Loader2 } from "lucide-react";
+import {
+  Send,
+  ArrowLeft,
+  RotateCcw,
+  Loader2,
+  UtensilsCrossed,
+  Building2,
+  ShoppingCart,
+  MapPin,
+  Stethoscope,
+  Briefcase,
+  MessageCircle,
+  Handshake,
+} from "lucide-react";
 import Link from "next/link";
+import { useI18n } from "@/lib/i18n/context";
+
+const scenarioIconMap: Record<string, { icon: React.ElementType; color: string }> = {
+  restaurant: { icon: UtensilsCrossed, color: "#f97316" },
+  "hotel-checkin": { icon: Building2, color: "#fbbf24" },
+  shopping: { icon: ShoppingCart, color: "#22d3ee" },
+  directions: { icon: MapPin, color: "#ef4444" },
+  doctor: { icon: Stethoscope, color: "#10b981" },
+  "job-interview": { icon: Briefcase, color: "#8b5cf6" },
+  debate: { icon: MessageCircle, color: "#06b6d4" },
+  negotiation: { icon: Handshake, color: "#f43f5e" },
+};
 
 interface Message {
   id: string;
@@ -31,6 +56,7 @@ export function ChatInterface({
   existingConversationId,
   existingMessages,
 }: ChatInterfaceProps) {
+  const { t } = useI18n();
   const [messages, setMessages] = useState<Message[]>(existingMessages ?? []);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -97,7 +123,7 @@ export function ChatInterface({
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Erreur serveur");
+        throw new Error(data.error || t.dashboard.chat.serverError);
       }
 
       // Read SSE stream
@@ -150,7 +176,7 @@ export function ChatInterface({
       }
     } catch (err) {
       const errorMsg =
-        err instanceof Error ? err.message : "Erreur de connexion";
+        err instanceof Error ? err.message : t.dashboard.chat.connectionError;
       setError(errorMsg);
       // Remove empty assistant message on error
       setMessages((prev) => prev.filter((m) => m.id !== assistantId));
@@ -176,7 +202,7 @@ export function ChatInterface({
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
       {/* Header */}
-      <div className="flex items-center gap-3 border-b border-white/5 bg-[#0d1f3c]/50 px-4 py-3 backdrop-blur-sm">
+      <div className="flex items-center gap-3 border-b border-white/[0.04] px-4 py-3">
         <Link
           href="/practice"
           className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/5 hover:text-white/70"
@@ -185,13 +211,27 @@ export function ChatInterface({
         </Link>
 
         <div className="flex items-center gap-2.5 flex-1 min-w-0">
-          <span className="text-2xl shrink-0">{scenarioIcon}</span>
+          {(() => {
+            const config = scenarioIconMap[scenarioId];
+            if (config) {
+              const Icon = config.icon;
+              return (
+                <div
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                  style={{ backgroundColor: `${config.color}15` }}
+                >
+                  <Icon className="h-4 w-4" style={{ color: config.color }} strokeWidth={1.8} />
+                </div>
+              );
+            }
+            return <span className="text-2xl shrink-0">{scenarioIcon}</span>;
+          })()}
           <div className="min-w-0">
             <h1 className="truncate text-sm font-semibold text-white/90">
               {scenarioTitle}
             </h1>
             <p className="truncate text-[11px] text-white/40">
-              {languageName} · {level} · {scenarioDescription}
+              {languageName} · {level}
             </p>
           </div>
         </div>
@@ -199,7 +239,7 @@ export function ChatInterface({
         <button
           onClick={resetConversation}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white/30 transition-colors hover:bg-white/5 hover:text-white/60"
-          title="Nouvelle conversation"
+          title={t.dashboard.chat.newConversation}
         >
           <RotateCcw className="h-3.5 w-3.5" />
         </button>
@@ -209,14 +249,27 @@ export function ChatInterface({
       <div className="flex-1 overflow-y-auto px-4 py-6">
         {messages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
-            <span className="text-5xl">{scenarioIcon}</span>
+            {(() => {
+              const config = scenarioIconMap[scenarioId];
+              if (config) {
+                const Icon = config.icon;
+                return (
+                  <div
+                    className="flex h-14 w-14 items-center justify-center rounded-2xl"
+                    style={{ backgroundColor: `${config.color}15` }}
+                  >
+                    <Icon className="h-7 w-7" style={{ color: config.color }} strokeWidth={1.5} />
+                  </div>
+                );
+              }
+              return <span className="text-5xl">{scenarioIcon}</span>;
+            })()}
             <div>
               <h2 className="text-lg font-semibold text-white/80">
                 {scenarioTitle}
               </h2>
               <p className="mt-1 max-w-sm text-sm text-white/40">
-                Commence la conversation en {languageName}. L&apos;IA joue le
-                rôle décrit et te corrige naturellement.
+                {t.dashboard.chat.startConversation.replace("{language}", languageName)}
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-2 mt-2">
@@ -253,7 +306,7 @@ export function ChatInterface({
                   {msg.content || (
                     <span className="inline-flex items-center gap-1.5 text-white/30">
                       <Loader2 className="h-3 w-3 animate-spin" />
-                      <span className="text-xs">En train d&apos;écrire...</span>
+                      <span className="text-xs">{t.dashboard.chat.writing}</span>
                     </span>
                   )}
                 </div>
@@ -272,14 +325,14 @@ export function ChatInterface({
       )}
 
       {/* Input */}
-      <div className="border-t border-white/5 bg-[#0d1f3c]/30 px-4 py-3">
+      <div className="border-t border-white/[0.04] px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-end gap-2">
           <textarea
             ref={inputRef}
             value={input}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder={`Écris en ${languageName}...`}
+            placeholder={t.dashboard.chat.writeIn.replace("{language}", languageName)}
             rows={1}
             className="flex-1 resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white/90 placeholder:text-white/25 focus:border-[#5353ff]/50 focus:outline-none focus:ring-1 focus:ring-[#5353ff]/30"
             disabled={isLoading}
@@ -297,7 +350,7 @@ export function ChatInterface({
           </button>
         </div>
         <p className="mx-auto mt-1.5 max-w-2xl text-[10px] text-white/20">
-          Shift+Enter pour un retour à la ligne
+          {t.dashboard.chat.shiftEnter}
         </p>
       </div>
     </div>

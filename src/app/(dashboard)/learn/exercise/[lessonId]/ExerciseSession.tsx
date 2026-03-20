@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Trophy, Star, Zap, Home, RotateCcw, Layers } from "lucide-react";
 import Link from "next/link";
 import ExerciseRenderer from "@/components/learn/ExerciseRenderer";
+import { useI18n } from "@/lib/i18n/context";
 
 interface ExerciseData {
   id: string;
@@ -30,6 +31,7 @@ export default function ExerciseSession({
   exercises,
   lessonId,
 }: ExerciseSessionProps) {
+  const { t } = useI18n();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scores, setScores] = useState<number[]>([]);
   const [isFinished, setIsFinished] = useState(false);
@@ -65,10 +67,16 @@ export default function ExerciseSession({
   const handleNext = useCallback(() => {
     if (currentIndex + 1 >= totalExercises) {
       setIsFinished(true);
+      // Auto-generate flashcards from lesson vocabulary
+      fetch("/api/flashcards/auto-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lessonId }),
+      }).catch(() => {});
     } else {
       setCurrentIndex((prev) => prev + 1);
     }
-  }, [currentIndex, totalExercises]);
+  }, [currentIndex, totalExercises, lessonId]);
 
   // Calculate final results
   const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
@@ -88,7 +96,7 @@ export default function ExerciseSession({
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 150, delay: 0.2 }}
-            className="mx-auto mb-6 w-24 h-24 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-[0_0_60px_rgba(245,158,11,0.4)]"
+            className="mx-auto mb-6 w-24 h-24 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center"
           >
             <Trophy className="h-12 w-12 text-white" />
           </motion.div>
@@ -99,14 +107,14 @@ export default function ExerciseSession({
             transition={{ delay: 0.4 }}
             className="text-3xl font-bold text-white mb-2"
           >
-            Leçon terminée !
+            {t.dashboard.exercise.lessonComplete}
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-[#7e8590] mb-8"
+            className="text-white/40 mb-8"
           >
             {chapter.icon} {lesson.title}
           </motion.p>
@@ -132,7 +140,7 @@ export default function ExerciseSession({
                 <Star
                   className={`h-10 w-10 ${
                     star <= stars
-                      ? "text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]"
+                      ? "text-amber-400 fill-amber-400"
                       : "text-white/20"
                   }`}
                 />
@@ -149,15 +157,15 @@ export default function ExerciseSession({
           >
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
               <div className="text-2xl font-bold text-emerald-400">{correctCount}</div>
-              <div className="text-xs text-white/40">Bonnes réponses</div>
+              <div className="text-xs text-white/40">{t.dashboard.exercise.correctAnswers}</div>
             </div>
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
               <div className="text-2xl font-bold text-blue-400">{totalExercises}</div>
-              <div className="text-xs text-white/40">Exercices</div>
+              <div className="text-xs text-white/40">{t.dashboard.exercise.exercises}</div>
             </div>
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
               <div className="text-2xl font-bold text-purple-400">{avgScore}%</div>
-              <div className="text-xs text-white/40">Score moyen</div>
+              <div className="text-xs text-white/40">{t.dashboard.exercise.avgScore}</div>
             </div>
           </motion.div>
 
@@ -170,7 +178,7 @@ export default function ExerciseSession({
           >
             <Layers className="h-5 w-5 text-pink-400 shrink-0" />
             <p className="text-sm text-white/60">
-              Le vocabulaire de cette leçon a été ajouté à tes <Link href="/practice/flashcards" className="text-pink-400 hover:text-pink-300 underline">flashcards</Link> pour révision
+              {t.dashboard.exercise.vocabAdded} <Link href="/practice/flashcards" className="text-pink-400 hover:text-pink-300 underline">{t.dashboard.exercise.flashcardsLink}</Link> {t.dashboard.exercise.forReview}
             </p>
           </motion.div>
 
@@ -186,7 +194,7 @@ export default function ExerciseSession({
               className="flex-1 py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/20 text-white font-medium transition-all flex items-center justify-center gap-2"
             >
               <Home className="h-4 w-4" />
-              Retour
+              {t.dashboard.exercise.home}
             </Link>
             <button
               onClick={() => {
@@ -197,7 +205,7 @@ export default function ExerciseSession({
               className="flex-1 py-3 rounded-2xl bg-[#5353ff] hover:bg-[#6b6bff] text-white font-medium transition-all flex items-center justify-center gap-2"
             >
               <RotateCcw className="h-4 w-4" />
-              Recommencer
+              {t.dashboard.exercise.restart}
             </button>
           </motion.div>
         </motion.div>
@@ -212,7 +220,7 @@ export default function ExerciseSession({
         <div className="flex items-center justify-between mb-4">
           <Link
             href={`/learn/${chapter.id}`}
-            className="flex items-center gap-2 text-sm text-[#7e8590] hover:text-white transition-colors"
+            className="flex items-center gap-2 text-sm text-white/40 hover:text-white transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             {chapter.icon} {chapter.title}
@@ -220,14 +228,14 @@ export default function ExerciseSession({
           <div className="flex items-center gap-2 text-sm">
             <Zap className="h-4 w-4 text-[#5353ff]" />
             <span className="text-white font-medium">{currentIndex + 1}</span>
-            <span className="text-[#7e8590]">/ {totalExercises}</span>
+            <span className="text-white/40">/ {totalExercises}</span>
           </div>
         </div>
 
         {/* Progress bar */}
-        <div className="h-2 rounded-full bg-white/10 overflow-hidden">
+        <div className="h-1 rounded-full bg-white/[0.06] overflow-hidden">
           <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-[#5353ff] to-[#bd89ff]"
+            className="h-full rounded-full bg-white/60"
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
             transition={{ duration: 0.5, ease: "easeOut" }}

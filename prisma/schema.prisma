@@ -17,17 +17,25 @@ model User {
   image         String?
   password      String?
   nativeLanguage String   @default("fr")
+  immersionMode  Boolean  @default(false)
+  immersionLang  String?
+  reputation     Int      @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
+  accounts       Account[]
+  sessions       Session[]
   userLanguages  UserLanguage[]
   userProgress   UserProgress[]
   flashcards     Flashcard[]
   conversations  Conversation[]
   subscription   Subscription?
   apiUsageLogs   ApiUsageLog[]
+  pronunciations PronunciationAttempt[]
+  communityContent CommunityContent[]
+  contentVotes   ContentVote[]
+  clubMemberships ClubMember[]
+  certifications Certification[]
 }
 
 model Account {
@@ -159,8 +167,9 @@ model Exercise {
   isActive   Boolean      @default(true)
   createdAt  DateTime     @default(now())
 
-  lesson       Lesson         @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  userProgress UserProgress[]
+  lesson         Lesson                @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  userProgress   UserProgress[]
+  pronunciations PronunciationAttempt[]
 }
 
 enum ExerciseType {
@@ -175,6 +184,7 @@ enum ExerciseType {
   SPOT_ERROR         // Trouver et corriger l'erreur dans une phrase (profil analytique)
   DIALOGUE_COMPLETE  // Compléter un dialogue réaliste (profil communicatif)
   FREE_PRODUCTION    // Production libre évaluée par IA (profil actif)
+  PRONUNCIATION      // Exercice de prononciation (reconnaissance vocale)
 }
 
 // ===== PROGRESSION =====
@@ -232,6 +242,7 @@ enum FlashcardSource {
   LESSON
   MANUAL
   CONVERSATION
+  COMMUNITY
 }
 
 enum MasteryLevel {
@@ -336,4 +347,188 @@ model ApiUsageLog {
 
   @@index([userId, createdAt])
   @@index([createdAt])
+}
+
+// ===== RECONNAISSANCE VOCALE =====
+
+model PronunciationAttempt {
+  id             String   @id @default(cuid())
+  userId         String
+  exerciseId     String?
+  targetText     String
+  spokenText     String
+  languageCode   String
+  accuracyScore  Float    // 0.0 - 1.0
+  aiFeedback     String?  // AI-generated pronunciation tips
+  createdAt      DateTime @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exercise Exercise? @relation(fields: [exerciseId], references: [id])
+
+  @@index([userId, languageCode])
+}
+
+// ===== CONTENU COMMUNAUTAIRE =====
+
+model CommunityContent {
+  id             String               @id @default(cuid())
+  authorId       String
+  languageCode   String
+  type           CommunityContentType
+  title          String
+  description    String?
+  content        Json
+  level          CECRLevel
+  status         ModerationStatus     @default(PENDING)
+  reviewedBy     String?
+  reviewNote     String?
+  upvotes        Int                  @default(0)
+  downvotes      Int                  @default(0)
+  usageCount     Int                  @default(0)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  author User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes  ContentVote[]
+
+  @@index([languageCode, status])
+  @@index([authorId])
+}
+
+model ContentVote {
+  id        String   @id @default(cuid())
+  userId    String
+  contentId String
+  vote      Int      // +1 or -1
+  createdAt DateTime @default(now())
+
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content CommunityContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentId])
+}
+
+enum CommunityContentType {
+  LESSON
+  DIALOGUE
+  FLASHCARD_PACK
+  EXERCISE_SET
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  FLAGGED
+}
+
+// ===== CLUBS / GROUPES =====
+
+model Club {
+  id           String   @id @default(cuid())
+  name         String
+  description  String?
+  languageCode String
+  ownerId      String
+  avatarUrl    String?
+  isPublic     Boolean  @default(true)
+  maxMembers   Int      @default(50)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  members    ClubMember[]
+  challenges ClubChallenge[]
+
+  @@index([languageCode])
+}
+
+model ClubMember {
+  id       String   @id @default(cuid())
+  clubId   String
+  userId   String
+  role     ClubRole @default(MEMBER)
+  joinedAt DateTime @default(now())
+
+  club Club @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([clubId, userId])
+}
+
+model ClubChallenge {
+  id          String        @id @default(cuid())
+  clubId      String
+  title       String
+  description String?
+  type        ChallengeType
+  target      Int
+  startsAt    DateTime
+  endsAt      DateTime
+  createdAt   DateTime      @default(now())
+
+  club         Club                @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  participants ChallengeProgress[]
+}
+
+model ChallengeProgress {
+  id          String   @id @default(cuid())
+  challengeId String
+  userId      String
+  progress    Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  challenge ClubChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeId, userId])
+}
+
+enum ClubRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum ChallengeType {
+  FLASHCARDS_REVIEWED
+  LESSONS_COMPLETED
+  CONVERSATIONS_HELD
+  EXERCISES_DONE
+  PRACTICE_MINUTES
+}
+
+// ===== CERTIFICATIONS =====
+
+model CertificationExam {
+  id           String    @id @default(cuid())
+  languageCode String
+  level        CECRLevel
+  title        String
+  description  String?
+  durationMin  Int
+  passScore    Int       // 0-100
+  questions    Json
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  attempts Certification[]
+
+  @@unique([languageCode, level])
+}
+
+model Certification {
+  id             String    @id @default(cuid())
+  userId         String
+  examId         String
+  score          Int       // 0-100
+  passed         Boolean
+  answers        Json
+  timeSpent      Int       // seconds
+  certificateUrl String?
+  startedAt      DateTime  @default(now())
+  completedAt    DateTime?
+
+  user User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exam CertificationExam @relation(fields: [examId], references: [id])
+
+  @@index([userId])
 }

@@ -8,22 +8,30 @@ import {
   MessageSquare,
   Layers,
   BarChart3,
+  Users2,
+  Users,
+  Award,
   Settings,
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { GhostMascot } from "@/components/ui/ghost-mascot";
-
-const navItems = [
-  { href: "/learn", label: "Apprendre", icon: GraduationCap },
-  { href: "/practice", label: "Pratiquer", icon: MessageSquare },
-  { href: "/practice/flashcards", label: "Flashcards", icon: Layers },
-  { href: "/progress", label: "Progression", icon: BarChart3 },
-  { href: "/settings", label: "Paramètres", icon: Settings },
-];
+import { useI18n } from "@/lib/i18n/context";
 
 export function DashboardSidebarMobile() {
   const pathname = usePathname();
+  const { t } = useI18n();
+
+  const navItems = [
+    { href: "/learn", label: t.dashboard.nav.learn, icon: GraduationCap },
+    { href: "/practice", label: t.dashboard.nav.practice, icon: MessageSquare },
+    { href: "/practice/flashcards", label: t.dashboard.nav.flashcards, icon: Layers },
+    { href: "/community", label: t.dashboard.nav.community, icon: Users },
+    { href: "/clubs", label: t.dashboard.nav.clubs, icon: Users2 },
+    { href: "/progress", label: t.dashboard.nav.progress, icon: BarChart3 },
+    { href: "/certifications", label: t.dashboard.nav.certifications, icon: Award },
+    { href: "/settings", label: t.dashboard.nav.settings, icon: Settings },
+  ];
 
   return (
     <div className="dash-sidebar h-full">
@@ -33,8 +41,9 @@ export function DashboardSidebarMobile() {
           <div className="dash-ghost-mini">
             <GhostMascot />
           </div>
-          <span className="font-mono text-xs font-semibold uppercase tracking-[0.25em] text-white/90">
-            Lingyou
+          <span className="text-[15px] font-semibold tracking-[-0.02em]">
+            <span className="text-white">Ling</span>
+            <span className="text-[#a78bfa]">you</span>
           </span>
         </Link>
       </div>
@@ -68,7 +77,7 @@ export function DashboardSidebarMobile() {
           onClick={() => signOut({ callbackUrl: "/" })}
         >
           <LogOut />
-          <span className="dash-nav-label">Déconnexion</span>
+          <span className="dash-nav-label">{t.dashboard.nav.logout}</span>
         </button>
       </div>
     </div>

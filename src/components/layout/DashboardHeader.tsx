@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { BookOpen, Menu, LogOut, Settings } from "lucide-react";
+import { Menu, LogOut, Settings } from "lucide-react";
 import { GlowSearch } from "@/components/ui/glow-search";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -18,9 +18,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { DashboardSidebarMobile } from "./DashboardSidebarMobile";
+import { GhostMascot } from "@/components/ui/ghost-mascot";
+import { useI18n } from "@/lib/i18n/context";
 
 export function DashboardHeader() {
   const { data: session } = useSession();
+  const { t } = useI18n();
   const user = session?.user;
 
   const initials = user?.name
@@ -41,9 +44,16 @@ export function DashboardHeader() {
         </SheetContent>
       </Sheet>
 
-      <Link href="/learn" className="flex items-center gap-2 text-[#bd89ff] md:hidden">
-        <BookOpen className="h-5 w-5" />
-        <span className="font-bold">Lingyou</span>
+      <Link href="/learn" className="flex items-center gap-1.5 md:hidden">
+        <div className="relative h-5 w-5 shrink-0 overflow-hidden">
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 scale-[0.15] origin-center">
+            <GhostMascot />
+          </div>
+        </div>
+        <span className="text-[17px] font-semibold tracking-[-0.02em]">
+          <span className="text-white">Ling</span>
+          <span className="text-[#a78bfa]">you</span>
+        </span>
       </Link>
 
       {/* Search */}
@@ -70,7 +80,7 @@ export function DashboardHeader() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => (window.location.href = "/settings")}>
               <Settings className="mr-2 h-4 w-4" />
-              Paramètres
+              {t.dashboard.nav.settings}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -78,7 +88,7 @@ export function DashboardHeader() {
               onClick={() => signOut({ callbackUrl: "/" })}
             >
               <LogOut className="mr-2 h-4 w-4" />
-              Déconnexion
+              {t.dashboard.nav.logout}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import ExerciseSession from "./ExerciseSession";
 import Link from "next/link";
 import { Crown } from "lucide-react";
+import { PremiumContentLabel, ChapterLevelLabel, PremiumLabel, BackLabel } from "@/components/learn/LearnLabels";
 
 export default async function ExercisePage({
   params,
@@ -29,25 +30,24 @@ export default async function ExercisePage({
     if (!premium) {
       return (
         <div className="mx-auto max-w-2xl text-center py-20">
-          <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-yellow-500/20 mx-auto mb-4">
-            <Crown className="h-8 w-8 text-yellow-400" />
+          <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white/[0.04] mx-auto mb-4">
+            <Crown className="h-7 w-7 text-amber-400" />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Contenu Premium</h1>
-          <p className="text-[#7e8590] mb-6">
-            Cette leçon fait partie du niveau {lesson.chapter.course.level} qui nécessite un abonnement Premium.
+          <h1 className="text-xl font-bold text-white mb-2"><PremiumContentLabel /></h1>
+          <p className="text-white/40 text-sm mb-6">
+            <ChapterLevelLabel level={lesson.chapter.course.level} />
           </p>
           <Link
             href="/settings"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-semibold rounded-xl transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-black font-medium rounded-xl text-sm hover:bg-white/90 transition-colors"
           >
-            <Crown className="h-4 w-4" />
-            Passer Premium — 10€/mois
+            <PremiumLabel />
           </Link>
           <Link
             href="/learn"
-            className="block mt-4 text-sm text-[#7e8590] hover:text-white transition-colors"
+            className="block mt-4 text-xs text-white/30 hover:text-white/60 transition-colors"
           >
-            ← Retour au parcours
+            ← <BackLabel />
           </Link>
         </div>
       );

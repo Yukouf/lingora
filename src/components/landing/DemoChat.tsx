@@ -16,13 +16,14 @@ interface DemoConversation {
   flag: string;
   language: string;
   level: string;
-  scenario: Record<Locale, string>;
+  scenario: Partial<Record<Locale, string>>;
   messages: DemoMessage[];
-  correction: Record<Locale, string>;
+  correction: Partial<Record<Locale, string>>;
 }
 
 interface LanguageGroup {
   flag: string;
+  code: string;
   language: string;
   conversations: Omit<DemoConversation, "flag" | "language">[];
 }
@@ -31,6 +32,7 @@ const languageGroups: LanguageGroup[] = [
   // ===== FRANÇAIS =====
   {
     flag: "🇫🇷",
+    code: "fr",
     language: "Français",
     conversations: [
       {
@@ -40,6 +42,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🥖 At the bakery — Paris",
           zh: "🥖 在面包店 — 巴黎",
           ja: "🥖 パン屋にて — パリ",
+          ru: "🥖 В булочной — Париж",
         },
         messages: [
           { role: "ai", text: "Bonjour ! Qu'est-ce que je vous sers ?" },
@@ -52,6 +55,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Perfect! \"Bien cuite\" is very natural. You could also say \"pas trop blanche\" for the same result.",
           zh: "完美！「Bien cuite」非常自然。你也可以说「pas trop blanche」来表达同样的意思。",
           ja: "完璧！「Bien cuite」はとても自然です。同じ意味で「pas trop blanche」とも言えます。",
+          ru: "Отлично! «Bien cuite» звучит очень естественно. Можно также сказать «pas trop blanche» для того же результата.",
         },
       },
       {
@@ -61,6 +65,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🚇 In the metro — Paris",
           zh: "🚇 在地铁 — 巴黎",
           ja: "🚇 地下鉄にて — パリ",
+          ru: "🚇 В метро — Париж",
         },
         messages: [
           { role: "ai", text: "Excusez-moi, vous savez quelle ligne va à Montmartre ?" },
@@ -73,6 +78,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great! \"Descendez à Anvers\" is perfect. You could also add \"c'est à 5 stations\" to be even more helpful.",
           zh: "太棒了！「Descendez à Anvers」非常完美。你还可以加上「c'est à 5 stations」更加实用。",
           ja: "素晴らしい！「Descendez à Anvers」は完璧です。「c'est à 5 stations」を加えるともっと親切です。",
+          ru: "Отлично! «Descendez à Anvers» — идеально. Можно добавить «c'est à 5 stations», чтобы быть ещё полезнее.",
         },
       },
       {
@@ -82,6 +88,7 @@ const languageGroups: LanguageGroup[] = [
           en: "💊 At the pharmacy — Lyon",
           zh: "💊 在药店 — 里昂",
           ja: "💊 薬局にて — リヨン",
+          ru: "💊 В аптеке — Лион",
         },
         messages: [
           { role: "ai", text: "Bonjour, je peux vous aider ?" },
@@ -94,6 +101,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Well put! In spoken French, people often say \"j'ai 37,8\" without specifying \"degrés\". Very natural.",
           zh: "表达很好！法语口语中通常说「j'ai 37,8」不加「degrés」。非常自然。",
           ja: "よく言えました！フランス語の口語では「j'ai 37,8」と「degrés」を省略します。とても自然です。",
+          ru: "Хорошо сказано! В разговорном французском часто говорят «j'ai 37,8» без «degrés». Очень естественно.",
         },
       },
       {
@@ -103,6 +111,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🛒 At the market — Marseille",
           zh: "🛒 在市场 — 马赛",
           ja: "🛒 市場にて — マルセイユ",
+          ru: "🛒 На рынке — Марсель",
         },
         messages: [
           { role: "ai", text: "Elles sont belles mes tomates ! Vous en voulez ?" },
@@ -115,6 +124,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Excellent! \"Ce sera tout\" is exactly what a native would say. \"Et avec ça?\" is typical at French markets.",
           zh: "太棒了！「Ce sera tout」正是法国人会说的。「Et avec ça?」是法国市场的典型表达。",
           ja: "素晴らしい！「Ce sera tout」はネイティブそのもの。「Et avec ça?」はフランスの市場でよく使います。",
+          ru: "Отлично! «Ce sera tout» — именно так сказал бы носитель языка. «Et avec ça?» — типичное выражение на французских рынках.",
         },
       },
       {
@@ -124,6 +134,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🍷 At the wine bar — Bordeaux",
           zh: "🍷 在酒吧 — 波尔多",
           ja: "🍷 ワインバーにて — ボルドー",
+          ru: "🍷 В винном баре — Бордо",
         },
         messages: [
           { role: "ai", text: "Bonsoir ! Vous souhaitez un conseil pour le vin ?" },
@@ -136,6 +147,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great! \"Pas trop tannique\" shows you master wine vocabulary. You could also say \"souple en bouche\" (smooth on the palate).",
           zh: "很好！「Pas trop tannique」展示了你对红酒词汇的掌握。你还可以说「souple en bouche」（口感柔顺）。",
           ja: "素晴らしい！「Pas trop tannique」はワインの語彙をマスターしています。「souple en bouche」とも言えます。",
+          ru: "Отлично! «Pas trop tannique» показывает владение винной лексикой. Можно также сказать «souple en bouche» (мягкое на вкус).",
         },
       },
     ],
@@ -143,6 +155,7 @@ const languageGroups: LanguageGroup[] = [
   // ===== ESPAÑOL =====
   {
     flag: "🇪🇸",
+    code: "es",
     language: "Español",
     conversations: [
       {
@@ -152,6 +165,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🍽️ At the restaurant — Madrid",
           zh: "🍽️ 在餐厅 — 马德里",
           ja: "🍽️ レストランにて — マドリード",
+          ru: "🍽️ В ресторане — Мадрид",
         },
         messages: [
           { role: "ai", text: "¡Buenas tardes! ¿Mesa para cuántas personas?" },
@@ -164,6 +178,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Excellent! Natural and polite response. You could also say \"si hay sitio\" (if there's room).",
           zh: "太棒了！回答自然又礼貌。你也可以说「si hay sitio」（如果有位子的话）。",
           ja: "素晴らしい！自然で丁寧な回答です。「si hay sitio」（席があれば）とも言えます。",
+          ru: "Отлично! Естественный и вежливый ответ. Можно также сказать «si hay sitio» (если есть место).",
         },
       },
       {
@@ -173,6 +188,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏖️ At the beach — Barcelona",
           zh: "🏖️ 在海滩 — 巴塞罗那",
           ja: "🏖️ ビーチにて — バルセロナ",
+          ru: "🏖️ На пляже — Барселона",
         },
         messages: [
           { role: "ai", text: "¡Hola! ¿Quieres alquilar una sombrilla?" },
@@ -185,6 +201,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great! \"¿Puedo pagar con tarjeta?\" is essential when traveling. Alternative: \"¿Aceptan tarjeta?\" (do you accept cards?).",
           zh: "太好了！「¿Puedo pagar con tarjeta?」旅行时很实用。也可以说「¿Aceptan tarjeta?」（接受刷卡吗？）。",
           ja: "素晴らしい！「¿Puedo pagar con tarjeta?」は旅行で必須。「¿Aceptan tarjeta?」とも言えます。",
+          ru: "Отлично! «¿Puedo pagar con tarjeta?» — незаменимая фраза в путешествии. Альтернатива: «¿Aceptan tarjeta?» (вы принимаете карты?).",
         },
       },
       {
@@ -194,6 +211,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🚕 In the taxi — Mexico City",
           zh: "🚕 在出租车里 — 墨西哥城",
           ja: "🚕 タクシーにて — メキシコシティ",
+          ru: "🚕 В такси — Мехико",
         },
         messages: [
           { role: "ai", text: "¿A dónde lo llevo?" },
@@ -206,6 +224,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Good choice! In Mexico they use \"lo llevo\" (implied politeness). You could also say \"la que usted prefiera\" (whichever you prefer).",
           zh: "好选择！在墨西哥用「lo llevo」表示礼貌。你也可以说「la que usted prefiera」（您觉得哪条好就走哪条）。",
           ja: "いい選択！メキシコでは「lo llevo」が丁寧な表現。「la que usted prefiera」とも言えます。",
+          ru: "Хороший выбор! В Мексике используют «lo llevo» (подразумеваемая вежливость). Можно также сказать «la que usted prefiera» (какой вы предпочитаете).",
         },
       },
       {
@@ -215,6 +234,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏪 At the supermarket — Buenos Aires",
           zh: "🏪 在超市 — 布宜诺斯艾利斯",
           ja: "🏪 スーパーにて — ブエノスアイレス",
+          ru: "🏪 В супермаркете — Буэнос-Айрес",
         },
         messages: [
           { role: "ai", text: "¡Buen día! ¿Necesitás bolsa?" },
@@ -227,6 +247,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Well done! Note the Argentine \"voseo\": \"necesitás\" instead of \"necesitas\". \"En un pago\" (in one payment) is very useful.",
           zh: "做得好！注意阿根廷的voseo用法：「necesitás」而非「necesitas」。「En un pago」（一次付清）非常实用。",
           ja: "よくできました！アルゼンチンのvoseo：「necesitás」は「necesitas」の代わり。「En un pago」は便利な表現です。",
+          ru: "Молодец! Обратите внимание на аргентинское «voseo»: «necesitás» вместо «necesitas». «En un pago» (одним платежом) — очень полезное выражение.",
         },
       },
       {
@@ -236,6 +257,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏥 At the doctor — Seville",
           zh: "🏥 在医生那里 — 塞维利亚",
           ja: "🏥 病院にて — セビリア",
+          ru: "🏥 У врача — Севилья",
         },
         messages: [
           { role: "ai", text: "Buenos días. ¿Qué le pasa?" },
@@ -248,6 +270,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Very good! \"Me duele la cabeza\" is the correct construction (verb doler + body part). Alternative: \"Tengo dolor de cabeza\".",
           zh: "很好！「Me duele la cabeza」是正确的结构（动词doler + 身体部位）。也可以说「Tengo dolor de cabeza」。",
           ja: "よくできました！「Me duele la cabeza」は正しい構文（動詞doler＋体の部位）。「Tengo dolor de cabeza」とも言えます。",
+          ru: "Очень хорошо! «Me duele la cabeza» — правильная конструкция (глагол doler + часть тела). Альтернатива: «Tengo dolor de cabeza».",
         },
       },
     ],
@@ -255,6 +278,7 @@ const languageGroups: LanguageGroup[] = [
   // ===== ENGLISH =====
   {
     flag: "🇬🇧",
+    code: "gb",
     language: "English",
     conversations: [
       {
@@ -264,6 +288,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏨 Checking in — London",
           zh: "🏨 酒店入住 — 伦敦",
           ja: "🏨 チェックイン — ロンドン",
+          ru: "🏨 Регистрация в отеле — Лондон",
         },
         messages: [
           { role: "ai", text: "Good evening! Do you have a reservation?" },
@@ -276,6 +301,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Perfect! You could also say \"Could I get breakfast included?\" for a more natural tone.",
           zh: "完美！你也可以说「Could I get breakfast included?」，语气更自然。",
           ja: "完璧！「Could I get breakfast included?」と言うとより自然です。",
+          ru: "Отлично! Можно также сказать «Could I get breakfast included?» для более естественного тона.",
         },
       },
       {
@@ -285,6 +311,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🍺 At the pub — Dublin",
           zh: "🍺 在酒吧 — 都柏林",
           ja: "🍺 パブにて — ダブリン",
+          ru: "🍺 В пабе — Дублин",
         },
         messages: [
           { role: "ai", text: "What can I get ya?" },
@@ -297,6 +324,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Nice! \"Pay as I go\" is very natural. \"Start a tab\" = open a running bill at the bar. Essential pub vocabulary!",
           zh: "不错！「Pay as I go」很自然。「Start a tab」= 在吧台开账单。酒吧必备词汇！",
           ja: "いいね！「Pay as I go」は自然な表現。「Start a tab」=バーでツケを開くこと。パブの必須語彙です！",
+          ru: "Хорошо! «Pay as I go» — очень естественно. «Start a tab» = открыть счёт в баре. Важная лексика для паба!",
         },
       },
       {
@@ -306,6 +334,7 @@ const languageGroups: LanguageGroup[] = [
           en: "💼 Job interview — New York",
           zh: "💼 求职面试 — 纽约",
           ja: "💼 就職面接 — ニューヨーク",
+          ru: "💼 Собеседование — Нью-Йорк",
         },
         messages: [
           { role: "ai", text: "Tell me about yourself and your experience." },
@@ -318,6 +347,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Good start! Try adding a concrete example: \"For instance, I managed a campaign that increased sales by 20%\". It strengthens your answer.",
           zh: "好的开始！试着加一个具体例子：「For instance, I managed a campaign that increased sales by 20%」，会让回答更有力。",
           ja: "いいスタート！具体例を加えてみて：「For instance, I managed a campaign that increased sales by 20%」。回答がより強くなります。",
+          ru: "Хорошее начало! Попробуйте добавить конкретный пример: «For instance, I managed a campaign that increased sales by 20%». Это усилит ваш ответ.",
         },
       },
       {
@@ -327,6 +357,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🛍️ Shopping — Los Angeles",
           zh: "🛍️ 购物 — 洛杉矶",
           ja: "🛍️ ショッピング — ロサンゼルス",
+          ru: "🛍️ Шоппинг — Лос-Анджелес",
         },
         messages: [
           { role: "ai", text: "Hi! Can I help you find anything?" },
@@ -339,6 +370,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Very good! \"Where's the fitting room?\" is correct. In the US, \"dressing room\" also works. \"Try one on\" = try a piece of clothing.",
           zh: "很好！「Where's the fitting room?」是正确的。在美国也说「dressing room」。「Try one on」= 试穿。",
           ja: "よくできました！「Where's the fitting room?」は正しい。アメリカでは「dressing room」とも言います。",
+          ru: "Очень хорошо! «Where's the fitting room?» — правильно. В США также говорят «dressing room». «Try one on» = примерить одежду.",
         },
       },
       {
@@ -348,6 +380,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏛️ At the museum — London",
           zh: "🏛️ 在博物馆 — 伦敦",
           ja: "🏛️ 美術館にて — ロンドン",
+          ru: "🏛️ В музее — Лондон",
         },
         messages: [
           { role: "ai", text: "Welcome! Would you like an audio guide?" },
@@ -360,6 +393,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Perfect! \"Where does the tour start?\" is very useful. You could also ask \"How long does the tour take?\".",
           zh: "完美！「Where does the tour start?」非常实用。你也可以问「How long does the tour take?」（参观需要多长时间？）。",
           ja: "完璧！「Where does the tour start?」はとても便利。「How long does the tour take?」とも聞けます。",
+          ru: "Отлично! «Where does the tour start?» — очень полезный вопрос. Можно также спросить «How long does the tour take?» (сколько длится экскурсия?).",
         },
       },
     ],
@@ -367,6 +401,7 @@ const languageGroups: LanguageGroup[] = [
   // ===== 日本語 =====
   {
     flag: "🇯🇵",
+    code: "jp",
     language: "日本語",
     conversations: [
       {
@@ -376,6 +411,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏪 At the konbini — Tokyo",
           zh: "🏪 在便利店 — 东京",
           ja: "🏪 コンビニにて — 東京",
+          ru: "🏪 В комбини — Токио",
         },
         messages: [
           { role: "ai", text: "いらっしゃいませ！温めますか？" },
@@ -388,6 +424,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great job! \"一つ\" (hitotsu) is correct. In a more polite context, you could say \"一膳\" (ichizen) for chopsticks.",
           zh: "很好！「一つ」（hitotsu）是正确的。更礼貌的说法可以用「一膳」（ichizen）来指筷子。",
           ja: "よくできました！「一つ」は正解です。より丁寧な場面では、お箸には「一膳」を使うこともできます。",
+          ru: "Отлично! «一つ» (hitotsu) — правильно. В более вежливом контексте для палочек можно сказать «一膳» (ichizen).",
         },
       },
       {
@@ -397,6 +434,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🚅 On the train — Osaka",
           zh: "🚅 在火车上 — 大阪",
           ja: "🚅 電車にて — 大阪",
+          ru: "🚅 В поезде — Осака",
         },
         messages: [
           { role: "ai", text: "すみません、この電車は梅田に行きますか？" },
@@ -409,6 +447,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great! \"〜くらい\" (kurai) for estimates is perfect. You could also say \"だいたい5分です\" (about 5 minutes).",
           zh: "很好！用「〜くらい」（kurai）表示估计非常好。你也可以说「だいたい5分です」（大约5分钟）。",
           ja: "よくできました！「〜くらい」で概算を伝えるのは完璧です。「だいたい5分です」とも言えます。",
+          ru: "Отлично! «〜くらい» (kurai) для приблизительных оценок — идеально. Можно также сказать «だいたい5分です» (примерно 5 минут).",
         },
       },
       {
@@ -418,6 +457,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🍣 At the sushi bar — Tokyo",
           zh: "🍣 在寿司店 — 东京",
           ja: "🍣 寿司屋にて — 東京",
+          ru: "🍣 В суши-баре — Токио",
         },
         messages: [
           { role: "ai", text: "いらっしゃい！カウンターでいいですか？" },
@@ -430,6 +470,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Excellent! \"二貫\" (nikan) is the correct counter for sushi. Many learners mistakenly use \"二つ\". Well done!",
           zh: "太棒了！「二貫」（nikan）是寿司的正确量词。很多学习者会错误使用「二つ」。做得好！",
           ja: "素晴らしい！寿司には「二貫」が正しい数え方です。「二つ」と間違える学習者が多いですが、完璧です！",
+          ru: "Отлично! «二貫» (nikan) — правильный счётный суффикс для суши. Многие ученики ошибочно используют «二つ». Молодец!",
         },
       },
       {
@@ -439,6 +480,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏯 At the temple — Kyoto",
           zh: "🏯 在寺庙 — 京都",
           ja: "🏯 お寺にて — 京都",
+          ru: "🏯 В храме — Киото",
         },
         messages: [
           { role: "ai", text: "ここは金閣寺です。写真を撮りましょうか？" },
@@ -451,6 +493,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great! \"まだです\" (mada desu) = not yet. \"御朱印\" (goshuin) = temple stamp/calligraphy souvenir. Important cultural vocabulary!",
           zh: "太好了！「まだです」（mada desu）= 还没有。「御朱印」（goshuin）= 寺庙印章纪念。重要的文化词汇！",
           ja: "よくできました！「まだです」は自然な返答。御朱印は日本文化の大切な体験ですね。「いただけますか」を使うとさらに丁寧です。",
+          ru: "Отлично! «まだです» (mada desu) = ещё нет. «御朱印» (goshuin) = храмовая печать/каллиграфический сувенир. Важная культурная лексика!",
         },
       },
       {
@@ -460,6 +503,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏥 At the doctor — Tokyo",
           zh: "🏥 在医院 — 东京",
           ja: "🏥 病院にて — 東京",
+          ru: "🏥 У врача — Токио",
         },
         messages: [
           { role: "ai", text: "今日はどうされましたか？" },
@@ -472,6 +516,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Good! \"お腹が痛い\" (onaka ga itai) is the right expression. In Japanese, temperature is \"37度5分\" (37.5°C). Very natural!",
           zh: "很好！「お腹が痛い」（onaka ga itai）是正确的表达。日语中温度说「37度5分」（37.5°C）。非常自然！",
           ja: "よくできました！「お腹が痛い」は正しい表現です。体温の言い方も完璧。「37度5分あります」とも言えます。",
+          ru: "Хорошо! «お腹が痛い» (onaka ga itai) — правильное выражение. В японском температуру говорят «37度5分» (37,5°C). Очень естественно!",
         },
       },
     ],
@@ -479,6 +524,7 @@ const languageGroups: LanguageGroup[] = [
   // ===== РУССКИЙ =====
   {
     flag: "🇷🇺",
+    code: "ru",
     language: "Русский",
     conversations: [
       {
@@ -488,6 +534,7 @@ const languageGroups: LanguageGroup[] = [
           en: "☕ At the café — Moscow",
           zh: "☕ 在咖啡厅 — 莫斯科",
           ja: "☕ カフェにて — モスクワ",
+          ru: "☕ В кафе — Москва",
         },
         messages: [
           { role: "ai", text: "Добрый день! Что будете заказывать?" },
@@ -500,6 +547,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great! \"Пожалуйста\" is the perfect polite word. You could also say \"Можно мне…\" (could I have…).",
           zh: "很好！「Пожалуйста」是完美的礼貌用语。你也可以说「Можно мне…」（我可以要…吗）。",
           ja: "素晴らしい！「Пожалуйста」は完璧な丁寧表現です。「Можно мне…」（〜をいただけますか）も使えます。",
+          ru: "Отлично! «Пожалуйста» — идеальная вежливая форма. Можно также сказать «Можно мне…» (могу ли я получить…).",
         },
       },
       {
@@ -509,6 +557,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🚇 In the metro — Saint Petersburg",
           zh: "🚇 在地铁 — 圣彼得堡",
           ja: "🚇 地下鉄にて — サンクトペテルブルク",
+          ru: "🚇 В метро — Санкт-Петербург",
         },
         messages: [
           { role: "ai", text: "Извините, как доехать до Эрмитажа?" },
@@ -521,6 +570,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great! \"Жетон\" (zheton) is the specific word for a Russian metro token. \"В автомате\" (at the machine) is very practical.",
           zh: "太好了！「Жетон」是俄罗斯地铁代币的专用词。「В автомате」（在自动售票机）非常实用。",
           ja: "素晴らしい！「Жетон」はロシアの地下鉄トークンの専門用語。「В автомате」（自販機で）は実用的です。",
+          ru: "Отлично! «Жетон» — специальное слово для билета в метро. «В автомате» — очень практичное выражение.",
         },
       },
       {
@@ -530,6 +580,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏪 At the supermarket — Moscow",
           zh: "🏪 在超市 — 莫斯科",
           ja: "🏪 スーパーにて — モスクワ",
+          ru: "🏪 В супермаркете — Москва",
         },
         messages: [
           { role: "ai", text: "Вам пакет нужен?" },
@@ -542,6 +593,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Good! \"У меня нет карты\" uses the genitive after \"нет\", that's correct! Alternative: \"К сожалению, нет\" (unfortunately no).",
           zh: "很好！「У меня нет карты」在「нет」后使用了属格，正确！也可以说「К сожалению, нет」（很遗憾没有）。",
           ja: "よくできました！「У меня нет карты」は「нет」の後の生格が正しい！「К сожалению, нет」とも言えます。",
+          ru: "Хорошо! «У меня нет карты» — правильное использование родительного падежа после «нет»! Альтернатива: «К сожалению, нет».",
         },
       },
       {
@@ -551,6 +603,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏛️ At the museum — Moscow",
           zh: "🏛️ 在博物馆 — 莫斯科",
           ja: "🏛️ 美術館にて — モスクワ",
+          ru: "🏛️ В музее — Москва",
         },
         messages: [
           { role: "ai", text: "Добро пожаловать в Третьяковскую галерею! Вам нужен аудиогид?" },
@@ -563,6 +616,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Good! \"Тогда\" (then/in that case) is very natural for pivoting. \"К сожалению\" = unfortunately, a useful expression to remember.",
           zh: "很好！「Тогда」（那么/那就）转折得很自然。「К сожалению」= 遗憾地，很有用的表达。",
           ja: "よくできました！「Тогда」（では/その場合）は自然な切り替え。「К сожалению」は覚えておくと便利です。",
+          ru: "Хорошо! «Тогда» — очень естественный переход. «К сожалению» — полезное выражение, стоит запомнить.",
         },
       },
       {
@@ -572,6 +626,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏥 At the pharmacy — Moscow",
           zh: "🏥 在药店 — 莫斯科",
           ja: "🏥 薬局にて — モスクワ",
+          ru: "🏥 В аптеке — Москва",
         },
         messages: [
           { role: "ai", text: "Здравствуйте, что вас беспокоит?" },
@@ -584,6 +639,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Very good! \"У меня болит голова\" is the correct construction. \"Что-нибудь от…\" (something for/against…) is perfect for the pharmacy.",
           zh: "很好！「У меня болит голова」是正确的结构。「Что-нибудь от…」（有什么治…的药）在药店非常好用。",
           ja: "よくできました！「У меня болит голова」は正しい構文。「Что-нибудь от…」は薬局で完璧な表現です。",
+          ru: "Очень хорошо! «У меня болит голова» — правильная конструкция. «Что-нибудь от…» — идеальная фраза для аптеки.",
         },
       },
     ],
@@ -591,6 +647,7 @@ const languageGroups: LanguageGroup[] = [
   // ===== 中文 =====
   {
     flag: "🇨🇳",
+    code: "cn",
     language: "中文",
     conversations: [
       {
@@ -600,6 +657,7 @@ const languageGroups: LanguageGroup[] = [
           en: "☕ At the café — Shanghai",
           zh: "☕ 在咖啡厅 — 上海",
           ja: "☕ カフェにて — 上海",
+          ru: "☕ В кафе — Шанхай",
         },
         messages: [
           { role: "ai", text: "你好！请问要喝点什么？" },
@@ -612,6 +670,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Very natural! You could also say \"来一杯\" (lái yī bēi) — more common in spoken Chinese.",
           zh: "非常自然！你也可以说「来一杯」——口语中更常用。",
           ja: "とても自然です！「来一杯」（lái yī bēi）とも言えます——口語でよく使います。",
+          ru: "Очень естественно! Можно также сказать «来一杯» (lái yī bēi) — более распространённое выражение в разговорном китайском.",
         },
       },
       {
@@ -621,6 +680,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🚕 In the taxi — Beijing",
           zh: "🚕 在出租车里 — 北京",
           ja: "🚕 タクシーにて — 北京",
+          ru: "🚕 В такси — Пекин",
         },
         messages: [
           { role: "ai", text: "你好，去哪儿？" },
@@ -633,6 +693,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great! \"师傅\" (shīfu) is the polite way to address drivers in China. \"没关系\" (no problem) is very natural here.",
           zh: "太棒了！称呼司机为「师傅」非常礼貌。「没关系」用在这里很自然。",
           ja: "素晴らしい！「师傅」は中国でドライバーへの丁寧な呼び方。「没关系」はここで自然な表現です。",
+          ru: "Отлично! «师傅» (shīfu) — вежливое обращение к водителям в Китае. «没关系» (ничего страшного) — очень естественно здесь.",
         },
       },
       {
@@ -642,6 +703,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🛒 At the market — Chengdu",
           zh: "🛒 在市场 — 成都",
           ja: "🛒 市場にて — 成都",
+          ru: "🛒 На рынке — Чэнду",
         },
         messages: [
           { role: "ai", text: "这个苹果很甜！要不要尝一个？" },
@@ -654,6 +716,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Good! \"一斤\" (yī jīn) = 500g, the classic weight unit at Chinese markets. \"买三送一\" = buy 3 get 1 free. Very common expression!",
           zh: "很好！「一斤」是中国市场的经典计量单位。「买三送一」是常见的促销说法。「那来三斤吧」非常地道！",
           ja: "よくできました！「一斤」= 500g、中国の市場の定番単位。「买三送一」= 3つ買うと1つ無料。よく使う表現です！",
+          ru: "Хорошо! «一斤» (yī jīn) = 500 г, классическая единица веса на китайских рынках. «买三送一» = купи 3, получи 1 бесплатно. Очень распространённое выражение!",
         },
       },
       {
@@ -663,6 +726,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏥 At the doctor — Shanghai",
           zh: "🏥 在医院 — 上海",
           ja: "🏥 病院にて — 上海",
+          ru: "🏥 У врача — Шанхай",
         },
         messages: [
           { role: "ai", text: "请问哪里不舒服？" },
@@ -675,6 +739,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Well said! \"从…开始\" (since…) to place in time is perfect. \"三十七度五\" is the natural way to say temperature in Chinese.",
           zh: "说得好！「从…开始」表示时间起点很到位。「三十七度五」是中文说体温的自然方式。",
           ja: "よく言えました！「从…开始」で時間を示すのは完璧。「三十七度五」は中国語での体温の自然な言い方です。",
+          ru: "Хорошо сказано! «从…开始» (с тех пор как…) для указания времени — идеально. «三十七度五» — естественный способ назвать температуру по-китайски.",
         },
       },
       {
@@ -684,6 +749,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🏯 At the temple — Xi'an",
           zh: "🏯 在寺庙 — 西安",
           ja: "🏯 寺院にて — 西安",
+          ru: "🏯 В храме — Сиань",
         },
         messages: [
           { role: "ai", text: "欢迎参观大雁塔！需要导游吗？" },
@@ -696,6 +762,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Excellent! \"我想练习听力\" (I want to practice listening) shows your motivation. \"讲解\" = guided tour/explanation.",
           zh: "太棒了！主动选择中文讲解来练听力，学习态度很好！「讲解」指的是解说服务。",
           ja: "素晴らしい！「我想练习听力」は学ぶ意欲を示しています。「讲解」=ガイド付き解説のことです。",
+          ru: "Отлично! «我想练习听力» (я хочу практиковать аудирование) показывает вашу мотивацию. «讲解» = экскурсия с гидом/пояснение.",
         },
       },
     ],
@@ -703,6 +770,7 @@ const languageGroups: LanguageGroup[] = [
   // ===== 한국어 =====
   {
     flag: "🇰🇷",
+    code: "kr",
     language: "한국어",
     conversations: [
       {
@@ -712,6 +780,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🍜 At the restaurant — Seoul",
           zh: "🍜 在餐厅 — 首尔",
           ja: "🍜 レストランにて — ソウル",
+          ru: "🍜 В ресторане — Сеул",
         },
         messages: [
           { role: "ai", text: "어서오세요! 몇 분이세요?" },
@@ -724,6 +793,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great! \"주세요\" (juseyo) is the perfect polite form. For extra politeness: \"비빔밥 하나 부탁드립니다\".",
           zh: "很好！「주세요」（juseyo）是完美的礼貌表达。更礼貌的说法：「비빔밥 하나 부탁드립니다」。",
           ja: "素晴らしい！「주세요」（juseyo）は完璧な丁寧表現です。さらに丁寧に：「비빔밥 하나 부탁드립니다」。",
+          ru: "Отлично! «주세요» (juseyo) — идеальная вежливая форма. Для ещё большей вежливости: «비빔밥 하나 부탁드립니다».",
         },
       },
       {
@@ -733,6 +803,7 @@ const languageGroups: LanguageGroup[] = [
           en: "☕ At the café — Seoul",
           zh: "☕ 在咖啡厅 — 首尔",
           ja: "☕ カフェにて — ソウル",
+          ru: "☕ В кафе — Сеул",
         },
         messages: [
           { role: "ai", text: "안녕하세요! 주문하시겠어요?" },
@@ -745,6 +816,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great! Koreans love their \"아이스 아메리카노\". \"~로 주세요\" (with particle ~로) = give me in [size]. Very natural!",
           zh: "太好了！韩国人超爱「아이스 아메리카노」。「~로 주세요」（用助词~로）= 请给我[某尺寸]的。非常自然！",
           ja: "素晴らしい！韓国人は「아이스 아메리카노」が大好き。「~로 주세요」（助詞~로）はサイズ指定に完璧です！",
+          ru: "Отлично! Корейцы обожают свой «아이스 아메리카노». «~로 주세요» (с частицей ~로) = дайте мне [размер]. Очень естественно!",
         },
       },
       {
@@ -754,6 +826,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🛍️ Shopping — Seoul",
           zh: "🛍️ 购物 — 首尔",
           ja: "🛍️ ショッピング — ソウル",
+          ru: "🛍️ Шоппинг — Сеул",
         },
         messages: [
           { role: "ai", text: "어서오세요! 뭐 찾으시는 거 있으세요?" },
@@ -766,6 +839,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Excellent! \"입어봐도 돼요?\" (can I try it on?) is perfect. It's the polite way to ask permission (~아/어도 돼요?).",
           zh: "太棒了！「입어봐도 돼요?」（可以试穿吗？）是完美的。这是请求许可的礼貌形式（~아/어도 돼요?）。",
           ja: "素晴らしい！「입어봐도 돼요?」（試着していいですか？）は完璧。許可を求める丁寧形（~아/어도 돼요?）です。",
+          ru: "Отлично! «입어봐도 돼요?» (можно примерить?) — идеально. Это вежливый способ попросить разрешение (~아/어도 돼요?).",
         },
       },
       {
@@ -775,6 +849,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🎤 At the karaoke — Seoul",
           zh: "🎤 在KTV — 首尔",
           ja: "🎤 カラオケにて — ソウル",
+          ru: "🎤 В караоке — Сеул",
         },
         messages: [
           { role: "ai", text: "안녕하세요! 몇 시간 하실 거예요?" },
@@ -787,6 +862,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Great! \"~(으)로 할게요\" = I'll go with (choice). \"만 오천 원\" = 15,000 won. Knowing how to count in Korean is essential!",
           zh: "太好了！「~(으)로 할게요」= 我选择…。「만 오천 원」= 15,000韩元。学会韩语数字很重要！",
           ja: "素晴らしい！「~(으)로 할게요」= 〜にします。「만 오천 원」= 15,000ウォン。韓国語の数え方は重要です！",
+          ru: "Отлично! «~(으)로 할게요» = я выберу (выбор). «만 오천 원» = 15 000 вон. Умение считать по-корейски — это must!",
         },
       },
       {
@@ -796,6 +872,7 @@ const languageGroups: LanguageGroup[] = [
           en: "🚇 In the metro — Seoul",
           zh: "🚇 在地铁 — 首尔",
           ja: "🚇 地下鉄にて — ソウル",
+          ru: "🚇 В метро — Сеул",
         },
         messages: [
           { role: "ai", text: "실례합니다, 명동역 어떻게 가요?" },
@@ -808,6 +885,7 @@ const languageGroups: LanguageGroup[] = [
           en: "Very good! \"환승 없이\" (without transfer) is very useful. \"정거장\" = station/stop. \"바로 가요\" = go directly.",
           zh: "很好！「환승 없이」（不用换乘）非常实用。「정거장」= 站。「바로 가요」= 直达。",
           ja: "よくできました！「환승 없이」（乗り換えなし）は便利。「정거장」= 駅。「바로 가요」= 直接行けます。",
+          ru: "Очень хорошо! «환승 없이» (без пересадки) — очень полезно. «정거장» = станция/остановка. «바로 가요» = ехать напрямую.",
         },
       },
     ],
@@ -845,8 +923,9 @@ export function DemoChat() {
 
   const group = languageGroups[langIndex];
   const activeConv = group.conversations[convIndex];
-  const conv: DemoConversation = {
+  const conv: DemoConversation & { code: string } = {
     flag: group.flag,
+    code: group.code,
     language: group.language,
     ...activeConv,
   };
@@ -902,14 +981,20 @@ export function DemoChat() {
                 setPhase("animating");
               }, FADE_DURATION * 1000);
             }}
-            className={`flex h-8 w-8 items-center justify-center rounded-full text-sm transition-all duration-300 ${
+            className={`flex h-8 w-8 items-center justify-center rounded-full overflow-hidden transition-all duration-300 ${
               i === langIndex
-                ? "scale-110 bg-white/[0.1] ring-1 ring-white/20"
-                : "bg-white/[0.03] hover:bg-white/[0.08] opacity-50 hover:opacity-80"
+                ? "scale-110 ring-1 ring-white/20"
+                : "opacity-50 hover:opacity-80"
             }`}
             title={g.language}
           >
-            {g.flag}
+            <img
+              src={`https://flagcdn.com/w40/${g.code}.png`}
+              alt={g.language}
+              width={32}
+              height={32}
+              className="h-full w-full object-cover"
+            />
           </button>
         ))}
       </div>
@@ -926,12 +1011,18 @@ export function DemoChat() {
           {/* Chat header */}
           <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3.5">
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.06] text-xl">
-                {conv.flag}
+              <div className="flex h-9 w-9 items-center justify-center rounded-full overflow-hidden">
+                <img
+                  src={`https://flagcdn.com/w40/${conv.code}.png`}
+                  alt={conv.language}
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-cover"
+                />
               </div>
               <div>
                 <p className="text-[13px] font-semibold text-white/90">
-                  {conv.scenario[locale]}
+                  {conv.scenario[locale] ?? conv.scenario["en"] ?? conv.scenario["fr"]}
                 </p>
                 <div className="flex items-center gap-1.5">
                   <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#34d399] demo-online-pulse" />
@@ -1044,7 +1135,7 @@ export function DemoChat() {
             >
               <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#34d399] demo-sparkle-spin" />
               <p className="text-[12px] leading-relaxed text-[#34d399]/80">
-                {conv.correction[locale]}
+                {conv.correction[locale] ?? conv.correction["en"] ?? conv.correction["fr"]}
               </p>
             </motion.div>
           </motion.div>

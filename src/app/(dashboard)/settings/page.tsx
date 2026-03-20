@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Loader2, Crown, CreditCard } from "lucide-react";
+import { useI18n } from "@/lib/i18n/context";
+import { ImmersionToggle } from "@/components/settings/ImmersionToggle";
 
 interface SubData {
   status: string;
@@ -12,6 +14,7 @@ interface SubData {
 
 export default function SettingsPage() {
   const { data: session } = useSession();
+  const { t } = useI18n();
   const [sub, setSub] = useState<SubData | null>(null);
   const [loading, setLoading] = useState(false);
   const [subLoading, setSubLoading] = useState(true);
@@ -67,37 +70,45 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold text-white/90">Paramètres</h1>
+      <h1 className="text-2xl font-bold text-white/90">{t.dashboard.settingsPage.title}</h1>
 
       {/* Profile */}
       <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50">Profil</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50">{t.dashboard.settingsPage.profile}</h2>
         <div className="mt-4 space-y-4">
           <div>
-            <p className="text-xs text-white/30">Nom</p>
+            <p className="text-xs text-white/30">{t.dashboard.settingsPage.name}</p>
             <p className="mt-0.5 text-white/80">{session?.user?.name ?? "—"}</p>
           </div>
           <div className="h-px bg-white/5" />
           <div>
-            <p className="text-xs text-white/30">Email</p>
+            <p className="text-xs text-white/30">{t.dashboard.settingsPage.email}</p>
             <p className="mt-0.5 text-white/80">{session?.user?.email ?? "—"}</p>
           </div>
           <div className="h-px bg-white/5" />
           <div>
-            <p className="text-xs text-white/30">Langue maternelle</p>
+            <p className="text-xs text-white/30">{t.dashboard.settingsPage.nativeLanguage}</p>
             <p className="mt-0.5 text-white/80">Français</p>
           </div>
         </div>
       </div>
 
+      {/* Immersion */}
+      <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50">{t.dashboard.settingsPage.immersion}</h2>
+        <div className="mt-4">
+          <ImmersionToggle />
+        </div>
+      </div>
+
       {/* Subscription */}
       <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50">Abonnement</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50">{t.dashboard.settingsPage.subscription}</h2>
 
         {subLoading ? (
           <div className="mt-4 flex items-center gap-2 text-white/30">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm">Chargement...</span>
+            <span className="text-sm">{t.dashboard.common.loading}</span>
           </div>
         ) : (
           <div className="mt-4">
@@ -105,7 +116,7 @@ export default function SettingsPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <p className="font-semibold text-white/90">
-                    {isPremium ? "Premium" : "Plan Gratuit"}
+                    {isPremium ? t.dashboard.settingsPage.premiumPlan : t.dashboard.settingsPage.freePlan}
                   </p>
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] font-medium uppercase ${
@@ -114,19 +125,19 @@ export default function SettingsPage() {
                         : "bg-white/10 text-white/40"
                     }`}
                   >
-                    {isPremium ? "Actif" : "Gratuit"}
+                    {isPremium ? t.dashboard.settingsPage.active : t.dashboard.settingsPage.free}
                   </span>
                 </div>
                 <p className="mt-1 text-sm text-white/40">
                   {isPremium
-                    ? "Accès complet — Tous les niveaux, conversations IA illimitées, toutes les langues"
-                    : "Accès aux niveaux A1 et A2 — 1 langue — 15 conversations IA/jour"}
+                    ? t.dashboard.settingsPage.premiumDesc
+                    : t.dashboard.settingsPage.freeDesc}
                 </p>
                 {isPremium && sub?.currentPeriodEnd && (
                   <p className="mt-1 text-xs text-white/25">
                     {sub.cancelAtPeriodEnd
-                      ? `Se termine le ${new Date(sub.currentPeriodEnd).toLocaleDateString("fr-FR")}`
-                      : `Prochain renouvellement le ${new Date(sub.currentPeriodEnd).toLocaleDateString("fr-FR")}`}
+                      ? `${t.dashboard.settingsPage.endsOn} ${new Date(sub.currentPeriodEnd).toLocaleDateString()}`
+                      : `${t.dashboard.settingsPage.renewsOn} ${new Date(sub.currentPeriodEnd).toLocaleDateString()}`}
                   </p>
                 )}
               </div>
@@ -142,20 +153,20 @@ export default function SettingsPage() {
                   ) : (
                     <CreditCard className="h-4 w-4" />
                   )}
-                  Gérer
+                  {t.dashboard.settingsPage.manage}
                 </button>
               ) : (
                 <button
                   onClick={handleUpgrade}
                   disabled={loading}
-                  className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[#5353ff] to-[#a78bfa] px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-[#5353ff]/20 transition-all hover:shadow-xl hover:brightness-110 disabled:opacity-50"
+                  className="flex items-center gap-1.5 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-black transition-colors hover:bg-white/90 disabled:opacity-50"
                 >
                   {loading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Crown className="h-4 w-4" />
                   )}
-                  Passer Premium — 10€/mois
+                  {t.dashboard.settingsPage.upgrade}
                 </button>
               )}
             </div>
@@ -165,12 +176,12 @@ export default function SettingsPage() {
 
       {/* Danger zone */}
       <div className="rounded-2xl border border-red-500/20 bg-red-500/[0.03] p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-red-400/70">Zone danger</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-red-400/70">{t.dashboard.settingsPage.dangerZone}</h2>
         <p className="mt-2 text-sm text-white/40">
-          Supprimer ton compte et toutes tes données. Cette action est irréversible.
+          {t.dashboard.settingsPage.deleteDesc}
         </p>
         <button className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-400 transition-colors hover:bg-red-500/20">
-          Supprimer mon compte
+          {t.dashboard.settingsPage.deleteAccount}
         </button>
       </div>
     </div>
