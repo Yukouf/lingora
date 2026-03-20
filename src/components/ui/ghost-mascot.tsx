@@ -1,8 +1,15 @@
 "use client";
 
+import { useState, useEffect } from "react";
+
 export function GhostMascot({ className = "" }: { className?: string }) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 640);
+  }, []);
+
   return (
-    <div className={`ghost-mascot ${className}`}>
+    <div className={`ghost-mascot ${isMobile ? "ghost-static" : ""} ${className}`}>
       <div className="ghost-body">
         <div className="ghost-red">
           <div className="ghost-pupil" />

@@ -1719,6 +1719,39 @@
 .animate-float { animation: float 3s ease-in-out infinite; }
 .animate-fly { animation: fly 3s ease-in-out infinite; }
 
+/* ═══ Static ghost — no pixel animations on mobile ═══ */
+.ghost-static .ghost-an1,
+.ghost-static .ghost-an2,
+.ghost-static .ghost-an3,
+.ghost-static .ghost-an4,
+.ghost-static .ghost-an6,
+.ghost-static .ghost-an7,
+.ghost-static .ghost-an8,
+.ghost-static .ghost-an9,
+.ghost-static .ghost-an10,
+.ghost-static .ghost-an11,
+.ghost-static .ghost-an12,
+.ghost-static .ghost-an13,
+.ghost-static .ghost-an15,
+.ghost-static .ghost-an16,
+.ghost-static .ghost-an17,
+.ghost-static .ghost-an18 {
+  animation: none !important;
+}
+
+.ghost-static .ghost-red {
+  animation: none !important;
+}
+
+.ghost-static .ghost-pupil,
+.ghost-static .ghost-pupil1 {
+  animation: none !important;
+}
+
+.ghost-static .ghost-shadow {
+  animation: none !important;
+}
+
 /* ═══ Mobile Performance ═══ */
 
 /* Reduce motion for users who prefer it */

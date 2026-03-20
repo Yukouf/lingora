@@ -26,9 +26,18 @@ const fadeUp = {
   }),
 };
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 640);
+  }, []);
+  return isMobile;
+}
+
 
 export default function Home() {
   const { t, locale } = useI18n();
+  const isMobile = useIsMobile();
   const router = useRouter();
   const [transitioning, setTransitioning] = useState(false);
 
@@ -63,10 +72,12 @@ export default function Home() {
 
       {/* ═══════ HERO ═══════ */}
       <section className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-4 sm:px-6">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-[15%] top-[20%] h-[300px] w-[300px] rounded-full bg-[#2563eb]/15 blur-[80px] sm:h-[500px] sm:w-[500px] sm:blur-[120px]" />
-          <div className="absolute -right-[10%] bottom-[15%] h-[250px] w-[250px] rounded-full bg-[#7c3aed]/10 blur-[60px] sm:h-[400px] sm:w-[400px] sm:blur-[100px]" />
-        </div>
+        {!isMobile && (
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -left-[15%] top-[20%] h-[500px] w-[500px] rounded-full bg-[#2563eb]/15 blur-[120px]" />
+            <div className="absolute -right-[10%] bottom-[15%] h-[400px] w-[400px] rounded-full bg-[#7c3aed]/10 blur-[100px]" />
+          </div>
+        )}
 
         <motion.div
           initial="hidden"
@@ -74,9 +85,9 @@ export default function Home() {
           className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center"
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.15, duration: 0.5, ease }}
+            initial={{ opacity: 0, ...(isMobile ? {} : { scale: 0.85 }) }}
+            animate={{ opacity: 1, ...(isMobile ? {} : { scale: 1 }) }}
+            transition={{ delay: 0.1, duration: isMobile ? 0.3 : 0.5, ease }}
             className="mb-10"
           >
             <GhostMascot className="scale-100" />
@@ -104,27 +115,38 @@ export default function Home() {
               transition={{ duration: 0.5, ease }}
               className="mt-6 text-3xl font-bold leading-[1.15] tracking-tight text-white sm:text-5xl md:text-7xl"
             >
-              {t.hero.title.split(" ").map((word, i) => (
-                <motion.span
-                  key={`${locale}-${i}`}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + i * 0.08, duration: 0.4, ease }}
-                  className="inline-block will-change-transform"
-                >
-                  {word}&nbsp;
-                </motion.span>
-              ))}
-              {" "}
-              <motion.span
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4, duration: 0.6, ease }}
-                className="atmo-shimmer relative inline-block bg-gradient-to-r from-[#60a5fa] via-[#c084fc] to-[#60a5fa] bg-[length:200%_auto] bg-clip-text text-transparent will-change-transform"
-              >
-                {t.hero.brand}
-                <span className="pointer-events-none absolute -inset-4 -z-10 block rounded-full bg-[#7c3aed]/20 blur-2xl" />
-              </motion.span>
+              {isMobile ? (
+                <>
+                  {t.hero.title}{" "}
+                  <span className="bg-gradient-to-r from-[#60a5fa] via-[#c084fc] to-[#60a5fa] bg-[length:200%_auto] bg-clip-text text-transparent">
+                    {t.hero.brand}
+                  </span>
+                </>
+              ) : (
+                <>
+                  {t.hero.title.split(" ").map((word, i) => (
+                    <motion.span
+                      key={`${locale}-${i}`}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 + i * 0.08, duration: 0.4, ease }}
+                      className="inline-block will-change-transform"
+                    >
+                      {word}&nbsp;
+                    </motion.span>
+                  ))}
+                  {" "}
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4, duration: 0.6, ease }}
+                    className="atmo-shimmer relative inline-block bg-gradient-to-r from-[#60a5fa] via-[#c084fc] to-[#60a5fa] bg-[length:200%_auto] bg-clip-text text-transparent will-change-transform"
+                  >
+                    {t.hero.brand}
+                    <span className="pointer-events-none absolute -inset-4 -z-10 block rounded-full bg-[#7c3aed]/20 blur-2xl" />
+                  </motion.span>
+                </>
+              )}
             </motion.h1>
           </AnimatePresence>
 
@@ -139,9 +161,9 @@ export default function Home() {
             >
               {/* First line — the provoc' */}
               <motion.p
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: isMobile ? 0 : 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.6, ease }}
+                transition={{ delay: isMobile ? 0.2 : 0.6, duration: isMobile ? 0.3 : 0.6, ease }}
                 className="text-base leading-relaxed text-white/35 line-through decoration-white/15 md:text-lg"
               >
                 {subtitle[0].text}
@@ -149,33 +171,48 @@ export default function Home() {
 
               {/* Second line — the promise, with highlighted words */}
               <motion.p
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: isMobile ? 0 : 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.0, duration: 0.6, ease }}
+                transition={{ delay: isMobile ? 0.35 : 1.0, duration: isMobile ? 0.3 : 0.6, ease }}
                 className="mt-3 text-lg md:text-xl font-medium leading-relaxed"
               >
                 {subtitle.slice(1).map((segment: { text: string; highlight?: boolean; dim?: boolean }, i: number) =>
                   segment.highlight ? (
-                    <motion.span
-                      key={i}
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 1.2 + i * 0.2, duration: 0.5, ease }}
-                      className="relative inline-block bg-gradient-to-r from-[#60a5fa] via-[#a78bfa] to-[#c084fc] bg-clip-text text-transparent"
-                    >
-                      {segment.text}
-                      <span className="pointer-events-none absolute -inset-1 -z-10 block rounded-md bg-[#7c3aed]/10 blur-sm" />
-                    </motion.span>
+                    isMobile ? (
+                      <span
+                        key={i}
+                        className="relative inline-block bg-gradient-to-r from-[#60a5fa] via-[#a78bfa] to-[#c084fc] bg-clip-text text-transparent"
+                      >
+                        {segment.text}
+                      </span>
+                    ) : (
+                      <motion.span
+                        key={i}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 1.2 + i * 0.2, duration: 0.5, ease }}
+                        className="relative inline-block bg-gradient-to-r from-[#60a5fa] via-[#a78bfa] to-[#c084fc] bg-clip-text text-transparent"
+                      >
+                        {segment.text}
+                        <span className="pointer-events-none absolute -inset-1 -z-10 block rounded-md bg-[#7c3aed]/10 blur-sm" />
+                      </motion.span>
+                    )
                   ) : (
-                    <motion.span
-                      key={i}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 1.2 + i * 0.2, duration: 0.5, ease }}
-                      className="text-white/60"
-                    >
-                      {" "}{segment.text}{" "}
-                    </motion.span>
+                    isMobile ? (
+                      <span key={i} className="text-white/60">
+                        {" "}{segment.text}{" "}
+                      </span>
+                    ) : (
+                      <motion.span
+                        key={i}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.2 + i * 0.2, duration: 0.5, ease }}
+                        className="text-white/60"
+                      >
+                        {" "}{segment.text}{" "}
+                      </motion.span>
+                    )
                   )
                 )}
               </motion.p>
