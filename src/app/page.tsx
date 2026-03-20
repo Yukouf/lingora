@@ -26,10 +26,14 @@ const fadeUp = {
   }),
 };
 
-/* On mobile: no animation, everything visible instantly */
+/* On mobile: lighter, faster fade-up */
 const fadeUpMobile = {
-  hidden: { opacity: 1, y: 0 },
-  visible: () => ({ opacity: 1, y: 0, transition: { duration: 0 } }),
+  hidden: { opacity: 0, y: 10 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.04, duration: 0.3, ease },
+  }),
 };
 
 function useIsMobile() {
@@ -86,24 +90,24 @@ export default function Home() {
         )}
 
         {isMobile ? (
-          /* ——— Mobile: pure CSS fade-in, zero Framer Motion ——— */
-          <div className="hero-mobile-fadein relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
-            <div className="mb-10">
+          /* ——— Mobile: CSS staggered fade-ins (GPU-accelerated, no JS) ——— */
+          <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
+            <div className="css-fade-in css-delay-1 mb-10">
               <GhostMascot className="scale-100" />
             </div>
 
-            <p className="font-mono text-[11px] uppercase tracking-[0.4em] text-white/30">
+            <p className="css-fade-in css-delay-2 font-mono text-[11px] uppercase tracking-[0.4em] text-white/30">
               {t.hero.tagline}
             </p>
 
-            <h1 className="mt-6 text-3xl font-bold leading-[1.15] tracking-tight text-white">
+            <h1 className="css-fade-in css-delay-3 mt-6 text-3xl font-bold leading-[1.15] tracking-tight text-white">
               {t.hero.title}{" "}
               <span className="bg-gradient-to-r from-[#60a5fa] via-[#c084fc] to-[#60a5fa] bg-[length:200%_auto] bg-clip-text text-transparent">
                 {t.hero.brand}
               </span>
             </h1>
 
-            <div className="mt-8 max-w-2xl text-center">
+            <div className="css-fade-in css-delay-4 mt-8 max-w-2xl text-center">
               <p className="text-base leading-relaxed text-white/35 line-through decoration-white/15">
                 {subtitle[0].text}
               </p>
@@ -120,7 +124,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="mt-10 flex flex-col items-center gap-5">
+            <div className="css-fade-in css-delay-5 mt-10 flex flex-col items-center gap-5">
               <button
                 onClick={() => document.getElementById("languages")?.scrollIntoView({ behavior: "smooth" })}
                 className="group inline-flex cursor-pointer items-center gap-2.5 rounded-full bg-gradient-to-r from-[#60a5fa] to-[#a78bfa] px-8 py-4 font-mono text-[11px] font-semibold uppercase tracking-[0.15em] text-white shadow-lg shadow-[#a78bfa]/25"
@@ -130,7 +134,7 @@ export default function Home() {
               </button>
             </div>
 
-            <p className="mt-6 font-mono text-[10px] uppercase tracking-[0.25em] text-white/20">
+            <p className="css-fade-in css-delay-5 mt-6 font-mono text-[10px] uppercase tracking-[0.25em] text-white/20">
               {t.hero.free}
             </p>
           </div>
@@ -282,7 +286,7 @@ export default function Home() {
       <section id="languages" className="px-4 py-16 sm:px-6 sm:py-24">
         <motion.div
           initial="hidden"
-          {...(isMobile ? { animate: "visible" } : { whileInView: "visible" })}
+          whileInView="visible"
           viewport={{ once: true, margin: "-40px" }}
           className="mx-auto max-w-4xl text-center"
         >
@@ -354,7 +358,7 @@ export default function Home() {
       <section className="px-4 py-8 sm:px-6 sm:py-10">
         <motion.div
           initial="hidden"
-          {...(isMobile ? { animate: "visible" } : { whileInView: "visible" })}
+          whileInView="visible"
           viewport={{ once: true, margin: "-40px" }}
           className="mx-auto max-w-3xl rounded-2xl border border-white/[0.06] bg-white/[0.02] px-8 py-6 backdrop-blur-sm"
         >
@@ -384,7 +388,7 @@ export default function Home() {
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial="hidden"
-            {...(isMobile ? { animate: "visible" } : { whileInView: "visible" })}
+            whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
             className="text-center"
           >
@@ -395,7 +399,7 @@ export default function Home() {
 
           <motion.div
             initial="hidden"
-            {...(isMobile ? { animate: "visible" } : { whileInView: "visible" })}
+            whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
             className="mt-12 grid gap-4 sm:grid-cols-2"
           >
@@ -445,10 +449,10 @@ export default function Home() {
           </motion.div>
 
           <motion.p
-            initial={isMobile ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            {...(isMobile ? { animate: { opacity: 1, y: 0 } } : { whileInView: { opacity: 1, y: 0 } })}
+            initial={{ opacity: 0, y: isMobile ? 10 : 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: isMobile ? 0 : 0.4, duration: isMobile ? 0 : 0.6, ease }}
+            transition={{ delay: isMobile ? 0.1 : 0.4, duration: isMobile ? 0.3 : 0.6, ease }}
             className="mt-10 text-center text-lg font-semibold text-white/80"
           >
             {t.imagine.punchline}
@@ -465,7 +469,7 @@ export default function Home() {
           <div className="grid items-center gap-10 sm:gap-16 lg:grid-cols-[1fr_1.1fr]">
             <motion.div
               initial="hidden"
-              {...(isMobile ? { animate: "visible" } : { whileInView: "visible" })}
+              whileInView="visible"
               viewport={{ once: true, margin: "-60px" }}
             >
               <motion.p custom={0} variants={isMobile ? fadeUpMobile : fadeUp} className="font-mono text-[11px] uppercase tracking-[0.4em] text-[#34d399]/70">
@@ -510,7 +514,7 @@ export default function Home() {
         <div className="mx-auto max-w-5xl">
           <motion.div
             initial="hidden"
-            {...(isMobile ? { animate: "visible" } : { whileInView: "visible" })}
+            whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
             className="mb-16 flex flex-col items-center gap-6 sm:flex-row sm:items-end sm:justify-between"
           >
@@ -531,7 +535,7 @@ export default function Home() {
 
           <motion.div
             initial="hidden"
-            {...(isMobile ? { animate: "visible" } : { whileInView: "visible" })}
+            whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
             className="grid gap-5 md:grid-cols-2"
           >
@@ -581,7 +585,7 @@ export default function Home() {
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial="hidden"
-            {...(isMobile ? { animate: "visible" } : { whileInView: "visible" })}
+            whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
             className="mb-16 text-center"
           >
@@ -596,7 +600,7 @@ export default function Home() {
 
           <motion.div
             initial="hidden"
-            {...(isMobile ? { animate: "visible" } : { whileInView: "visible" })}
+            whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
             className="grid gap-6 md:grid-cols-2"
           >
@@ -688,7 +692,7 @@ export default function Home() {
 
         <motion.div
           initial="hidden"
-          {...(isMobile ? { animate: "visible" } : { whileInView: "visible" })}
+          whileInView="visible"
           viewport={{ once: true }}
           className="relative z-10 mx-auto max-w-3xl text-center"
         >
