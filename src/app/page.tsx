@@ -26,14 +26,10 @@ const fadeUp = {
   }),
 };
 
-/* On mobile: lighter, faster fade-up */
+/* On mobile: skip all Framer animations — no hidden state, no transition */
 const fadeUpMobile = {
-  hidden: { opacity: 0, y: 10 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.04, duration: 0.3, ease },
-  }),
+  hidden: { opacity: 1, y: 0 },
+  visible: () => ({ opacity: 1, y: 0 }),
 };
 
 function useIsMobile() {
@@ -286,8 +282,8 @@ export default function Home() {
       <section id="languages" className="px-4 py-16 sm:px-6 sm:py-24">
         <motion.div
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-40px" }}
+          {...(isMobile ? {animate:"visible"} : {whileInView:"visible"})}
+          {...(isMobile ? {} : {viewport:{ once: true, margin: "-40px" }})}
           className="mx-auto max-w-4xl text-center"
         >
           <motion.p custom={0} variants={isMobile ? fadeUpMobile : fadeUp} className="font-mono text-[11px] uppercase tracking-[0.4em] text-white/45">
@@ -358,8 +354,8 @@ export default function Home() {
       <section className="px-4 py-8 sm:px-6 sm:py-10">
         <motion.div
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-40px" }}
+          {...(isMobile ? {animate:"visible"} : {whileInView:"visible"})}
+          {...(isMobile ? {} : {viewport:{ once: true, margin: "-40px" }})}
           className="mx-auto max-w-3xl rounded-2xl border border-white/[0.06] bg-white/[0.02] px-8 py-6 backdrop-blur-sm"
         >
           <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
@@ -388,8 +384,8 @@ export default function Home() {
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
+            {...(isMobile ? {animate:"visible"} : {whileInView:"visible"})}
+            {...(isMobile ? {} : {viewport:{ once: true, margin: "-60px" }})}
             className="text-center"
           >
             <motion.p custom={0} variants={isMobile ? fadeUpMobile : fadeUp} className="font-mono text-[11px] uppercase tracking-[0.4em] text-[#fbbf24]/60">
@@ -399,8 +395,8 @@ export default function Home() {
 
           <motion.div
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
+            {...(isMobile ? {animate:"visible"} : {whileInView:"visible"})}
+            {...(isMobile ? {} : {viewport:{ once: true, margin: "-40px" }})}
             className="mt-12 grid gap-4 sm:grid-cols-2"
           >
             {t.imagine.scenes.map((scene: { emoji: string; city: string; text: string }, i: number) => {
@@ -449,10 +445,10 @@ export default function Home() {
           </motion.div>
 
           <motion.p
-            initial={{ opacity: 0, y: isMobile ? 10 : 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: isMobile ? 0.1 : 0.4, duration: isMobile ? 0.3 : 0.6, ease }}
+            initial={isMobile ? undefined : { opacity: 0, y: 20 }}
+            {...(isMobile ? {} : { whileInView: { opacity: 1, y: 0 } })}
+            {...(isMobile ? {} : {viewport:{ once: true }})}
+            transition={{ delay: 0.4, duration: 0.6, ease }}
             className="mt-10 text-center text-lg font-semibold text-white/80"
           >
             {t.imagine.punchline}
@@ -469,8 +465,8 @@ export default function Home() {
           <div className="grid items-center gap-10 sm:gap-16 lg:grid-cols-[1fr_1.1fr]">
             <motion.div
               initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-60px" }}
+              {...(isMobile ? {animate:"visible"} : {whileInView:"visible"})}
+              {...(isMobile ? {} : {viewport:{ once: true, margin: "-60px" }})}
             >
               <motion.p custom={0} variants={isMobile ? fadeUpMobile : fadeUp} className="font-mono text-[11px] uppercase tracking-[0.4em] text-[#34d399]/70">
                 {t.demo.label}
@@ -514,8 +510,8 @@ export default function Home() {
         <div className="mx-auto max-w-5xl">
           <motion.div
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
+            {...(isMobile ? {animate:"visible"} : {whileInView:"visible"})}
+            {...(isMobile ? {} : {viewport:{ once: true, margin: "-60px" }})}
             className="mb-16 flex flex-col items-center gap-6 sm:flex-row sm:items-end sm:justify-between"
           >
             <div>
@@ -535,8 +531,8 @@ export default function Home() {
 
           <motion.div
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
+            {...(isMobile ? {animate:"visible"} : {whileInView:"visible"})}
+            {...(isMobile ? {} : {viewport:{ once: true, margin: "-40px" }})}
             className="grid gap-5 md:grid-cols-2"
           >
             {t.testimonials.items.map((item: { name: string; role: string; avatar: string; text: string; lang: string; level: string }, i: number) => (
@@ -585,8 +581,8 @@ export default function Home() {
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
+            {...(isMobile ? {animate:"visible"} : {whileInView:"visible"})}
+            {...(isMobile ? {} : {viewport:{ once: true, margin: "-60px" }})}
             className="mb-16 text-center"
           >
             <motion.p custom={0} variants={isMobile ? fadeUpMobile : fadeUp} className="font-mono text-[11px] uppercase tracking-[0.4em] text-[#a78bfa]/70">
@@ -600,8 +596,8 @@ export default function Home() {
 
           <motion.div
             initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-40px" }}
+            {...(isMobile ? {animate:"visible"} : {whileInView:"visible"})}
+            {...(isMobile ? {} : {viewport:{ once: true, margin: "-40px" }})}
             className="grid gap-6 md:grid-cols-2"
           >
             {/* Free */}
@@ -692,8 +688,8 @@ export default function Home() {
 
         <motion.div
           initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
+          {...(isMobile ? {animate:"visible"} : {whileInView:"visible"})}
+          {...(isMobile ? {} : {viewport:{ once: true }})}
           className="relative z-10 mx-auto max-w-3xl text-center"
         >
           <motion.h2 custom={0} variants={isMobile ? fadeUpMobile : fadeUp} className="text-3xl font-bold tracking-tight text-white md:text-5xl">
