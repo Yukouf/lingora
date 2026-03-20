@@ -9,7 +9,7 @@ const ja = {
   hero: {
     tagline: "本当に言語を学ぶ",
     title: "ようこそ",
-    brand: "Lingora",
+    brand: "Lingyou",
     subtitles: [
       [
         { text: "Duolingoを半年やっても、まだコーヒーも頼めない。", dim: true },
@@ -60,7 +60,7 @@ const ja = {
     label: "すでに話している人たち",
     title: "みんなの声",
     items: [
-      { name: "Camille D.", role: "学生、22歳", avatar: "CD", text: "Lingoraで2週間スペイン語を学んだだけで、2年間の授業より多くのことを学びました。AI会話が信じられないほどリアル。", lang: "スペイン語", level: "A1 → A2" },
+      { name: "Camille D.", role: "学生、22歳", avatar: "CD", text: "Lingyouで2週間スペイン語を学んだだけで、2年間の授業より多くのことを学びました。AI会話が信じられないほどリアル。", lang: "スペイン語", level: "A1 → A2" },
       { name: "Thomas R.", role: "フリーランス開発者、29歳", avatar: "TR", text: "旅行のために日本語を学びたかった。1ヶ月で、レストランで注文して地下鉄に乗れるようになった。", lang: "日本語", level: "A1" },
       { name: "Sofia M.", role: "マーケティングマネージャー、34歳", avatar: "SM", text: "フラッシュカードは中毒性がある（いい意味で）。文脈で文法を学ぶのはゲームチェンジャー。", lang: "英語", level: "B1 → B2" },
       { name: "Lucas B.", role: "医学生、24歳", avatar: "LB", text: "子供扱いしないアプリ。XPなし、マスコットなし。効果的な練習だけ。", lang: "ドイツ語", level: "A2 → B1" },

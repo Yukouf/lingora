@@ -34,7 +34,7 @@ export function DashboardSidebar() {
             <GhostMascot />
           </div>
           <span className="font-mono text-xs font-semibold uppercase tracking-[0.25em] text-white/90">
-            Lingora
+            Lingyou
           </span>
         </Link>
       </div>

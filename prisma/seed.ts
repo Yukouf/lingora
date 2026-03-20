@@ -6,7 +6,7 @@ const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
 /* ═══════════════════════════════════════════════════════════
-   SEED — Lingora
+   SEED — Lingyou
    7 langues × cours A1/A2 (gratuit) + B1 (premium)
    Chapitres thématiques, leçons, exercices variés
    ═══════════════════════════════════════════════════════════ */

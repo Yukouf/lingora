@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Lingora — Apprendre une langue, pour de vrai",
+  title: "Lingyou — Apprendre une langue, pour de vrai",
   description:
     "La plateforme qui t'apprend vraiment une langue. Conversations IA, exercices contextuels, répétition espacée. Pas de gamification creuse.",
 };

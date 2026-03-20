@@ -53,7 +53,7 @@ export function Header({ onNavigate }: HeaderProps) {
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-3 sm:h-16 sm:px-6">
           <Link href="/" className="group">
             <span className="font-mono text-xs font-semibold uppercase tracking-[0.25em] text-white/90 transition-colors group-hover:text-white">
-              Lingora
+              Lingyou
             </span>
           </Link>
 

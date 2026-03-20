@@ -9,7 +9,7 @@ const en = {
   hero: {
     tagline: "Learn a language for real",
     title: "Welcome to",
-    brand: "Lingora",
+    brand: "Lingyou",
     subtitles: [
       [
         { text: "6 months on Duolingo and you still can't order a coffee.", dim: true },
@@ -64,7 +64,7 @@ const en = {
         name: "Camille D.",
         role: "Student, 22",
         avatar: "CD",
-        text: "I learned more Spanish in 2 weeks on Lingora than in 2 years of classes. The AI conversations are incredibly realistic.",
+        text: "I learned more Spanish in 2 weeks on Lingyou than in 2 years of classes. The AI conversations are incredibly realistic.",
         lang: "Spanish",
         level: "A1 → A2",
       },

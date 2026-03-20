@@ -11,7 +11,7 @@ export default function AuthLayout({
         href="/"
         className="relative z-10 mb-10 font-mono text-2xl font-bold uppercase tracking-[0.2em] text-white/80 transition-colors hover:text-white"
       >
-        Lingora
+        Lingyou
       </Link>
       <div className="relative z-10 w-full max-w-[400px]">{children}</div>
     </div>

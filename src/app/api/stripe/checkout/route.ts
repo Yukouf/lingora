@@ -56,7 +56,7 @@ export async function POST() {
             unit_amount: PREMIUM_MONTHLY_AMOUNT,
             recurring: { interval: "month" },
             product_data: {
-              name: "Lingora Premium",
+              name: "Lingyou Premium",
               description: "Accès illimité — Niveaux B1 à C2, conversations IA illimitées, toutes les langues",
             },
           },

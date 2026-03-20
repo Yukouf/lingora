@@ -43,7 +43,7 @@ export function DashboardHeader() {
 
       <Link href="/learn" className="flex items-center gap-2 text-[#bd89ff] md:hidden">
         <BookOpen className="h-5 w-5" />
-        <span className="font-bold">Lingora</span>
+        <span className="font-bold">Lingyou</span>
       </Link>
 
       {/* Search */}

@@ -4,7 +4,7 @@ const resendApiKey = process.env.RESEND_API_KEY;
 
 export const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
-const APP_NAME = "Lingora";
+const APP_NAME = "Lingyou";
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
 
 export async function sendWelcomeEmail(to: string, name: string) {
@@ -115,7 +115,7 @@ function getWelcomeEmailHtml(name: string): string {
               </table>
 
               <!-- CTA Button -->
-              <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://lingora.app"}/learn"
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://lingyou.app"}/learn"
                  style="display:block;text-align:center;padding:14px 24px;background:linear-gradient(135deg,#5353ff,#6b6bff);color:#fff;font-size:15px;font-weight:600;text-decoration:none;border-radius:12px;margin-bottom:24px;">
                 Commencer a apprendre
               </a>

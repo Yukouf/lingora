@@ -9,7 +9,7 @@ const zh = {
   hero: {
     tagline: "真正地学习一门语言",
     title: "欢迎来到",
-    brand: "Lingora",
+    brand: "Lingyou",
     subtitles: [
       [
         { text: "用了半年多邻国，你还是不会点一杯咖啡。", dim: true },
@@ -60,7 +60,7 @@ const zh = {
     label: "他们已经在说了",
     title: "用户评价",
     items: [
-      { name: "Camille D.", role: "学生，22岁", avatar: "CD", text: "在Lingora上学了两周的西班牙语，比我上了两年课学到的还多。AI对话非常逼真。", lang: "西班牙语", level: "A1 → A2" },
+      { name: "Camille D.", role: "学生，22岁", avatar: "CD", text: "在Lingyou上学了两周的西班牙语，比我上了两年课学到的还多。AI对话非常逼真。", lang: "西班牙语", level: "A1 → A2" },
       { name: "Thomas R.", role: "自由开发者，29岁", avatar: "TR", text: "我想为旅行学日语。一个月后，我已经能在餐厅点餐和坐地铁了。", lang: "日语", level: "A1" },
       { name: "Sofia M.", role: "市场经理，34岁", avatar: "SM", text: "闪卡让人上瘾（好的那种）。在语境中学语法，完全改变了我的学习方式。", lang: "英语", level: "B1 → B2" },
       { name: "Lucas B.", role: "医学生，24岁", avatar: "LB", text: "终于有一款不把我当小孩的App。没有XP，没有吉祥物。只有高效的练习。", lang: "德语", level: "A2 → B1" },

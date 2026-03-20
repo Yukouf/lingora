@@ -634,7 +634,7 @@ export default function Home() {
             {/* Brand */}
             <div className="space-y-3">
               <span className="bg-gradient-to-r from-white/80 to-white/50 bg-clip-text font-mono text-sm font-bold uppercase tracking-[0.25em] text-transparent">
-                Lingora
+                Lingyou
               </span>
               <p className="max-w-xs text-[13px] leading-relaxed text-white/40">
                 {t.footer.description}
@@ -663,7 +663,7 @@ export default function Home() {
           {/* Copyright */}
           <div className="mt-12 border-t border-white/[0.06] pt-6">
             <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/25">
-              &copy; {new Date().getFullYear()} Lingora. {t.footer.rights}
+              &copy; {new Date().getFullYear()} Lingyou. {t.footer.rights}
             </p>
           </div>
         </div>
