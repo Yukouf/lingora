@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Providers } from "./providers";
 import { MidnightSky } from "@/components/layout/MidnightSky";
 import "./globals.css";
@@ -14,23 +16,52 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://linguamaster-beta.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Lingyou — Apprendre une langue, pour de vrai",
+  title: {
+    default: "Lingyou — Apprends une langue pour de vrai",
+    template: "%s — Lingyou",
+  },
   description:
-    "La plateforme qui t'apprend vraiment une langue. Conversations IA, exercices contextuels, répétition espacée. Pas de gamification creuse.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://lingyou.app"),
+    "Lingyou est la plateforme d'apprentissage des langues qui t'enseigne vraiment. Conversations IA immersives, exercices contextuels, répétition espacée intelligente et parcours structuré du niveau A1 au C2. Gratuit jusqu'au niveau A2.",
+  metadataBase: new URL(baseUrl),
+  keywords: [
+    "apprendre une langue",
+    "apprentissage des langues",
+    "cours de langue en ligne",
+    "conversations IA",
+    "répétition espacée",
+    "flashcards",
+    "anglais",
+    "espagnol",
+    "japonais",
+    "chinois",
+    "allemand",
+    "arabe",
+    "CECRL",
+    "niveau A1",
+    "niveau B1",
+    "immersion linguistique",
+  ],
+  authors: [{ name: "Lingyou" }],
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
-    title: "Lingyou — Apprendre une langue, pour de vrai",
+    title: "Lingyou — Apprends une langue pour de vrai",
     description:
-      "Conversations IA, exercices contextuels, répétition espacée. Gratuit jusqu'au niveau A2.",
+      "Conversations IA immersives, exercices contextuels, répétition espacée intelligente. Gratuit jusqu'au niveau A2.",
     siteName: "Lingyou",
     type: "website",
+    url: baseUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lingyou — Apprendre une langue, pour de vrai",
+    title: "Lingyou — Apprends une langue pour de vrai",
     description:
-      "Conversations IA, exercices contextuels, répétition espacée. Gratuit jusqu'au niveau A2.",
+      "Conversations IA immersives, exercices contextuels, répétition espacée intelligente. Gratuit jusqu'au niveau A2.",
   },
   icons: {
     icon: "/favicon.ico",
@@ -51,6 +82,8 @@ export default function RootLayout({
           <MidnightSky />
           {children}
         </Providers>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

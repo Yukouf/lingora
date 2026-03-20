@@ -370,21 +370,170 @@ async function main() {
     },
   ]);
 
-  // EN B1 — placeholder chapters
+  // EN B1 Chapitres
   await seedChaptersWithContent(enB1, [
     {
-      title: "Débattre et donner son opinion", icon: "💬", description: "Exprimer et défendre son point de vue", order: 1,
+      title: "L'entretien d'embauche", icon: "💼", description: "Préparer et réussir un entretien d'embauche en anglais", order: 1,
       lessons: [
         {
-          title: "Donner son avis", description: "Exprimer son opinion avec nuance", order: 1,
+          title: "Se présenter professionnellement", description: "Parler de son parcours et de ses compétences", order: 1,
           vocabulary: [
-            { word: "In my opinion...", translation: "À mon avis...", example: "In my opinion, this is a good idea." },
-            { word: "I agree / disagree", translation: "Je suis d'accord / pas d'accord", example: "I disagree with that statement." },
-            { word: "On the other hand...", translation: "D'un autre côté...", example: "On the other hand, there are risks." },
-            { word: "That's a good point", translation: "C'est un bon argument", example: "That's a good point, but consider this." },
-            { word: "I see what you mean", translation: "Je vois ce que tu veux dire", example: "I see what you mean, however..." },
+            { word: "I have a background in...", translation: "J'ai une formation en...", example: "I have a background in software engineering." },
+            { word: "I'm currently working as...", translation: "Je travaille actuellement en tant que...", example: "I'm currently working as a project manager." },
+            { word: "My main responsibility is...", translation: "Ma responsabilité principale est...", example: "My main responsibility is managing the team." },
+            { word: "I'm looking for a new challenge", translation: "Je cherche un nouveau défi", example: "I'm looking for a new challenge in a dynamic company." },
+            { word: "I would describe myself as...", translation: "Je me décrirais comme...", example: "I would describe myself as reliable and motivated." },
+            { word: "I've been working in this field for...", translation: "Je travaille dans ce domaine depuis...", example: "I've been working in this field for five years." },
+            { word: "My previous role involved...", translation: "Mon poste précédent impliquait...", example: "My previous role involved client management." },
+            { word: "I hold a degree in...", translation: "Je suis diplômé(e) en...", example: "I hold a degree in business administration." },
           ],
-          grammarNote: "Pour nuancer : 'however', 'although', 'on the other hand', 'nevertheless'.",
+          grammarNote: "Le present perfect continuous ('I've been working...') exprime une action commencée dans le passé et qui continue. Très courant en entretien.",
+        },
+        {
+          title: "Questions et négociation", description: "Répondre aux questions difficiles et négocier", order: 2,
+          vocabulary: [
+            { word: "What are your salary expectations?", translation: "Quelles sont vos prétentions salariales ?", example: "What are your salary expectations for this role?" },
+            { word: "I'm open to negotiation", translation: "Je suis ouvert à la négociation", example: "I'm open to negotiation depending on the benefits." },
+            { word: "Where do you see yourself in five years?", translation: "Où vous voyez-vous dans cinq ans ?", example: "Where do you see yourself in five years?" },
+            { word: "My biggest weakness is...", translation: "Mon plus grand défaut est...", example: "My biggest weakness is being too detail-oriented." },
+            { word: "Could you tell me more about the team?", translation: "Pourriez-vous m'en dire plus sur l'équipe ?", example: "Could you tell me more about the team I'd be joining?" },
+            { word: "What does a typical day look like?", translation: "À quoi ressemble une journée type ?", example: "What does a typical day look like in this position?" },
+            { word: "I'm particularly interested in...", translation: "Je suis particulièrement intéressé(e) par...", example: "I'm particularly interested in your sustainability projects." },
+            { word: "When can I expect to hear back?", translation: "Quand puis-je espérer avoir une réponse ?", example: "When can I expect to hear back from you?" },
+          ],
+          grammarNote: "Les questions indirectes sont plus polies : 'Could you tell me...' au lieu de 'Tell me...'. Utilise 'would' pour les hypothèses.",
+        },
+      ],
+    },
+    {
+      title: "Débattre et donner son avis", icon: "💬", description: "Exprimer et défendre son point de vue avec nuance", order: 2,
+      lessons: [
+        {
+          title: "Donner son opinion", description: "Exprimer son avis et réagir à celui des autres", order: 1,
+          vocabulary: [
+            { word: "In my opinion...", translation: "À mon avis...", example: "In my opinion, remote work is more productive." },
+            { word: "I strongly believe that...", translation: "Je crois fermement que...", example: "I strongly believe that education should be free." },
+            { word: "I see what you mean, but...", translation: "Je vois ce que tu veux dire, mais...", example: "I see what you mean, but I disagree." },
+            { word: "That's a fair point", translation: "C'est un argument valable", example: "That's a fair point, I hadn't considered that." },
+            { word: "On the other hand...", translation: "D'un autre côté...", example: "On the other hand, there are significant risks." },
+            { word: "I tend to think that...", translation: "J'ai tendance à penser que...", example: "I tend to think that technology improves our lives." },
+            { word: "I couldn't agree more", translation: "Je suis tout à fait d'accord", example: "I couldn't agree more with your analysis." },
+            { word: "That's not necessarily true", translation: "Ce n'est pas forcément vrai", example: "That's not necessarily true in every situation." },
+          ],
+          grammarNote: "Pour nuancer une opinion : 'tend to', 'not necessarily', 'to some extent'. Évite 'I think' répétitif en variant avec 'I believe', 'I feel', 'I reckon'.",
+        },
+        {
+          title: "Argumenter et convaincre", description: "Structurer un argument et convaincre son interlocuteur", order: 2,
+          vocabulary: [
+            { word: "First of all...", translation: "Tout d'abord...", example: "First of all, let me explain my reasoning." },
+            { word: "Furthermore...", translation: "De plus...", example: "Furthermore, the data supports this conclusion." },
+            { word: "However...", translation: "Cependant...", example: "However, we need to consider the costs." },
+            { word: "To sum up...", translation: "Pour résumer...", example: "To sum up, the advantages outweigh the disadvantages." },
+            { word: "The main issue is...", translation: "Le problème principal est...", example: "The main issue is the lack of funding." },
+            { word: "Let me give you an example", translation: "Laisse-moi te donner un exemple", example: "Let me give you an example to illustrate my point." },
+            { word: "According to...", translation: "Selon...", example: "According to recent studies, this is effective." },
+            { word: "In conclusion...", translation: "En conclusion...", example: "In conclusion, I think we should proceed." },
+          ],
+          grammarNote: "Les connecteurs logiques structurent l'argumentation : 'first of all', 'furthermore', 'however', 'in conclusion'. Ils rendent le discours plus fluide et convaincant.",
+        },
+      ],
+    },
+    {
+      title: "Voyager seul", icon: "🌍", description: "Se débrouiller en voyage de manière autonome", order: 3,
+      lessons: [
+        {
+          title: "Gérer les imprévus", description: "Résoudre des problèmes en voyage", order: 1,
+          vocabulary: [
+            { word: "I've lost my passport", translation: "J'ai perdu mon passeport", example: "I've lost my passport, where is the embassy?" },
+            { word: "My flight has been cancelled", translation: "Mon vol a été annulé", example: "My flight has been cancelled, can you rebook me?" },
+            { word: "I need to file a complaint", translation: "Je dois déposer une réclamation", example: "I need to file a complaint about my hotel room." },
+            { word: "Could you help me find...?", translation: "Pourriez-vous m'aider à trouver... ?", example: "Could you help me find the nearest pharmacy?" },
+            { word: "I'm not sure how to get to...", translation: "Je ne sais pas comment aller à...", example: "I'm not sure how to get to the train station." },
+            { word: "Is there an alternative?", translation: "Y a-t-il une alternative ?", example: "Is there an alternative route to the airport?" },
+            { word: "I've been waiting for over an hour", translation: "J'attends depuis plus d'une heure", example: "I've been waiting for over an hour for my luggage." },
+            { word: "Who should I contact about this?", translation: "Qui dois-je contacter à ce sujet ?", example: "Who should I contact about this issue?" },
+          ],
+          grammarNote: "Le present perfect ('I've lost', 'I've been waiting') est essentiel pour décrire des situations qui ont un impact sur le présent.",
+        },
+        {
+          title: "Découvrir et interagir", description: "Échanger avec les locaux et découvrir la culture", order: 2,
+          vocabulary: [
+            { word: "What's this area known for?", translation: "Pour quoi ce quartier est-il connu ?", example: "What's this area known for? Any local specialties?" },
+            { word: "Can you recommend a good restaurant?", translation: "Pouvez-vous recommander un bon restaurant ?", example: "Can you recommend a good restaurant nearby?" },
+            { word: "How do locals usually...?", translation: "Comment les locaux font-ils habituellement... ?", example: "How do locals usually get around the city?" },
+            { word: "I'd love to try...", translation: "J'adorerais essayer...", example: "I'd love to try some traditional food." },
+            { word: "Is it safe to walk around here at night?", translation: "Est-ce sûr de se promener ici la nuit ?", example: "Is it safe to walk around here at night?" },
+            { word: "What time does it open/close?", translation: "À quelle heure ça ouvre/ferme ?", example: "What time does the museum open?" },
+            { word: "Do you have any tips for tourists?", translation: "Avez-vous des conseils pour les touristes ?", example: "Do you have any tips for tourists visiting this city?" },
+            { word: "I'm traveling on my own", translation: "Je voyage seul(e)", example: "I'm traveling on my own for the first time." },
+          ],
+          grammarNote: "'Known for' = connu pour. 'I'd love to' = j'adorerais (conditionnel de politesse). Les questions avec 'How do...' servent à comprendre les habitudes.",
+        },
+      ],
+    },
+    {
+      title: "Raconter une histoire", icon: "📖", description: "Narrer des événements passés avec détails et émotions", order: 4,
+      lessons: [
+        {
+          title: "Raconter un souvenir", description: "Parler d'événements passés de manière vivante", order: 1,
+          vocabulary: [
+            { word: "It all started when...", translation: "Tout a commencé quand...", example: "It all started when I moved to London." },
+            { word: "At that time, I was...", translation: "À cette époque, j'étais...", example: "At that time, I was still a student." },
+            { word: "Suddenly...", translation: "Soudainement...", example: "Suddenly, everything changed." },
+            { word: "I had never experienced anything like it", translation: "Je n'avais jamais vécu quelque chose comme ça", example: "I had never experienced anything like it before." },
+            { word: "Looking back, I realize...", translation: "Avec le recul, je réalise...", example: "Looking back, I realize it was the best decision." },
+            { word: "The most memorable part was...", translation: "La partie la plus mémorable était...", example: "The most memorable part was meeting the locals." },
+            { word: "It turned out that...", translation: "Il s'est avéré que...", example: "It turned out that we were completely wrong." },
+            { word: "I'll never forget the time when...", translation: "Je n'oublierai jamais le moment où...", example: "I'll never forget the time when I got lost in Tokyo." },
+          ],
+          grammarNote: "Le past simple ('started', 'changed') pour les actions principales. Le past continuous ('I was living') pour le contexte. Le past perfect ('I had never') pour les événements antérieurs.",
+        },
+        {
+          title: "Décrire des émotions et réactions", description: "Exprimer des sentiments dans un récit", order: 2,
+          vocabulary: [
+            { word: "I was absolutely thrilled", translation: "J'étais absolument ravi(e)", example: "I was absolutely thrilled when I got the news." },
+            { word: "I couldn't believe my eyes", translation: "Je n'en croyais pas mes yeux", example: "I couldn't believe my eyes when I saw the view." },
+            { word: "It made me feel...", translation: "Ça m'a fait sentir...", example: "It made me feel grateful for everything." },
+            { word: "I was so relieved that...", translation: "J'étais tellement soulagé(e) que...", example: "I was so relieved that everyone was safe." },
+            { word: "At first I was scared, but then...", translation: "Au début j'avais peur, mais ensuite...", example: "At first I was scared, but then I started enjoying it." },
+            { word: "It was a bittersweet moment", translation: "C'était un moment doux-amer", example: "It was a bittersweet moment saying goodbye." },
+            { word: "I felt a sense of accomplishment", translation: "J'ai ressenti un sentiment d'accomplissement", example: "I felt a sense of accomplishment after finishing the race." },
+            { word: "It was overwhelming", translation: "C'était bouleversant", example: "It was overwhelming to see so many people supporting us." },
+          ],
+          grammarNote: "Les adverbes d'intensité enrichissent le récit : 'absolutely', 'completely', 'totally'. Les expressions idiomatiques ('couldn't believe my eyes') rendent le récit plus naturel.",
+        },
+      ],
+    },
+    {
+      title: "Communication professionnelle", icon: "📧", description: "Maîtriser les emails et appels téléphoniques professionnels", order: 5,
+      lessons: [
+        {
+          title: "Écrire un email professionnel", description: "Rédiger des emails clairs et polis", order: 1,
+          vocabulary: [
+            { word: "Dear Sir/Madam", translation: "Madame, Monsieur", example: "Dear Sir/Madam, I am writing to inquire about..." },
+            { word: "I am writing to...", translation: "Je vous écris pour...", example: "I am writing to follow up on our meeting." },
+            { word: "Please find attached...", translation: "Veuillez trouver ci-joint...", example: "Please find attached the report you requested." },
+            { word: "I would appreciate it if...", translation: "Je vous serais reconnaissant(e) si...", example: "I would appreciate it if you could reply by Friday." },
+            { word: "I look forward to hearing from you", translation: "J'attends votre réponse avec impatience", example: "I look forward to hearing from you soon." },
+            { word: "Kind regards", translation: "Cordialement", example: "Kind regards, Marie Dupont." },
+            { word: "As per our conversation...", translation: "Suite à notre conversation...", example: "As per our conversation, I'm sending the details." },
+            { word: "I apologize for the delay", translation: "Je m'excuse du retard", example: "I apologize for the delay in responding." },
+          ],
+          grammarNote: "L'email professionnel utilise des formules fixes : 'I am writing to...', 'Please find attached...', 'I look forward to + -ing'. Le ton est formel mais pas rigide.",
+        },
+        {
+          title: "Au téléphone", description: "Gérer des appels professionnels en anglais", order: 2,
+          vocabulary: [
+            { word: "Good morning, this is ... speaking", translation: "Bonjour, c'est ... à l'appareil", example: "Good morning, this is Sarah speaking. How can I help?" },
+            { word: "Could I speak to...?", translation: "Pourrais-je parler à... ?", example: "Could I speak to the marketing manager, please?" },
+            { word: "I'm calling regarding...", translation: "J'appelle au sujet de...", example: "I'm calling regarding the invoice we received." },
+            { word: "Could you hold for a moment?", translation: "Pourriez-vous patienter un instant ?", example: "Could you hold for a moment? I'll transfer you." },
+            { word: "I'll get back to you on that", translation: "Je reviendrai vers vous à ce sujet", example: "I'll get back to you on that by tomorrow." },
+            { word: "Could you repeat that, please?", translation: "Pourriez-vous répéter, s'il vous plaît ?", example: "Could you repeat that, please? The line is bad." },
+            { word: "Let me take a message", translation: "Laissez-moi prendre un message", example: "He's not available. Let me take a message." },
+            { word: "Thank you for your time", translation: "Merci pour votre temps", example: "Thank you for your time. Have a good day." },
+          ],
+          grammarNote: "Au téléphone, 'Could' est préféré à 'Can' pour la politesse. 'Speaking' s'utilise pour s'identifier. 'Regarding' est plus formel que 'about'.",
         },
       ],
     },
@@ -394,7 +543,7 @@ async function main() {
   console.log("📚 Espagnol...");
   const esA1 = await upsertCourse(langMap["es"], "A1", "Español — Principiante (A1)", "Aprende las bases para desenvolverte en situaciones cotidianas.", 1, false);
   const esA2 = await upsertCourse(langMap["es"], "A2", "Español — Elemental (A2)", "Refuerza tus bases y empieza a tener conversaciones simples.", 2, false);
-  await upsertCourse(langMap["es"], "B1", "Español — Intermedio (B1)", "Desarrolla tu fluidez y aborda temas más complejos.", 3, true);
+  const esB1 = await upsertCourse(langMap["es"], "B1", "Español — Intermedio (B1)", "Desarrolla tu fluidez y aborda temas más complejos.", 3, true);
 
   await seedChaptersWithContent(esA1, [
     {
@@ -682,11 +831,180 @@ async function main() {
     },
   ]);
 
+  // ES B1 Chapitres
+  await seedChaptersWithContent(esB1, [
+    {
+      title: "La entrevista de trabajo", icon: "💼", description: "Preparar y superar una entrevista de trabajo en español", order: 1,
+      lessons: [
+        {
+          title: "Presentarse profesionalmente", description: "Hablar de tu trayectoria y competencias", order: 1,
+          vocabulary: [
+            { word: "Tengo experiencia en el campo de...", translation: "J'ai de l'expérience dans le domaine de...", example: "Tengo experiencia en el campo de la informática." },
+            { word: "Actualmente trabajo como...", translation: "Je travaille actuellement en tant que...", example: "Actualmente trabajo como diseñador gráfico." },
+            { word: "Mi principal fortaleza es...", translation: "Mon principal point fort est...", example: "Mi principal fortaleza es la comunicación." },
+            { word: "Estoy buscando nuevos retos", translation: "Je cherche de nouveaux défis", example: "Estoy buscando nuevos retos profesionales." },
+            { word: "Me considero una persona...", translation: "Je me considère comme une personne...", example: "Me considero una persona organizada y responsable." },
+            { word: "Llevo cinco años trabajando en...", translation: "Cela fait cinq ans que je travaille dans...", example: "Llevo cinco años trabajando en marketing digital." },
+            { word: "Mi puesto anterior consistía en...", translation: "Mon poste précédent consistait à...", example: "Mi puesto anterior consistía en gestionar el equipo de ventas." },
+            { word: "Soy licenciado/a en...", translation: "Je suis diplômé(e) en...", example: "Soy licenciada en administración de empresas." },
+          ],
+          grammarNote: "'Llevar + tiempo + gerundio' exprime la durée : 'Llevo tres años viviendo aquí' = ça fait trois ans que j'habite ici. Très courant en espagnol.",
+        },
+        {
+          title: "Preguntas y negociación", description: "Responder a preguntas difíciles y negociar", order: 2,
+          vocabulary: [
+            { word: "¿Cuáles son sus expectativas salariales?", translation: "Quelles sont vos prétentions salariales ?", example: "¿Cuáles son sus expectativas salariales para este puesto?" },
+            { word: "Estoy abierto/a a negociar", translation: "Je suis ouvert(e) à la négociation", example: "Estoy abierto a negociar según las condiciones." },
+            { word: "¿Dónde se ve en cinco años?", translation: "Où vous voyez-vous dans cinq ans ?", example: "¿Dónde se ve en cinco años?" },
+            { word: "Mi mayor debilidad es...", translation: "Mon plus grand défaut est...", example: "Mi mayor debilidad es que soy perfeccionista." },
+            { word: "¿Podría contarme más sobre el equipo?", translation: "Pourriez-vous m'en dire plus sur l'équipe ?", example: "¿Podría contarme más sobre el equipo de trabajo?" },
+            { word: "¿Cómo es un día típico en este puesto?", translation: "À quoi ressemble une journée type à ce poste ?", example: "¿Cómo es un día típico en este puesto?" },
+            { word: "Me interesa especialmente...", translation: "Je suis particulièrement intéressé(e) par...", example: "Me interesa especialmente el proyecto de expansión." },
+            { word: "¿Cuándo podría tener noticias?", translation: "Quand pourrais-je avoir des nouvelles ?", example: "¿Cuándo podría tener noticias sobre el proceso?" },
+          ],
+          grammarNote: "Le conditionnel de politesse : '¿Podría...?' (pourriez-vous). Le subjonctif après 'espero que' : 'Espero que me contacten pronto'.",
+        },
+      ],
+    },
+    {
+      title: "Debatir y opinar", icon: "💬", description: "Expresar y defender tu punto de vista con matices", order: 2,
+      lessons: [
+        {
+          title: "Dar tu opinión", description: "Expresar tu opinión y reaccionar a la de otros", order: 1,
+          vocabulary: [
+            { word: "En mi opinión...", translation: "À mon avis...", example: "En mi opinión, el teletrabajo es más productivo." },
+            { word: "Estoy convencido/a de que...", translation: "Je suis convaincu(e) que...", example: "Estoy convencida de que la educación es clave." },
+            { word: "Entiendo tu punto de vista, pero...", translation: "Je comprends ton point de vue, mais...", example: "Entiendo tu punto de vista, pero no estoy de acuerdo." },
+            { word: "Es un buen argumento", translation: "C'est un bon argument", example: "Es un buen argumento, no lo había pensado." },
+            { word: "Por otro lado...", translation: "D'un autre côté...", example: "Por otro lado, hay riesgos importantes." },
+            { word: "Tiendo a pensar que...", translation: "J'ai tendance à penser que...", example: "Tiendo a pensar que la tecnología mejora nuestras vidas." },
+            { word: "Estoy totalmente de acuerdo", translation: "Je suis tout à fait d'accord", example: "Estoy totalmente de acuerdo con tu análisis." },
+            { word: "No necesariamente es así", translation: "Ce n'est pas forcément le cas", example: "No necesariamente es así en todas las situaciones." },
+          ],
+          grammarNote: "Le subjonctif s'utilise après les expressions d'opinion négatives : 'No creo que sea verdad'. Après 'creo que' (affirmatif) → indicatif.",
+        },
+        {
+          title: "Argumentar y convencer", description: "Estructurar un argumento y convencer", order: 2,
+          vocabulary: [
+            { word: "En primer lugar...", translation: "En premier lieu...", example: "En primer lugar, déjame explicar mi razonamiento." },
+            { word: "Además...", translation: "De plus...", example: "Además, los datos respaldan esta conclusión." },
+            { word: "Sin embargo...", translation: "Cependant...", example: "Sin embargo, debemos considerar los costes." },
+            { word: "En resumen...", translation: "En résumé...", example: "En resumen, las ventajas superan los inconvenientes." },
+            { word: "El problema principal es...", translation: "Le problème principal est...", example: "El problema principal es la falta de financiación." },
+            { word: "Déjame darte un ejemplo", translation: "Laisse-moi te donner un exemple", example: "Déjame darte un ejemplo para ilustrar mi punto." },
+            { word: "Según los estudios...", translation: "Selon les études...", example: "Según los estudios recientes, esto es efectivo." },
+            { word: "En conclusión...", translation: "En conclusion...", example: "En conclusión, creo que deberíamos seguir adelante." },
+          ],
+          grammarNote: "Les connecteurs : 'en primer lugar', 'además', 'sin embargo', 'por lo tanto', 'en conclusión'. Ils structurent le discours de manière logique.",
+        },
+      ],
+    },
+    {
+      title: "Viajar solo", icon: "🌍", description: "Desenvolverse de manera autónoma durante un viaje", order: 3,
+      lessons: [
+        {
+          title: "Gestionar imprevistos", description: "Resolver problemas durante un viaje", order: 1,
+          vocabulary: [
+            { word: "He perdido mi pasaporte", translation: "J'ai perdu mon passeport", example: "He perdido mi pasaporte, ¿dónde está la embajada?" },
+            { word: "Mi vuelo ha sido cancelado", translation: "Mon vol a été annulé", example: "Mi vuelo ha sido cancelado, ¿pueden cambiarme la reserva?" },
+            { word: "Necesito poner una reclamación", translation: "Je dois déposer une réclamation", example: "Necesito poner una reclamación sobre mi habitación." },
+            { word: "¿Podría ayudarme a encontrar...?", translation: "Pourriez-vous m'aider à trouver... ?", example: "¿Podría ayudarme a encontrar la farmacia más cercana?" },
+            { word: "No sé cómo llegar a...", translation: "Je ne sais pas comment aller à...", example: "No sé cómo llegar a la estación de tren." },
+            { word: "¿Hay alguna alternativa?", translation: "Y a-t-il une alternative ?", example: "¿Hay alguna alternativa para llegar al aeropuerto?" },
+            { word: "Llevo más de una hora esperando", translation: "J'attends depuis plus d'une heure", example: "Llevo más de una hora esperando mi equipaje." },
+            { word: "¿Con quién debo hablar sobre esto?", translation: "À qui dois-je m'adresser pour ça ?", example: "¿Con quién debo hablar sobre este problema?" },
+          ],
+          grammarNote: "Le passé composé espagnol : 'He perdido' (j'ai perdu). 'Llevar + gerundio' pour la durée : 'Llevo esperando una hora'.",
+        },
+        {
+          title: "Descubrir e interactuar", description: "Échanger avec les locaux et découvrir la culture", order: 2,
+          vocabulary: [
+            { word: "¿Por qué es conocida esta zona?", translation: "Pour quoi cette zone est-elle connue ?", example: "¿Por qué es conocida esta zona? ¿Hay especialidades locales?" },
+            { word: "¿Puede recomendarme un buen restaurante?", translation: "Pouvez-vous me recommander un bon restaurant ?", example: "¿Puede recomendarme un buen restaurante por aquí?" },
+            { word: "¿Cómo se mueven los locales por la ciudad?", translation: "Comment les locaux se déplacent-ils en ville ?", example: "¿Cómo se mueven los locales por la ciudad?" },
+            { word: "Me encantaría probar...", translation: "J'adorerais essayer...", example: "Me encantaría probar la comida típica de la región." },
+            { word: "¿Es seguro pasear por aquí de noche?", translation: "Est-ce sûr de se promener ici la nuit ?", example: "¿Es seguro pasear por aquí de noche?" },
+            { word: "¿A qué hora abre/cierra?", translation: "À quelle heure ça ouvre/ferme ?", example: "¿A qué hora abre el museo?" },
+            { word: "¿Tiene algún consejo para turistas?", translation: "Avez-vous des conseils pour les touristes ?", example: "¿Tiene algún consejo para turistas que visitan la ciudad?" },
+            { word: "Viajo solo/sola", translation: "Je voyage seul(e)", example: "Viajo sola por primera vez." },
+          ],
+          grammarNote: "'Encantar' fonctionne comme 'gustar' : 'Me encantaría' = j'adorerais. 'Conocido/a por' = connu(e) pour.",
+        },
+      ],
+    },
+    {
+      title: "Contar una historia", icon: "📖", description: "Narrar eventos pasados con detalles y emociones", order: 4,
+      lessons: [
+        {
+          title: "Contar un recuerdo", description: "Hablar de eventos pasados de manera vívida", order: 1,
+          vocabulary: [
+            { word: "Todo empezó cuando...", translation: "Tout a commencé quand...", example: "Todo empezó cuando me mudé a Barcelona." },
+            { word: "En aquella época, yo...", translation: "À cette époque, je...", example: "En aquella época, yo todavía era estudiante." },
+            { word: "De repente...", translation: "Soudainement...", example: "De repente, todo cambió." },
+            { word: "Nunca había vivido algo así", translation: "Je n'avais jamais vécu quelque chose comme ça", example: "Nunca había vivido algo así antes." },
+            { word: "Mirando hacia atrás, me doy cuenta de que...", translation: "Avec le recul, je réalise que...", example: "Mirando hacia atrás, me doy cuenta de que fue la mejor decisión." },
+            { word: "Lo más memorable fue...", translation: "Le plus mémorable a été...", example: "Lo más memorable fue conocer a la gente local." },
+            { word: "Resultó que...", translation: "Il s'est avéré que...", example: "Resultó que estábamos completamente equivocados." },
+            { word: "Nunca olvidaré cuando...", translation: "Je n'oublierai jamais quand...", example: "Nunca olvidaré cuando me perdí en Tokio." },
+          ],
+          grammarNote: "Le pretérito indefinido ('empezó', 'cambió') pour les actions ponctuelles. L'imparfait ('era', 'estaba') pour le contexte. Le plus-que-parfait ('había vivido') pour l'antériorité.",
+        },
+        {
+          title: "Describir emociones y reacciones", description: "Expresar sentimientos en un relato", order: 2,
+          vocabulary: [
+            { word: "Estaba absolutamente encantado/a", translation: "J'étais absolument ravi(e)", example: "Estaba absolutamente encantada cuando recibí la noticia." },
+            { word: "No podía creer lo que veía", translation: "Je n'en croyais pas mes yeux", example: "No podía creer lo que veía cuando descubrí el paisaje." },
+            { word: "Me hizo sentir...", translation: "Ça m'a fait ressentir...", example: "Me hizo sentir agradecido por todo." },
+            { word: "Me sentí tan aliviado/a de que...", translation: "Je me suis senti(e) tellement soulagé(e) que...", example: "Me sentí tan aliviada de que todos estuvieran bien." },
+            { word: "Al principio tenía miedo, pero luego...", translation: "Au début j'avais peur, mais ensuite...", example: "Al principio tenía miedo, pero luego empecé a disfrutar." },
+            { word: "Fue un momento agridulce", translation: "C'était un moment doux-amer", example: "Fue un momento agridulce decir adiós." },
+            { word: "Sentí una sensación de logro", translation: "J'ai ressenti un sentiment d'accomplissement", example: "Sentí una sensación de logro al terminar la carrera." },
+            { word: "Fue abrumador", translation: "C'était bouleversant", example: "Fue abrumador ver a tanta gente apoyándonos." },
+          ],
+          grammarNote: "Le subjonctif après les émotions : 'Me alegro de que hayas venido'. Les adverbes d'intensité : 'absolutamente', 'completamente', 'totalmente'.",
+        },
+      ],
+    },
+    {
+      title: "Comunicación profesional", icon: "📧", description: "Dominar emails y llamadas telefónicas profesionales", order: 5,
+      lessons: [
+        {
+          title: "Escribir un email profesional", description: "Redactar emails claros y educados", order: 1,
+          vocabulary: [
+            { word: "Estimado/a señor/a", translation: "Cher Monsieur / Chère Madame", example: "Estimada señora López, le escribo para informarle..." },
+            { word: "Le escribo para...", translation: "Je vous écris pour...", example: "Le escribo para hacer seguimiento de nuestra reunión." },
+            { word: "Adjunto encontrará...", translation: "Vous trouverez ci-joint...", example: "Adjunto encontrará el informe solicitado." },
+            { word: "Le agradecería que...", translation: "Je vous serais reconnaissant(e) si...", example: "Le agradecería que pudiera responder antes del viernes." },
+            { word: "Quedo a la espera de su respuesta", translation: "J'attends votre réponse", example: "Quedo a la espera de su respuesta." },
+            { word: "Un cordial saludo", translation: "Cordialement", example: "Un cordial saludo, María García." },
+            { word: "En relación con nuestra conversación...", translation: "Suite à notre conversation...", example: "En relación con nuestra conversación, le envío los detalles." },
+            { word: "Disculpe la demora en responder", translation: "Excusez le retard de réponse", example: "Disculpe la demora en responder a su email." },
+          ],
+          grammarNote: "L'email formel espagnol utilise 'usted'. Le subjonctif est courant : 'Le agradecería que pudiera...' (pourriez-vous). 'Quedo a la espera' est la formule standard de clôture.",
+        },
+        {
+          title: "Al teléfono", description: "Gestionar llamadas profesionales en español", order: 2,
+          vocabulary: [
+            { word: "Buenos días, le habla...", translation: "Bonjour, c'est ... à l'appareil", example: "Buenos días, le habla María García. ¿En qué puedo ayudarle?" },
+            { word: "¿Podría hablar con...?", translation: "Pourrais-je parler à... ?", example: "¿Podría hablar con el director de ventas, por favor?" },
+            { word: "Llamo en relación con...", translation: "J'appelle au sujet de...", example: "Llamo en relación con la factura que recibimos." },
+            { word: "¿Podría esperar un momento?", translation: "Pourriez-vous patienter un instant ?", example: "¿Podría esperar un momento? Le paso la llamada." },
+            { word: "Le confirmo la información", translation: "Je vous confirme l'information", example: "Le confirmo la información por email." },
+            { word: "¿Podría repetir, por favor?", translation: "Pourriez-vous répéter, s'il vous plaît ?", example: "¿Podría repetir, por favor? No le he escuchado bien." },
+            { word: "¿Puedo dejarle un mensaje?", translation: "Puis-je lui laisser un message ?", example: "No está disponible. ¿Puedo dejarle un mensaje?" },
+            { word: "Gracias por su tiempo", translation: "Merci pour votre temps", example: "Gracias por su tiempo. Que tenga un buen día." },
+          ],
+          grammarNote: "Au téléphone, on vouvoie presque toujours : '¿Podría...?', 'Le habla...'. 'Pasar la llamada' = transférer l'appel.",
+        },
+      ],
+    },
+  ]);
+
   // ---------- JAPONAIS ----------
   console.log("📚 Japonais...");
   const jaA1 = await upsertCourse(langMap["ja"], "A1", "日本語 — 初級 (A1)", "Les bases du japonais pour te débrouiller au quotidien.", 1, false);
   const jaA2 = await upsertCourse(langMap["ja"], "A2", "日本語 — 初中級 (A2)", "Renforce tes bases et commence à avoir des conversations simples.", 2, false);
-  await upsertCourse(langMap["ja"], "B1", "日本語 — 中級 (B1)", "Développe ta fluidité et aborde des sujets plus complexes.", 3, true);
+  const jaB1 = await upsertCourse(langMap["ja"], "B1", "日本語 — 中級 (B1)", "Développe ta fluidité et aborde des sujets plus complexes.", 3, true);
 
   await seedChaptersWithContent(jaA1, [
     {
@@ -931,11 +1249,180 @@ async function main() {
     },
   ]);
 
+  // JA B1 Chapitres
+  await seedChaptersWithContent(jaB1, [
+    {
+      title: "面接 (めんせつ) — L'entretien d'embauche", icon: "💼", description: "Préparer et réussir un entretien d'embauche en japonais", order: 1,
+      lessons: [
+        {
+          title: "自己紹介 — Se présenter professionnellement", description: "Parler de son parcours et de ses compétences", order: 1,
+          vocabulary: [
+            { word: "～の分野で経験があります (～のぶんやでけいけんがあります)", translation: "J'ai de l'expérience dans le domaine de...", example: "IT の分野で経験があります。" },
+            { word: "現在、～として働いています (げんざい、～としてはたらいています)", translation: "Je travaille actuellement en tant que...", example: "現在、プロジェクトマネージャーとして働いています。" },
+            { word: "私の強みは～です (わたしのつよみは～です)", translation: "Mon point fort est...", example: "私の強みはコミュニケーション能力です。" },
+            { word: "新しいチャレンジを探しています (あたらしいチャレンジをさがしています)", translation: "Je cherche de nouveaux défis", example: "新しいチャレンジを探しています。" },
+            { word: "私は～な人間だと思います (わたしは～なにんげんだとおもいます)", translation: "Je pense être une personne...", example: "私は責任感のある人間だと思います。" },
+            { word: "この業界で5年間働いてきました (このぎょうかいで5ねんかんはたらいてきました)", translation: "J'ai travaillé dans cette industrie pendant 5 ans", example: "この業界で5年間働いてきました。" },
+            { word: "前職では～を担当していました (ぜんしょくでは～をたんとうしていました)", translation: "Dans mon poste précédent, j'étais en charge de...", example: "前職ではマーケティングを担当していました。" },
+            { word: "～の学位を持っています (～のがくいをもっています)", translation: "J'ai un diplôme en...", example: "経営学の学位を持っています。" },
+          ],
+          grammarNote: "En japonais formel (敬語 keigo), utilisez ます/です. '～てきました' exprime une expérience accumulée jusqu'au présent.",
+        },
+        {
+          title: "質問と交渉 — Questions et négociation", description: "Répondre aux questions et négocier", order: 2,
+          vocabulary: [
+            { word: "希望年収はおいくらですか (きぼうねんしゅうはおいくらですか)", translation: "Quel est votre salaire souhaité ?", example: "希望年収はおいくらですか？" },
+            { word: "相談させていただければ幸いです (そうだんさせていただければさいわいです)", translation: "Je serais heureux d'en discuter", example: "条件について相談させていただければ幸いです。" },
+            { word: "5年後の目標は何ですか (5ねんごのもくひょうはなんですか)", translation: "Quels sont vos objectifs dans 5 ans ?", example: "5年後の目標は何ですか？" },
+            { word: "改善すべき点は～です (かいぜんすべきてんは～です)", translation: "Le point que je dois améliorer est...", example: "改善すべき点は、もっと柔軟になることです。" },
+            { word: "チームについて教えていただけますか", translation: "Pourriez-vous me parler de l'équipe ?", example: "チームの雰囲気について教えていただけますか？" },
+            { word: "一日の流れを教えていただけますか (いちにちのながれを)", translation: "Pourriez-vous me décrire une journée type ?", example: "一日の流れを教えていただけますか？" },
+            { word: "～に特に興味があります (～にとくにきょうみがあります)", translation: "Je suis particulièrement intéressé par...", example: "御社のグローバル展開に特に興味があります。" },
+            { word: "結果はいつ頃わかりますか (けっかはいつごろわかりますか)", translation: "Quand connaîtrai-je les résultats ?", example: "選考の結果はいつ頃わかりますか？" },
+          ],
+          grammarNote: "Le keigo (langage poli) est obligatoire en entretien : '～ていただけますか' (pourriez-vous). '御社' (onsha) = votre entreprise (humble).",
+        },
+      ],
+    },
+    {
+      title: "意見を述べる (いけんをのべる) — Débattre et donner son avis", icon: "💬", description: "Exprimer et défendre son point de vue en japonais", order: 2,
+      lessons: [
+        {
+          title: "意見を言う — Donner son opinion", description: "Exprimer son avis et réagir", order: 1,
+          vocabulary: [
+            { word: "私の意見では (わたしのいけんでは)", translation: "À mon avis...", example: "私の意見では、リモートワークの方が効率的です。" },
+            { word: "～だと確信しています (～だとかくしんしています)", translation: "Je suis convaincu(e) que...", example: "教育は無料であるべきだと確信しています。" },
+            { word: "おっしゃることはわかりますが", translation: "Je comprends ce que vous dites, mais...", example: "おっしゃることはわかりますが、賛成できません。" },
+            { word: "それは良い指摘ですね (それはよいしてきですね)", translation: "C'est une bonne remarque", example: "それは良い指摘ですね。考えていませんでした。" },
+            { word: "一方で (いっぽうで)", translation: "D'un autre côté...", example: "一方で、リスクも大きいです。" },
+            { word: "～と考える傾向があります (～とかんがえるけいこうがあります)", translation: "J'ai tendance à penser que...", example: "テクノロジーは生活を改善すると考える傾向があります。" },
+            { word: "全く同感です (まったくどうかんです)", translation: "Je suis tout à fait d'accord", example: "全く同感です。その通りだと思います。" },
+            { word: "必ずしもそうとは限りません (かならずしもそうとはかぎりません)", translation: "Ce n'est pas forcément le cas", example: "必ずしもそうとは限りません。" },
+          ],
+          grammarNote: "'～と思います' (je pense que) est la base. Pour nuancer : '～傾向がある' (avoir tendance à), '～とは限らない' (pas forcément).",
+        },
+        {
+          title: "論理的に話す — Argumenter de manière logique", description: "Structurer un argument", order: 2,
+          vocabulary: [
+            { word: "まず (mazu)", translation: "Tout d'abord...", example: "まず、私の考えを説明させてください。" },
+            { word: "さらに (sarani)", translation: "De plus...", example: "さらに、データがこの結論を裏付けています。" },
+            { word: "しかし (shikashi)", translation: "Cependant...", example: "しかし、コストも考慮する必要があります。" },
+            { word: "要するに (ようするに)", translation: "En résumé...", example: "要するに、メリットの方がデメリットより大きいです。" },
+            { word: "最大の問題は～です (さいだいのもんだいは～です)", translation: "Le plus grand problème est...", example: "最大の問題は資金不足です。" },
+            { word: "例を挙げると (れいをあげると)", translation: "Par exemple...", example: "例を挙げると、去年の売上データがあります。" },
+            { word: "～によると (～によると)", translation: "Selon...", example: "最近の調査によると、これは効果的です。" },
+            { word: "結論として (けつろんとして)", translation: "En conclusion...", example: "結論として、このプロジェクトを進めるべきです。" },
+          ],
+          grammarNote: "Les connecteurs formels : 'まず' (d'abord), 'さらに' (de plus), 'しかし' (cependant), '結論として' (en conclusion). Essentiels pour un discours structuré.",
+        },
+      ],
+    },
+    {
+      title: "一人旅 (ひとりたび) — Voyager seul", icon: "🌍", description: "Se débrouiller en voyage de manière autonome", order: 3,
+      lessons: [
+        {
+          title: "トラブル対応 — Gérer les imprévus", description: "Résoudre des problèmes en voyage", order: 1,
+          vocabulary: [
+            { word: "パスポートをなくしてしまいました", translation: "J'ai perdu mon passeport", example: "パスポートをなくしてしまいました。大使館はどこですか？" },
+            { word: "フライトがキャンセルになりました", translation: "Mon vol a été annulé", example: "フライトがキャンセルになりました。振り替えはできますか？" },
+            { word: "苦情を言いたいのですが (くじょうをいいたいのですが)", translation: "Je voudrais faire une réclamation", example: "ホテルの部屋について苦情を言いたいのですが。" },
+            { word: "～を探すのを手伝っていただけますか", translation: "Pourriez-vous m'aider à trouver... ?", example: "一番近い薬局を探すのを手伝っていただけますか？" },
+            { word: "～への行き方がわかりません (～へのいきかたがわかりません)", translation: "Je ne sais pas comment aller à...", example: "駅への行き方がわかりません。" },
+            { word: "他の方法はありますか (ほかのほうほうはありますか)", translation: "Y a-t-il une autre méthode ?", example: "空港に行く他の方法はありますか？" },
+            { word: "1時間以上待っています (いちじかんいじょうまっています)", translation: "J'attends depuis plus d'une heure", example: "荷物を1時間以上待っています。" },
+            { word: "この件について誰に相談すればいいですか", translation: "À qui dois-je m'adresser à ce sujet ?", example: "この件について誰に相談すればいいですか？" },
+          ],
+          grammarNote: "'～てしまいました' exprime un résultat regrettable. '～ていただけますか' est une demande très polie. '～すればいいですか' = que dois-je faire ?",
+        },
+        {
+          title: "交流する — Découvrir et interagir", description: "Échanger avec les locaux", order: 2,
+          vocabulary: [
+            { word: "この辺りは何で有名ですか (このあたりはなにでゆうめいですか)", translation: "Pour quoi ce quartier est-il célèbre ?", example: "この辺りは何で有名ですか？" },
+            { word: "おすすめのレストランはありますか", translation: "Avez-vous un restaurant à recommander ?", example: "この近くにおすすめのレストランはありますか？" },
+            { word: "地元の人はどうやって移動しますか (じもとのひとは)", translation: "Comment les locaux se déplacent-ils ?", example: "地元の人はどうやって移動しますか？" },
+            { word: "ぜひ～を試してみたいです", translation: "J'aimerais vraiment essayer...", example: "ぜひ郷土料理を試してみたいです。" },
+            { word: "夜ここを歩いても安全ですか (よるここをあるいてもあんぜんですか)", translation: "Est-ce sûr de marcher ici la nuit ?", example: "夜ここを歩いても安全ですか？" },
+            { word: "何時に開きますか/閉まりますか (なんじにあきますか/しまりますか)", translation: "À quelle heure ça ouvre/ferme ?", example: "この美術館は何時に開きますか？" },
+            { word: "観光客へのアドバイスはありますか (かんこうきゃくへの)", translation: "Avez-vous des conseils pour les touristes ?", example: "観光客へのアドバイスはありますか？" },
+            { word: "一人で旅行しています (ひとりでりょこうしています)", translation: "Je voyage seul(e)", example: "初めて一人で旅行しています。" },
+          ],
+          grammarNote: "'ぜひ' ajoute de l'enthousiasme : 'ぜひ試してみたい' = j'aimerais vraiment essayer. '～ても' = même si : '歩いても安全' = même si on marche, c'est sûr.",
+        },
+      ],
+    },
+    {
+      title: "物語を語る (ものがたりをかたる) — Raconter une histoire", icon: "📖", description: "Narrer des événements passés avec détails et émotions", order: 4,
+      lessons: [
+        {
+          title: "思い出を語る — Raconter un souvenir", description: "Parler d'événements passés", order: 1,
+          vocabulary: [
+            { word: "すべては～から始まりました (すべては～からはじまりました)", translation: "Tout a commencé par...", example: "すべては東京に引っ越したことから始まりました。" },
+            { word: "当時、私は～でした (とうじ、わたしは～でした)", translation: "À l'époque, j'étais...", example: "当時、私はまだ学生でした。" },
+            { word: "突然 (とつぜん)", translation: "Soudainement...", example: "突然、すべてが変わりました。" },
+            { word: "そんな経験は初めてでした (そんなけいけんははじめてでした)", translation: "C'était la première fois que je vivais ça", example: "そんな経験は初めてでした。" },
+            { word: "振り返ってみると (ふりかえってみると)", translation: "Avec le recul...", example: "振り返ってみると、最良の決断でした。" },
+            { word: "一番印象に残ったのは (いちばんいんしょうにのこったのは)", translation: "Ce qui m'a le plus marqué, c'est...", example: "一番印象に残ったのは、地元の人との出会いです。" },
+            { word: "実は～だったのです (じつは～だったのです)", translation: "En fait, il s'est avéré que...", example: "実は、私たちは完全に間違っていたのです。" },
+            { word: "～のことは一生忘れません (～のことはいっしょうわすれません)", translation: "Je n'oublierai jamais...", example: "京都で迷子になったことは一生忘れません。" },
+          ],
+          grammarNote: "'～てみると' = quand on essaie de... / avec le recul. '～のです' ajoute une explication ou une émotion. '一生' = toute la vie.",
+        },
+        {
+          title: "感情を表現する — Décrire des émotions", description: "Exprimer des sentiments dans un récit", order: 2,
+          vocabulary: [
+            { word: "本当にうれしかったです (ほんとうにうれしかったです)", translation: "J'étais vraiment content(e)", example: "その知らせを聞いて、本当にうれしかったです。" },
+            { word: "目を疑いました (めをうたがいました)", translation: "Je n'en croyais pas mes yeux", example: "その景色を見て、目を疑いました。" },
+            { word: "～という気持ちになりました", translation: "J'ai ressenti le sentiment de...", example: "感謝の気持ちになりました。" },
+            { word: "ほっとしました", translation: "J'ai été soulagé(e)", example: "みんなが無事だと聞いて、ほっとしました。" },
+            { word: "最初は怖かったですが、だんだん (さいしょはこわかったですが)", translation: "Au début j'avais peur, mais petit à petit...", example: "最初は怖かったですが、だんだん楽しくなりました。" },
+            { word: "複雑な気持ちでした (ふくざつなきもちでした)", translation: "C'était un sentiment mitigé", example: "さよならを言うのは複雑な気持ちでした。" },
+            { word: "達成感を感じました (たっせいかんをかんじました)", translation: "J'ai ressenti un sentiment d'accomplissement", example: "マラソンを完走して達成感を感じました。" },
+            { word: "圧倒されました (あっとうされました)", translation: "J'ai été submergé(e)", example: "大勢の人の応援に圧倒されました。" },
+          ],
+          grammarNote: "'～て' + émotion : '聞いてうれしかった' = j'étais content d'entendre. 'だんだん' = petit à petit. '～されました' = voix passive pour les émotions subies.",
+        },
+      ],
+    },
+    {
+      title: "ビジネスコミュニケーション — Communication professionnelle", icon: "📧", description: "Maîtriser les emails et appels téléphoniques professionnels", order: 5,
+      lessons: [
+        {
+          title: "ビジネスメール — Écrire un email professionnel", description: "Rédiger des emails professionnels en japonais", order: 1,
+          vocabulary: [
+            { word: "お世話になっております (おせわになっております)", translation: "Formule d'ouverture (merci pour votre bienveillance)", example: "いつもお世話になっております。" },
+            { word: "～の件でご連絡いたしました (～のけんでごれんらくいたしました)", translation: "Je vous contacte au sujet de...", example: "会議の件でご連絡いたしました。" },
+            { word: "添付ファイルをご確認ください (てんぷファイルをごかくにんください)", translation: "Veuillez vérifier le fichier joint", example: "添付ファイルをご確認ください。" },
+            { word: "ご返信いただければ幸いです (ごへんしんいただければさいわいです)", translation: "Je serais reconnaissant d'une réponse", example: "金曜日までにご返信いただければ幸いです。" },
+            { word: "ご確認のほど、よろしくお願いいたします", translation: "Je vous prie de bien vouloir vérifier", example: "ご確認のほど、よろしくお願いいたします。" },
+            { word: "何卒よろしくお願いいたします (なにとぞ)", translation: "Cordialement (très formel)", example: "何卒よろしくお願いいたします。" },
+            { word: "先日のお打ち合わせの件ですが (せんじつのおうちあわせのけんですが)", translation: "Concernant notre réunion de l'autre jour...", example: "先日のお打ち合わせの件ですが、詳細をお送りします。" },
+            { word: "ご返信が遅くなり、申し訳ございません (ごへんしんがおそくなり)", translation: "Je m'excuse du retard de réponse", example: "ご返信が遅くなり、申し訳ございません。" },
+          ],
+          grammarNote: "Le keigo (langage de politesse) est obligatoire dans les emails professionnels japonais. 'お/ご + nom' = honorifique. '～いたします' = forme humble.",
+        },
+        {
+          title: "電話対応 — Au téléphone", description: "Gérer des appels professionnels en japonais", order: 2,
+          vocabulary: [
+            { word: "お電話ありがとうございます。～でございます (おでんわ)", translation: "Merci d'appeler. C'est ... à l'appareil", example: "お電話ありがとうございます。田中でございます。" },
+            { word: "～様はいらっしゃいますか (～さまはいらっしゃいますか)", translation: "Est-ce que M./Mme ... est disponible ?", example: "山田様はいらっしゃいますか？" },
+            { word: "～の件でお電話しております", translation: "J'appelle au sujet de...", example: "請求書の件でお電話しております。" },
+            { word: "少々お待ちいただけますか (しょうしょうおまちいただけますか)", translation: "Pourriez-vous patienter un instant ?", example: "少々お待ちいただけますか？おつなぎいたします。" },
+            { word: "折り返しご連絡いたします (おりかえしごれんらくいたします)", translation: "Je vous rappellerai", example: "明日までに折り返しご連絡いたします。" },
+            { word: "もう一度おっしゃっていただけますか", translation: "Pourriez-vous répéter, s'il vous plaît ?", example: "すみません、もう一度おっしゃっていただけますか？" },
+            { word: "伝言をお願いできますか (でんごんをおねがいできますか)", translation: "Puis-je laisser un message ?", example: "伝言をお願いできますか？" },
+            { word: "お時間いただき、ありがとうございました (おじかんいただき)", translation: "Merci pour votre temps", example: "お時間いただき、ありがとうございました。" },
+          ],
+          grammarNote: "'～でございます' est la forme la plus polie de 'です'. 'いらっしゃいますか' = honorifique de 'いますか'. Au Japon, le téléphone professionnel suit un protocole très précis.",
+        },
+      ],
+    },
+  ]);
+
   // ---------- CHINOIS ----------
   console.log("📚 Chinois...");
   const zhA1 = await upsertCourse(langMap["zh"], "A1", "中文 — 入门 (A1)", "Les bases du chinois mandarin pour te débrouiller au quotidien.", 1, false);
   const zhA2 = await upsertCourse(langMap["zh"], "A2", "中文 — 基础 (A2)", "Renforce tes bases et commence à avoir des conversations simples.", 2, false);
-  await upsertCourse(langMap["zh"], "B1", "中文 — 中级 (B1)", "Développe ta fluidité et aborde des sujets plus complexes.", 3, true);
+  const zhB1 = await upsertCourse(langMap["zh"], "B1", "中文 — 中级 (B1)", "Développe ta fluidité et aborde des sujets plus complexes.", 3, true);
 
   await seedChaptersWithContent(zhA1, [
     {
@@ -1158,11 +1645,180 @@ async function main() {
     },
   ]);
 
+  // ZH B1 Chapitres
+  await seedChaptersWithContent(zhB1, [
+    {
+      title: "求职面试 (qiúzhí miànshì) — L'entretien d'embauche", icon: "💼", description: "Préparer et réussir un entretien d'embauche en chinois", order: 1,
+      lessons: [
+        {
+          title: "自我介绍 — Se présenter professionnellement", description: "Parler de son parcours professionnel", order: 1,
+          vocabulary: [
+            { word: "我在...领域有经验 (wǒ zài...lǐngyù yǒu jīngyàn)", translation: "J'ai de l'expérience dans le domaine de...", example: "我在信息技术领域有经验。" },
+            { word: "我目前担任...职位 (wǒ mùqián dānrèn...zhíwèi)", translation: "J'occupe actuellement le poste de...", example: "我目前担任项目经理职位。" },
+            { word: "我的优势是... (wǒ de yōushì shì)", translation: "Mon avantage est...", example: "我的优势是团队合作能力。" },
+            { word: "我在寻找新的挑战 (wǒ zài xúnzhǎo xīn de tiǎozhàn)", translation: "Je cherche de nouveaux défis", example: "我在寻找新的挑战和发展机会。" },
+            { word: "我认为自己是一个...的人 (wǒ rènwéi zìjǐ shì yī gè...de rén)", translation: "Je me considère comme une personne...", example: "我认为自己是一个负责任的人。" },
+            { word: "我在这个行业工作了五年 (wǒ zài zhège hángyè gōngzuòle wǔ nián)", translation: "J'ai travaillé dans cette industrie pendant 5 ans", example: "我在这个行业工作了五年了。" },
+            { word: "我之前的工作是... (wǒ zhīqián de gōngzuò shì)", translation: "Mon travail précédent était...", example: "我之前的工作是负责市场营销。" },
+            { word: "我拥有...学位 (wǒ yōngyǒu...xuéwèi)", translation: "J'ai un diplôme en...", example: "我拥有工商管理学位。" },
+          ],
+          grammarNote: "'了' après le verbe indique une action accomplie. '在...领域' = dans le domaine de. '担任' est formel pour 'occuper un poste'.",
+        },
+        {
+          title: "提问与谈判 — Questions et négociation", description: "Répondre aux questions et négocier", order: 2,
+          vocabulary: [
+            { word: "您的期望薪资是多少？ (nín de qīwàng xīnzī shì duōshao)", translation: "Quel est votre salaire souhaité ?", example: "请问您的期望薪资是多少？" },
+            { word: "我愿意协商 (wǒ yuànyì xiéshāng)", translation: "Je suis disposé(e) à négocier", example: "关于薪资，我愿意协商。" },
+            { word: "您五年后的目标是什么？ (nín wǔ nián hòu de mùbiāo shì shénme)", translation: "Quels sont vos objectifs dans 5 ans ?", example: "您五年后的职业目标是什么？" },
+            { word: "我需要改进的地方是... (wǒ xūyào gǎijìn de dìfang shì)", translation: "Le point que je dois améliorer est...", example: "我需要改进的地方是时间管理。" },
+            { word: "能介绍一下团队吗？ (néng jièshào yīxià tuánduì ma)", translation: "Pourriez-vous présenter l'équipe ?", example: "能介绍一下我将加入的团队吗？" },
+            { word: "这个职位的日常工作是什么？ (zhège zhíwèi de rìcháng gōngzuò shì shénme)", translation: "Quel est le travail quotidien de ce poste ?", example: "这个职位的日常工作是什么？" },
+            { word: "我对...特别感兴趣 (wǒ duì...tèbié gǎn xìngqù)", translation: "Je suis particulièrement intéressé(e) par...", example: "我对贵公司的国际发展特别感兴趣。" },
+            { word: "什么时候能知道结果？ (shénme shíhou néng zhīdào jiéguǒ)", translation: "Quand pourrai-je connaître les résultats ?", example: "请问什么时候能知道面试结果？" },
+          ],
+          grammarNote: "'贵公司' (guì gōngsī) = votre entreprise (respectueux). '能...吗？' = pourriez-vous. '关于' = concernant, au sujet de.",
+        },
+      ],
+    },
+    {
+      title: "表达观点 (biǎodá guāndiǎn) — Débattre et donner son avis", icon: "💬", description: "Exprimer et défendre son point de vue en chinois", order: 2,
+      lessons: [
+        {
+          title: "发表意见 — Donner son opinion", description: "Exprimer son avis et réagir", order: 1,
+          vocabulary: [
+            { word: "我认为... (wǒ rènwéi)", translation: "Je pense que...", example: "我认为远程工作更有效率。" },
+            { word: "我坚信... (wǒ jiānxìn)", translation: "Je suis convaincu(e) que...", example: "我坚信教育应该是免费的。" },
+            { word: "我理解你的意思，但是... (wǒ lǐjiě nǐ de yìsi, dànshì)", translation: "Je comprends ce que tu veux dire, mais...", example: "我理解你的意思，但是我不同意。" },
+            { word: "你说得有道理 (nǐ shuō de yǒu dàolǐ)", translation: "Tu as raison / C'est un bon point", example: "你说得有道理，我没有考虑到这一点。" },
+            { word: "另一方面... (lìng yī fāngmiàn)", translation: "D'un autre côté...", example: "另一方面，风险也很大。" },
+            { word: "我倾向于认为... (wǒ qīngxiàng yú rènwéi)", translation: "J'ai tendance à penser que...", example: "我倾向于认为科技改善了我们的生活。" },
+            { word: "我完全同意 (wǒ wánquán tóngyì)", translation: "Je suis tout à fait d'accord", example: "我完全同意你的分析。" },
+            { word: "不一定是这样 (bù yīdìng shì zhèyàng)", translation: "Ce n'est pas forcément le cas", example: "不一定是这样，要看具体情况。" },
+          ],
+          grammarNote: "'认为' est plus formel que '觉得'. '不一定' = pas forcément. '倾向于' = avoir tendance à (registre soutenu).",
+        },
+        {
+          title: "论证和说服 — Argumenter et convaincre", description: "Structurer un argument", order: 2,
+          vocabulary: [
+            { word: "首先... (shǒuxiān)", translation: "Tout d'abord...", example: "首先，让我解释一下我的想法。" },
+            { word: "而且... (érqiě)", translation: "De plus...", example: "而且，数据支持这个结论。" },
+            { word: "然而... (rán'ér)", translation: "Cependant...", example: "然而，我们需要考虑成本。" },
+            { word: "总之... (zǒngzhī)", translation: "En résumé...", example: "总之，优点大于缺点。" },
+            { word: "最主要的问题是... (zuì zhǔyào de wèntí shì)", translation: "Le problème principal est...", example: "最主要的问题是缺乏资金。" },
+            { word: "举个例子 (jǔ gè lìzi)", translation: "Par exemple...", example: "举个例子，去年的销售数据就证明了这一点。" },
+            { word: "根据... (gēnjù)", translation: "Selon...", example: "根据最近的研究，这是有效的。" },
+            { word: "总而言之... (zǒng ér yán zhī)", translation: "En conclusion...", example: "总而言之，我们应该继续推进这个项目。" },
+          ],
+          grammarNote: "Les connecteurs logiques en chinois : '首先...其次...最后' (premièrement, deuxièmement, enfin). '然而' est plus formel que '但是'.",
+        },
+      ],
+    },
+    {
+      title: "独自旅行 (dúzì lǚxíng) — Voyager seul", icon: "🌍", description: "Se débrouiller en voyage de manière autonome", order: 3,
+      lessons: [
+        {
+          title: "处理意外 — Gérer les imprévus", description: "Résoudre des problèmes en voyage", order: 1,
+          vocabulary: [
+            { word: "我的护照丢了 (wǒ de hùzhào diū le)", translation: "J'ai perdu mon passeport", example: "我的护照丢了，大使馆在哪里？" },
+            { word: "我的航班被取消了 (wǒ de hángbān bèi qǔxiāo le)", translation: "Mon vol a été annulé", example: "我的航班被取消了，能帮我改签吗？" },
+            { word: "我要投诉 (wǒ yào tóusù)", translation: "Je veux déposer une plainte", example: "关于酒店房间，我要投诉。" },
+            { word: "你能帮我找到...吗？ (nǐ néng bāng wǒ zhǎodào...ma)", translation: "Pouvez-vous m'aider à trouver... ?", example: "你能帮我找到最近的药店吗？" },
+            { word: "我不知道怎么去... (wǒ bù zhīdào zěnme qù)", translation: "Je ne sais pas comment aller à...", example: "我不知道怎么去火车站。" },
+            { word: "有没有其他办法？ (yǒu méiyǒu qítā bànfǎ)", translation: "Y a-t-il une autre solution ?", example: "去机场有没有其他办法？" },
+            { word: "我已经等了一个多小时了 (wǒ yǐjīng děngle yī gè duō xiǎoshí le)", translation: "J'attends depuis plus d'une heure", example: "我已经等了一个多小时了，行李还没到。" },
+            { word: "这件事我应该找谁？ (zhè jiàn shì wǒ yīnggāi zhǎo shéi)", translation: "À qui dois-je m'adresser pour ça ?", example: "这件事我应该找谁解决？" },
+          ],
+          grammarNote: "'被' (bèi) = voix passive : '被取消了' = a été annulé. '已经...了' = déjà. '怎么去' = comment aller à.",
+        },
+        {
+          title: "探索与交流 — Découvrir et interagir", description: "Échanger avec les locaux", order: 2,
+          vocabulary: [
+            { word: "这个地方有什么出名的？ (zhège dìfang yǒu shénme chūmíng de)", translation: "Pour quoi cet endroit est-il connu ?", example: "这个地方有什么出名的特产？" },
+            { word: "能推荐一家好的餐厅吗？ (néng tuījiàn yī jiā hǎo de cāntīng ma)", translation: "Pouvez-vous recommander un bon restaurant ?", example: "附近能推荐一家好的餐厅吗？" },
+            { word: "当地人一般怎么出行？ (dāngdì rén yībān zěnme chūxíng)", translation: "Comment les locaux se déplacent-ils ?", example: "当地人一般怎么出行？" },
+            { word: "我很想尝尝... (wǒ hěn xiǎng chángchang)", translation: "J'aimerais beaucoup goûter...", example: "我很想尝尝当地的特色美食。" },
+            { word: "晚上在这里走安全吗？ (wǎnshang zài zhèlǐ zǒu ānquán ma)", translation: "Est-ce sûr de se promener ici le soir ?", example: "晚上在这里走路安全吗？" },
+            { word: "几点开门/关门？ (jǐ diǎn kāimén / guānmén)", translation: "À quelle heure ça ouvre/ferme ?", example: "博物馆几点开门？" },
+            { word: "对游客有什么建议吗？ (duì yóukè yǒu shénme jiànyì ma)", translation: "Avez-vous des conseils pour les touristes ?", example: "对来这里的游客有什么建议吗？" },
+            { word: "我是一个人旅行的 (wǒ shì yī gè rén lǚxíng de)", translation: "Je voyage seul(e)", example: "我是第一次一个人旅行的。" },
+          ],
+          grammarNote: "'一般' = en général, habituellement. '很想' = avoir très envie de. '当地人' = les locaux. '特色' = spécialité, caractéristique.",
+        },
+      ],
+    },
+    {
+      title: "讲故事 (jiǎng gùshi) — Raconter une histoire", icon: "📖", description: "Narrer des événements passés avec détails et émotions", order: 4,
+      lessons: [
+        {
+          title: "回忆往事 — Raconter un souvenir", description: "Parler d'événements passés", order: 1,
+          vocabulary: [
+            { word: "一切都是从...开始的 (yīqiè dōu shì cóng...kāishǐ de)", translation: "Tout a commencé par...", example: "一切都是从我搬到上海开始的。" },
+            { word: "那时候，我还... (nà shíhou, wǒ hái)", translation: "À cette époque, j'étais encore...", example: "那时候，我还是一个学生。" },
+            { word: "突然... (tūrán)", translation: "Soudainement...", example: "突然，一切都变了。" },
+            { word: "我从来没有经历过这样的事 (wǒ cónglái méiyǒu jīnglìguo zhèyàng de shì)", translation: "Je n'avais jamais vécu une telle chose", example: "我从来没有经历过这样的事。" },
+            { word: "回想起来 (huíxiǎng qǐlái)", translation: "Avec le recul...", example: "回想起来，那是最好的决定。" },
+            { word: "最令人难忘的是... (zuì lìng rén nánwàng de shì)", translation: "Le plus mémorable, c'est...", example: "最令人难忘的是和当地人的交流。" },
+            { word: "结果发现... (jiéguǒ fāxiàn)", translation: "Il s'est avéré que...", example: "结果发现，我们完全搞错了。" },
+            { word: "我永远不会忘记... (wǒ yǒngyuǎn bù huì wàngjì)", translation: "Je n'oublierai jamais...", example: "我永远不会忘记在东京迷路的那次。" },
+          ],
+          grammarNote: "'从来没有...过' = n'avoir jamais. '回想起来' = en y repensant. '令人' + adjectif = qui fait ressentir (令人难忘 = inoubliable).",
+        },
+        {
+          title: "表达情感 — Décrire des émotions", description: "Exprimer des sentiments dans un récit", order: 2,
+          vocabulary: [
+            { word: "我非常高兴 (wǒ fēicháng gāoxìng)", translation: "J'étais extrêmement content(e)", example: "听到这个消息，我非常高兴。" },
+            { word: "我简直不敢相信 (wǒ jiǎnzhí bù gǎn xiāngxìn)", translation: "Je n'arrivais pas à y croire", example: "看到那个风景，我简直不敢相信。" },
+            { word: "让我感到... (ràng wǒ gǎndào)", translation: "Ça m'a fait ressentir...", example: "这让我感到非常感激。" },
+            { word: "我松了一口气 (wǒ sōngle yī kǒu qì)", translation: "J'ai poussé un soupir de soulagement", example: "听到大家都平安，我松了一口气。" },
+            { word: "一开始我很害怕，但后来... (yī kāishǐ wǒ hěn hàipà, dàn hòulái)", translation: "Au début j'avais peur, mais ensuite...", example: "一开始我很害怕，但后来慢慢地开始享受了。" },
+            { word: "那是一个既甜蜜又苦涩的时刻 (nà shì yī gè jì tiánmì yòu kǔsè de shíkè)", translation: "C'était un moment doux-amer", example: "告别时，那是一个既甜蜜又苦涩的时刻。" },
+            { word: "我感到了成就感 (wǒ gǎndàole chéngjiù gǎn)", translation: "J'ai ressenti un sentiment d'accomplissement", example: "跑完马拉松后，我感到了成就感。" },
+            { word: "我被深深地感动了 (wǒ bèi shēnshēn de gǎndòng le)", translation: "J'ai été profondément touché(e)", example: "看到这么多人的支持，我被深深地感动了。" },
+          ],
+          grammarNote: "'简直' = littéralement, tout simplement (emphase). '既...又...' = à la fois... et... '被...感动' = être touché/ému (passif).",
+        },
+      ],
+    },
+    {
+      title: "商务沟通 (shāngwù gōutōng) — Communication professionnelle", icon: "📧", description: "Maîtriser les emails et appels téléphoniques professionnels", order: 5,
+      lessons: [
+        {
+          title: "商务邮件 — Écrire un email professionnel", description: "Rédiger des emails professionnels en chinois", order: 1,
+          vocabulary: [
+            { word: "尊敬的...先生/女士 (zūnjìng de...xiānsheng/nǚshì)", translation: "Cher Monsieur / Chère Madame", example: "尊敬的王先生，您好！" },
+            { word: "我写信是为了... (wǒ xiě xìn shì wèile)", translation: "Je vous écris pour...", example: "我写信是为了跟进我们的会议。" },
+            { word: "请查收附件 (qǐng cháshōu fùjiàn)", translation: "Veuillez vérifier la pièce jointe", example: "请查收附件中的报告。" },
+            { word: "如果您能...我将非常感激 (rúguǒ nín néng...wǒ jiāng fēicháng gǎnjī)", translation: "Si vous pouviez... je vous serais très reconnaissant", example: "如果您能在周五前回复，我将非常感激。" },
+            { word: "期待您的回复 (qīdài nín de huífù)", translation: "J'attends votre réponse avec impatience", example: "期待您的回复。" },
+            { word: "此致，敬礼 (cǐzhì, jìnglǐ)", translation: "Cordialement", example: "此致，敬礼。张伟" },
+            { word: "关于我们上次的谈话... (guānyú wǒmen shàng cì de tánhuà)", translation: "Concernant notre dernière conversation...", example: "关于我们上次的谈话，我发送相关详情。" },
+            { word: "对于回复延迟，我深表歉意 (duìyú huífù yánchí, wǒ shēn biǎo qiànyì)", translation: "Je m'excuse profondément du retard de réponse", example: "对于回复延迟，我深表歉意。" },
+          ],
+          grammarNote: "'尊敬的' = respecté (ouverture formelle). '此致，敬礼' = formule de clôture standard. '将' = futur formel. '深表' = exprimer profondément.",
+        },
+        {
+          title: "电话沟通 — Au téléphone", description: "Gérer des appels professionnels en chinois", order: 2,
+          vocabulary: [
+            { word: "您好，我是... (nín hǎo, wǒ shì)", translation: "Bonjour, je suis...", example: "您好，我是张伟。请问有什么可以帮您的？" },
+            { word: "请问...在吗？ (qǐngwèn...zài ma)", translation: "Est-ce que ... est disponible ?", example: "请问王经理在吗？" },
+            { word: "我打电话是关于... (wǒ dǎ diànhuà shì guānyú)", translation: "J'appelle au sujet de...", example: "我打电话是关于我们收到的发票。" },
+            { word: "请稍等 (qǐng shāo děng)", translation: "Veuillez patienter un instant", example: "请稍等，我帮您转接。" },
+            { word: "我会尽快回复您 (wǒ huì jìnkuài huífù nín)", translation: "Je vous répondrai le plus vite possible", example: "我会尽快回复您。" },
+            { word: "能再说一遍吗？ (néng zài shuō yī biàn ma)", translation: "Pourriez-vous répéter ?", example: "不好意思，能再说一遍吗？信号不太好。" },
+            { word: "我可以留言吗？ (wǒ kěyǐ liúyán ma)", translation: "Puis-je laisser un message ?", example: "他不在，我可以留言吗？" },
+            { word: "谢谢您的时间 (xièxie nín de shíjiān)", translation: "Merci pour votre temps", example: "谢谢您的时间。祝您今天愉快！" },
+          ],
+          grammarNote: "'请问' = formule polie pour poser une question. '帮您转接' = vous transférer. '尽快' = le plus vite possible. '不好意思' = excusez-moi.",
+        },
+      ],
+    },
+  ]);
+
   // ---------- RUSSE ----------
   console.log("📚 Russe...");
   const ruA1 = await upsertCourse(langMap["ru"], "A1", "Русский — Начальный (A1)", "Les bases du russe pour te débrouiller au quotidien.", 1, false);
   const ruA2 = await upsertCourse(langMap["ru"], "A2", "Русский — Элементарный (A2)", "Renforce tes bases et commence à avoir des conversations simples.", 2, false);
-  await upsertCourse(langMap["ru"], "B1", "Русский — Средний (B1)", "Développe ta fluidité et aborde des sujets plus complexes.", 3, true);
+  const ruB1 = await upsertCourse(langMap["ru"], "B1", "Русский — Средний (B1)", "Développe ta fluidité et aborde des sujets plus complexes.", 3, true);
 
   await seedChaptersWithContent(ruA1, [
     {
@@ -1396,11 +2052,180 @@ async function main() {
     },
   ]);
 
+  // RU B1 Chapitres
+  await seedChaptersWithContent(ruB1, [
+    {
+      title: "Собеседование — L'entretien d'embauche", icon: "💼", description: "Préparer et réussir un entretien d'embauche en russe", order: 1,
+      lessons: [
+        {
+          title: "Представиться профессионально", description: "Parler de son parcours professionnel", order: 1,
+          vocabulary: [
+            { word: "У меня есть опыт в области... (u menya yest' opyt v oblasti)", translation: "J'ai de l'expérience dans le domaine de...", example: "У меня есть опыт в области информационных технологий." },
+            { word: "В настоящее время я работаю... (v nastoyashcheye vremya ya rabotayu)", translation: "Je travaille actuellement en tant que...", example: "В настоящее время я работаю менеджером проектов." },
+            { word: "Мое главное преимущество — это... (moyo glavnoye preimushchestvo)", translation: "Mon principal avantage est...", example: "Мое главное преимущество — это коммуникабельность." },
+            { word: "Я ищу новые вызовы (ya ishchu novyye vyzovy)", translation: "Je cherche de nouveaux défis", example: "Я ищу новые вызовы в динамичной компании." },
+            { word: "Я считаю себя... человеком (ya schitayu sebya...chelovekom)", translation: "Je me considère comme une personne...", example: "Я считаю себя ответственным человеком." },
+            { word: "Я работаю в этой сфере уже пять лет (ya rabotayu v etoy sfere uzhe pyat' let)", translation: "Je travaille dans ce domaine depuis 5 ans", example: "Я работаю в этой сфере уже пять лет." },
+            { word: "На предыдущей должности я занимался... (na predydushchey dolzhnosti)", translation: "Dans mon poste précédent, je m'occupais de...", example: "На предыдущей должности я занимался маркетингом." },
+            { word: "У меня диплом по... (u menya diplom po)", translation: "J'ai un diplôme en...", example: "У меня диплом по управлению бизнесом." },
+          ],
+          grammarNote: "'Уже + durée' = depuis (уже пять лет = depuis cinq ans). L'instrumental est utilisé pour les professions : 'работаю менеджером'.",
+        },
+        {
+          title: "Вопросы и переговоры", description: "Répondre aux questions et négocier", order: 2,
+          vocabulary: [
+            { word: "Какие у вас зарплатные ожидания? (kakiye u vas zarplatnyye ozhidaniya)", translation: "Quelles sont vos prétentions salariales ?", example: "Какие у вас зарплатные ожидания на эту должность?" },
+            { word: "Я готов к обсуждению (ya gotov k obsuzhdeniyu)", translation: "Je suis prêt(e) à en discuter", example: "Я готов к обсуждению условий." },
+            { word: "Кем вы видите себя через пять лет? (kem vy vidite sebya cherez pyat' let)", translation: "Où vous voyez-vous dans 5 ans ?", example: "Кем вы видите себя через пять лет?" },
+            { word: "Мой главный недостаток — это... (moy glavnyy nedostatok)", translation: "Mon principal défaut est...", example: "Мой главный недостаток — это перфекционизм." },
+            { word: "Не могли бы вы рассказать о команде? (ne mogli by vy rasskazat')", translation: "Pourriez-vous me parler de l'équipe ?", example: "Не могли бы вы рассказать о команде?" },
+            { word: "Как выглядит типичный рабочий день? (kak vyglyadit tipichnyy rabochiy den')", translation: "À quoi ressemble une journée type ?", example: "Как выглядит типичный рабочий день на этой позиции?" },
+            { word: "Меня особенно интересует... (menya osobenno interesuyet)", translation: "Je suis particulièrement intéressé(e) par...", example: "Меня особенно интересует ваш международный проект." },
+            { word: "Когда можно ожидать ответа? (kogda mozhno ozhidat' otveta)", translation: "Quand peut-on attendre une réponse ?", example: "Когда можно ожидать ответа по результатам?" },
+          ],
+          grammarNote: "'Не могли бы вы...?' = conditionnel de politesse. 'Через + accusatif' = dans (temps futur). 'Кем' = instrumental de 'кто' (en tant que qui).",
+        },
+      ],
+    },
+    {
+      title: "Дебаты и мнения — Débattre et donner son avis", icon: "💬", description: "Exprimer et défendre son point de vue en russe", order: 2,
+      lessons: [
+        {
+          title: "Выразить своё мнение", description: "Donner son opinion et réagir", order: 1,
+          vocabulary: [
+            { word: "По моему мнению... (po moyemu mneniyu)", translation: "À mon avis...", example: "По моему мнению, удалённая работа эффективнее." },
+            { word: "Я убеждён, что... (ya ubezhdon, chto)", translation: "Je suis convaincu(e) que...", example: "Я убеждён, что образование должно быть бесплатным." },
+            { word: "Я понимаю вашу точку зрения, но... (ya ponimayu vashu tochku zreniya)", translation: "Je comprends votre point de vue, mais...", example: "Я понимаю вашу точку зрения, но не согласен." },
+            { word: "Это хороший аргумент (eto khoroshiy argument)", translation: "C'est un bon argument", example: "Это хороший аргумент, я об этом не подумал." },
+            { word: "С другой стороны... (s drugoy storony)", translation: "D'un autre côté...", example: "С другой стороны, риски значительны." },
+            { word: "Я склонен думать, что... (ya sklonen dumat', chto)", translation: "J'ai tendance à penser que...", example: "Я склонен думать, что технологии улучшают жизнь." },
+            { word: "Я полностью согласен (ya polnost'yu soglasen)", translation: "Je suis tout à fait d'accord", example: "Я полностью согласен с вашим анализом." },
+            { word: "Это не обязательно так (eto ne obyazatel'no tak)", translation: "Ce n'est pas forcément le cas", example: "Это не обязательно так в каждой ситуации." },
+          ],
+          grammarNote: "'По моему мнению' ou 'на мой взгляд' = à mon avis. Les adjectifs courts : 'согласен/согласна' (d'accord), 'убеждён/убеждена' (convaincu).",
+        },
+        {
+          title: "Аргументировать и убеждать", description: "Structurer un argument et convaincre", order: 2,
+          vocabulary: [
+            { word: "Во-первых... (vo-pervykh)", translation: "Premièrement...", example: "Во-первых, позвольте объяснить мою позицию." },
+            { word: "Кроме того... (krome togo)", translation: "De plus...", example: "Кроме того, данные подтверждают этот вывод." },
+            { word: "Однако... (odnako)", translation: "Cependant...", example: "Однако необходимо учитывать расходы." },
+            { word: "Подводя итог... (podvodya itog)", translation: "En résumé...", example: "Подводя итог, преимущества перевешивают недостатки." },
+            { word: "Главная проблема — это... (glavnaya problema — eto)", translation: "Le problème principal est...", example: "Главная проблема — это нехватка финансирования." },
+            { word: "Приведу пример (privedu primer)", translation: "Je vais donner un exemple", example: "Приведу пример, чтобы проиллюстрировать мою мысль." },
+            { word: "Согласно исследованиям... (soglasno issledovaniyam)", translation: "Selon les recherches...", example: "Согласно последним исследованиям, это эффективно." },
+            { word: "В заключение... (v zaklyucheniye)", translation: "En conclusion...", example: "В заключение, я считаю, что нужно продолжать." },
+          ],
+          grammarNote: "Les connecteurs : 'во-первых, во-вторых, в-третьих' (premièrement, deuxièmement, troisièmement). 'Согласно' + datif = selon.",
+        },
+      ],
+    },
+    {
+      title: "Путешествие в одиночку — Voyager seul", icon: "🌍", description: "Se débrouiller en voyage de manière autonome", order: 3,
+      lessons: [
+        {
+          title: "Справляться с непредвиденными ситуациями", description: "Gérer les imprévus en voyage", order: 1,
+          vocabulary: [
+            { word: "Я потерял паспорт (ya poteryal pasport)", translation: "J'ai perdu mon passeport", example: "Я потерял паспорт, где посольство?" },
+            { word: "Мой рейс отменён (moy reys otmenyon)", translation: "Mon vol a été annulé", example: "Мой рейс отменён, можете перебронировать?" },
+            { word: "Мне нужно подать жалобу (mne nuzhno podat' zhalobu)", translation: "Je dois déposer une réclamation", example: "Мне нужно подать жалобу на номер в отеле." },
+            { word: "Вы не могли бы помочь мне найти...? (vy ne mogli by pomoch' mne nayti)", translation: "Pourriez-vous m'aider à trouver... ?", example: "Вы не могли бы помочь мне найти ближайшую аптеку?" },
+            { word: "Я не знаю, как добраться до... (ya ne znayu, kak dobrat'sya do)", translation: "Je ne sais pas comment aller à...", example: "Я не знаю, как добраться до вокзала." },
+            { word: "Есть ли другой вариант? (yest' li drugoy variant)", translation: "Y a-t-il une autre option ?", example: "Есть ли другой вариант, чтобы добраться до аэропорта?" },
+            { word: "Я жду уже больше часа (ya zhdu uzhe bol'she chasa)", translation: "J'attends depuis plus d'une heure", example: "Я жду свой багаж уже больше часа." },
+            { word: "К кому мне обратиться? (k komu mne obratit'sya)", translation: "À qui dois-je m'adresser ?", example: "К кому мне обратиться по этому вопросу?" },
+          ],
+          grammarNote: "'Добраться до' + génitif = arriver à. 'Больше часа' = plus d'une heure (génitif). 'К кому' = vers qui (datif).",
+        },
+        {
+          title: "Знакомиться и общаться", description: "Découvrir et interagir avec les locaux", order: 2,
+          vocabulary: [
+            { word: "Чем известен этот район? (chem izvesten etot rayon)", translation: "Pour quoi ce quartier est-il connu ?", example: "Чем известен этот район? Есть ли местные специальности?" },
+            { word: "Можете порекомендовать хороший ресторан? (mozhete porekomendovat')", translation: "Pouvez-vous recommander un bon restaurant ?", example: "Можете порекомендовать хороший ресторан поблизости?" },
+            { word: "Как местные обычно передвигаются? (kak mestnyye obychno peredvigayutsya)", translation: "Comment les locaux se déplacent-ils ?", example: "Как местные обычно передвигаются по городу?" },
+            { word: "Я бы очень хотел попробовать... (ya by ochen' khotel poprobovat')", translation: "J'aimerais beaucoup essayer...", example: "Я бы очень хотел попробовать местную кухню." },
+            { word: "Безопасно ли гулять здесь ночью? (bezopasno li gulyat' zdes' noch'yu)", translation: "Est-ce sûr de se promener ici la nuit ?", example: "Безопасно ли гулять здесь ночью?" },
+            { word: "Во сколько открывается/закрывается? (vo skol'ko otkryvayetsya/zakryvayetsya)", translation: "À quelle heure ça ouvre/ferme ?", example: "Во сколько открывается музей?" },
+            { word: "Есть ли советы для туристов? (yest' li sovety dlya turistov)", translation: "Avez-vous des conseils pour les touristes ?", example: "Есть ли советы для туристов, которые посещают город?" },
+            { word: "Я путешествую один/одна (ya puteshestvuyu odin/odna)", translation: "Je voyage seul(e)", example: "Я путешествую одна впервые." },
+          ],
+          grammarNote: "'Чем известен' = instrumental de 'что' (par quoi est connu). 'Бы' + passé = conditionnel. 'Ли' = particule interrogative (dans les questions indirectes).",
+        },
+      ],
+    },
+    {
+      title: "Рассказать историю — Raconter une histoire", icon: "📖", description: "Narrer des événements passés avec détails et émotions", order: 4,
+      lessons: [
+        {
+          title: "Рассказать воспоминание", description: "Raconter un souvenir", order: 1,
+          vocabulary: [
+            { word: "Всё началось, когда... (vsyo nachalos', kogda)", translation: "Tout a commencé quand...", example: "Всё началось, когда я переехал в Москву." },
+            { word: "В то время я... (v to vremya ya)", translation: "À cette époque, je...", example: "В то время я ещё был студентом." },
+            { word: "Вдруг... (vdrug)", translation: "Soudainement...", example: "Вдруг всё изменилось." },
+            { word: "Я никогда раньше не переживал ничего подобного (ya nikogda ran'she ne perezhival)", translation: "Je n'avais jamais vécu quelque chose de semblable", example: "Я никогда раньше не переживал ничего подобного." },
+            { word: "Оглядываясь назад, я понимаю... (oglyadyvayas' nazad, ya ponimayu)", translation: "Avec le recul, je comprends...", example: "Оглядываясь назад, я понимаю, что это было лучшее решение." },
+            { word: "Самым запоминающимся было... (samym zapominayushchimsya bylo)", translation: "Le plus mémorable a été...", example: "Самым запоминающимся было знакомство с местными." },
+            { word: "Оказалось, что... (okazalos', chto)", translation: "Il s'est avéré que...", example: "Оказалось, что мы совершенно ошибались." },
+            { word: "Я никогда не забуду... (ya nikogda ne zabudu)", translation: "Je n'oublierai jamais...", example: "Я никогда не забуду, как заблудился в Токио." },
+          ],
+          grammarNote: "'Никогда не' = jamais (double négation obligatoire en russe). Le passé en russe s'accorde en genre : 'переехал' (m) / 'переехала' (f).",
+        },
+        {
+          title: "Описать эмоции и реакции", description: "Décrire des émotions dans un récit", order: 2,
+          vocabulary: [
+            { word: "Я был безумно рад (ya byl bezumno rad)", translation: "J'étais follement content(e)", example: "Я был безумно рад, когда узнал эту новость." },
+            { word: "Я не мог поверить своим глазам (ya ne mog poverit' svoim glazam)", translation: "Je n'en croyais pas mes yeux", example: "Я не мог поверить своим глазам, увидев этот вид." },
+            { word: "Это заставило меня почувствовать... (eto zastavilo menya pochuvstvovat')", translation: "Ça m'a fait ressentir...", example: "Это заставило меня почувствовать благодарность." },
+            { word: "Какое облегчение! (kakoye oblegcheniye)", translation: "Quel soulagement !", example: "Какое облегчение, что все в безопасности!" },
+            { word: "Сначала мне было страшно, но потом... (snachala mne bylo strashno, no potom)", translation: "Au début j'avais peur, mais ensuite...", example: "Сначала мне было страшно, но потом мне начало нравиться." },
+            { word: "Это был горько-сладкий момент (eto byl gor'ko-sladkiy moment)", translation: "C'était un moment doux-amer", example: "Прощание — это был горько-сладкий момент." },
+            { word: "Я почувствовал чувство достижения (ya pochuvstvoval chuvstvo dostizheniya)", translation: "J'ai ressenti un sentiment d'accomplissement", example: "Я почувствовал чувство достижения, закончив марафон." },
+            { word: "Это было потрясающе (eto bylo potryasayushche)", translation: "C'était bouleversant", example: "Видеть столько людей, поддерживающих нас — это было потрясающе." },
+          ],
+          grammarNote: "'Безумно' = follement (adverbe d'intensité). 'Своим глазам' = datif de 'свои глаза'. Le gérondif ('увидев') = en voyant.",
+        },
+      ],
+    },
+    {
+      title: "Деловое общение — Communication professionnelle", icon: "📧", description: "Maîtriser les emails et appels téléphoniques professionnels", order: 5,
+      lessons: [
+        {
+          title: "Деловое письмо — Écrire un email professionnel", description: "Rédiger des emails professionnels en russe", order: 1,
+          vocabulary: [
+            { word: "Уважаемый/ая... (uvazhaemyy/aya)", translation: "Cher/Chère...", example: "Уважаемый Иван Петрович, пишу Вам по поводу..." },
+            { word: "Я пишу Вам по поводу... (ya pishu Vam po povodu)", translation: "Je vous écris au sujet de...", example: "Я пишу Вам по поводу нашей встречи." },
+            { word: "В приложении Вы найдёте... (v prilozhenii Vy naydyote)", translation: "Vous trouverez en pièce jointe...", example: "В приложении Вы найдёте запрошенный отчёт." },
+            { word: "Был бы благодарен, если бы Вы... (byl by blagodaren, yesli by Vy)", translation: "Je vous serais reconnaissant si vous...", example: "Был бы благодарен, если бы Вы ответили до пятницы." },
+            { word: "С нетерпением жду Вашего ответа (s neterpeniyem zhdu Vashego otveta)", translation: "J'attends votre réponse avec impatience", example: "С нетерпением жду Вашего ответа." },
+            { word: "С уважением (s uvazheniyem)", translation: "Cordialement", example: "С уважением, Мария Иванова." },
+            { word: "В продолжение нашего разговора... (v prodolzheniye nashego razgovora)", translation: "Suite à notre conversation...", example: "В продолжение нашего разговора, отправляю детали." },
+            { word: "Прошу прощения за задержку с ответом (proshu proshcheniya za zaderzhku s otvetom)", translation: "Je m'excuse du retard de réponse", example: "Прошу прощения за задержку с ответом." },
+          ],
+          grammarNote: "'Вы' avec majuscule = vous de politesse dans les lettres. Le conditionnel : 'был бы благодарен, если бы'. 'По поводу' + génitif = au sujet de.",
+        },
+        {
+          title: "По телефону — Au téléphone", description: "Gérer des appels professionnels en russe", order: 2,
+          vocabulary: [
+            { word: "Здравствуйте, это... (zdravstvuyte, eto)", translation: "Bonjour, c'est ... à l'appareil", example: "Здравствуйте, это Мария из отдела маркетинга." },
+            { word: "Можно поговорить с...? (mozhno pogovorit' s)", translation: "Puis-je parler à... ?", example: "Можно поговорить с менеджером по продажам?" },
+            { word: "Я звоню по поводу... (ya zvonyu po povodu)", translation: "J'appelle au sujet de...", example: "Я звоню по поводу полученного счёта." },
+            { word: "Подождите, пожалуйста, минутку (podozhdite, pozhaluysta, minutku)", translation: "Veuillez patienter un instant", example: "Подождите, пожалуйста, минутку. Я вас переключу." },
+            { word: "Я перезвоню (ya perezvonyu)", translation: "Je rappellerai", example: "Я перезвоню завтра с ответом." },
+            { word: "Не могли бы вы повторить? (ne mogli by vy povtorit')", translation: "Pourriez-vous répéter ?", example: "Не могли бы вы повторить? Плохо слышно." },
+            { word: "Можно оставить сообщение? (mozhno ostavit' soobshcheniye)", translation: "Puis-je laisser un message ?", example: "Его нет. Можно оставить сообщение?" },
+            { word: "Спасибо за ваше время (spasibo za vashe vremya)", translation: "Merci pour votre temps", example: "Спасибо за ваше время. Хорошего дня!" },
+          ],
+          grammarNote: "'Можно' + infinitif = formule de permission/demande polie. 'Переключить' = transférer (un appel). 'По поводу' + génitif = au sujet de.",
+        },
+      ],
+    },
+  ]);
+
   // ---------- CORÉEN ----------
   console.log("📚 Coréen...");
   const koA1 = await upsertCourse(langMap["ko"], "A1", "한국어 — 초급 (A1)", "Les bases du coréen pour te débrouiller au quotidien.", 1, false);
   const koA2 = await upsertCourse(langMap["ko"], "A2", "한국어 — 초중급 (A2)", "Renforce tes bases et commence à avoir des conversations simples.", 2, false);
-  await upsertCourse(langMap["ko"], "B1", "한국어 — 중급 (B1)", "Développe ta fluidité et aborde des sujets plus complexes.", 3, true);
+  const koB1 = await upsertCourse(langMap["ko"], "B1", "한국어 — 중급 (B1)", "Développe ta fluidité et aborde des sujets plus complexes.", 3, true);
 
   await seedChaptersWithContent(koA1, [
     {
@@ -1634,11 +2459,180 @@ async function main() {
     },
   ]);
 
+  // KO B1 Chapitres
+  await seedChaptersWithContent(koB1, [
+    {
+      title: "취업 면접 — L'entretien d'embauche", icon: "💼", description: "Préparer et réussir un entretien d'embauche en coréen", order: 1,
+      lessons: [
+        {
+          title: "전문적으로 자기소개하기", description: "Parler de son parcours professionnel", order: 1,
+          vocabulary: [
+            { word: "저는 ...분야에서 경험이 있습니다 (jeoneun ...bunyaeseo gyeongheomi issseumnida)", translation: "J'ai de l'expérience dans le domaine de...", example: "저는 IT 분야에서 경험이 있습니다." },
+            { word: "현재 ...로 일하고 있습니다 (hyeonjae ...ro ilhago issseumnida)", translation: "Je travaille actuellement en tant que...", example: "현재 프로젝트 매니저로 일하고 있습니다." },
+            { word: "제 강점은 ...입니다 (je gangjeomeun ...imnida)", translation: "Mon point fort est...", example: "제 강점은 커뮤니케이션 능력입니다." },
+            { word: "새로운 도전을 찾고 있습니다 (saeroun dojeoneul chatgo issseumnida)", translation: "Je cherche de nouveaux défis", example: "새로운 도전을 찾고 있습니다." },
+            { word: "저는 ...한 사람이라고 생각합니다 (jeoneun ...han saramirage saenggakamnida)", translation: "Je pense être une personne...", example: "저는 책임감 있는 사람이라고 생각합니다." },
+            { word: "이 업계에서 5년간 일해왔습니다 (i eopgyeeseo 5nyeongan ilhaewassseumnida)", translation: "J'ai travaillé dans cette industrie pendant 5 ans", example: "이 업계에서 5년간 일해왔습니다." },
+            { word: "이전 직장에서는 ...를 담당했습니다 (ijeon jikjangeseo ...reul damdanghaessseumnida)", translation: "Dans mon poste précédent, j'étais en charge de...", example: "이전 직장에서는 마케팅을 담당했습니다." },
+            { word: "저는 ...학위를 가지고 있습니다 (jeoneun ...hakwireul gajigo issseumnida)", translation: "J'ai un diplôme en...", example: "저는 경영학 학위를 가지고 있습니다." },
+          ],
+          grammarNote: "Le style formel (합니다체) est obligatoire en entretien. '~해왔습니다' exprime une action continue depuis le passé. '~로' indique le rôle/titre.",
+        },
+        {
+          title: "질문과 협상", description: "Répondre aux questions et négocier", order: 2,
+          vocabulary: [
+            { word: "희망 연봉이 어떻게 되시나요? (huimang yeonbongi eotteoke doesinayo)", translation: "Quel est votre salaire souhaité ?", example: "희망 연봉이 어떻게 되시나요?" },
+            { word: "협의할 의향이 있습니다 (hyeopuihal uihyangi issseumnida)", translation: "Je suis disposé(e) à négocier", example: "조건에 따라 협의할 의향이 있습니다." },
+            { word: "5년 후 어떤 모습을 그리고 계신가요? (5nyeon hu eotteon moseubeul geurigo gyesingayo)", translation: "Comment vous imaginez-vous dans 5 ans ?", example: "5년 후 어떤 모습을 그리고 계신가요?" },
+            { word: "제 단점은 ...입니다 (je danjeomeun ...imnida)", translation: "Mon défaut est...", example: "제 단점은 완벽주의적인 성격입니다." },
+            { word: "팀에 대해 알려주실 수 있나요? (time daehae allyeojusil su innayo)", translation: "Pourriez-vous me parler de l'équipe ?", example: "팀에 대해 알려주실 수 있나요?" },
+            { word: "일상적인 업무는 어떤가요? (ilsangjeogin eopmoneun eotteongayo)", translation: "Quel est le travail quotidien ?", example: "이 포지션의 일상적인 업무는 어떤가요?" },
+            { word: "...에 특히 관심이 있습니다 (...e teukhi gwansimi issseumnida)", translation: "Je suis particulièrement intéressé(e) par...", example: "귀사의 글로벌 확장에 특히 관심이 있습니다." },
+            { word: "결과는 언제쯤 알 수 있을까요? (gyeolgwaneun eonjesjjeum al su isseulkkayo)", translation: "Quand pourrai-je connaître les résultats ?", example: "면접 결과는 언제쯤 알 수 있을까요?" },
+          ],
+          grammarNote: "'~실 수 있나요?' = formule de politesse élevée. '귀사' (貴社) = votre entreprise (très respectueux). '~에 따라' = selon, en fonction de.",
+        },
+      ],
+    },
+    {
+      title: "토론하고 의견 말하기 — Débattre et donner son avis", icon: "💬", description: "Exprimer et défendre son point de vue en coréen", order: 2,
+      lessons: [
+        {
+          title: "의견 표현하기", description: "Donner son opinion et réagir", order: 1,
+          vocabulary: [
+            { word: "제 생각에는... (je saenggageneun)", translation: "À mon avis...", example: "제 생각에는 재택근무가 더 효율적입니다." },
+            { word: "저는 ...라고 확신합니다 (jeoneun ...rago hwaksinhamnida)", translation: "Je suis convaincu(e) que...", example: "저는 교육이 무료여야 한다고 확신합니다." },
+            { word: "말씀하시는 것은 이해하지만... (malsseumhasineun geoseun ihaehaijiman)", translation: "Je comprends ce que vous dites, mais...", example: "말씀하시는 것은 이해하지만, 동의하지 않습니다." },
+            { word: "좋은 지적이십니다 (joeun jijeogisimnida)", translation: "C'est une bonne remarque", example: "좋은 지적이십니다. 그건 생각하지 못했습니다." },
+            { word: "반면에... (banmyeone)", translation: "D'un autre côté...", example: "반면에, 위험도 상당합니다." },
+            { word: "저는 ...라고 생각하는 편입니다 (jeoneun ...rago saenggakhaneun pyeonimnida)", translation: "J'ai tendance à penser que...", example: "저는 기술이 삶을 개선한다고 생각하는 편입니다." },
+            { word: "전적으로 동의합니다 (jeonjeogeuro donguihamnida)", translation: "Je suis tout à fait d'accord", example: "전적으로 동의합니다." },
+            { word: "반드시 그렇다고 할 수 없습니다 (bandeusi geureotago hal su eopsseumnida)", translation: "Ce n'est pas forcément le cas", example: "반드시 그렇다고 할 수 없습니다." },
+          ],
+          grammarNote: "'~는 편이다' = avoir tendance à. '~라고 생각하다' = penser que (citation indirecte). Le style formel est de rigueur dans les débats.",
+        },
+        {
+          title: "논리적으로 말하기", description: "Structurer un argument", order: 2,
+          vocabulary: [
+            { word: "우선... (useon)", translation: "Tout d'abord...", example: "우선, 제 생각을 설명하겠습니다." },
+            { word: "게다가... (gedaga)", translation: "De plus...", example: "게다가, 데이터가 이 결론을 뒷받침합니다." },
+            { word: "하지만... (hajiman)", translation: "Cependant...", example: "하지만, 비용도 고려해야 합니다." },
+            { word: "요약하자면... (yoyakhajamyeon)", translation: "En résumé...", example: "요약하자면, 장점이 단점보다 많습니다." },
+            { word: "가장 큰 문제는 ...입니다 (gajang keun munjeneun ...imnida)", translation: "Le plus grand problème est...", example: "가장 큰 문제는 자금 부족입니다." },
+            { word: "예를 들면 (yereul deulmyeon)", translation: "Par exemple...", example: "예를 들면, 작년 매출 데이터를 보면 알 수 있습니다." },
+            { word: "연구에 따르면... (yeongue ttareumyeon)", translation: "Selon les recherches...", example: "최근 연구에 따르면, 이것은 효과적입니다." },
+            { word: "결론적으로... (gyeollonjeogeuro)", translation: "En conclusion...", example: "결론적으로, 이 프로젝트를 추진해야 합니다." },
+          ],
+          grammarNote: "Les connecteurs : '우선' (d'abord), '게다가' (de plus), '하지만' (cependant), '따라서' (par conséquent). '~에 따르면' = selon.",
+        },
+      ],
+    },
+    {
+      title: "혼자 여행하기 — Voyager seul", icon: "🌍", description: "Se débrouiller en voyage de manière autonome", order: 3,
+      lessons: [
+        {
+          title: "예상치 못한 상황 대처", description: "Gérer les imprévus en voyage", order: 1,
+          vocabulary: [
+            { word: "여권을 잃어버렸습니다 (yeogwoneul ireobeoryeossseumnida)", translation: "J'ai perdu mon passeport", example: "여권을 잃어버렸습니다. 대사관이 어디에 있나요?" },
+            { word: "비행기가 취소되었습니다 (bihaenggiga chwisodoeossseumnida)", translation: "Mon vol a été annulé", example: "비행기가 취소되었습니다. 다시 예약할 수 있나요?" },
+            { word: "불만을 접수하고 싶습니다 (bulmaneul jeopsuhago sipsseumnida)", translation: "Je voudrais déposer une réclamation", example: "호텔 방에 대해 불만을 접수하고 싶습니다." },
+            { word: "...를 찾는 것을 도와주실 수 있나요? (...reul chatneun geoseul dowajusil su innayo)", translation: "Pourriez-vous m'aider à trouver... ?", example: "가장 가까운 약국을 찾는 것을 도와주실 수 있나요?" },
+            { word: "...에 어떻게 가는지 모르겠습니다 (...e eotteoke ganeunji moreugessseubnida)", translation: "Je ne sais pas comment aller à...", example: "기차역에 어떻게 가는지 모르겠습니다." },
+            { word: "다른 방법이 있나요? (dareun bangbeobi innayo)", translation: "Y a-t-il une autre méthode ?", example: "공항에 가는 다른 방법이 있나요?" },
+            { word: "1시간 넘게 기다리고 있습니다 (1sigan neomge gidarigo issseumnida)", translation: "J'attends depuis plus d'une heure", example: "짐을 1시간 넘게 기다리고 있습니다." },
+            { word: "이 건에 대해 누구에게 연락해야 하나요? (i geone daehae nuguege yeollakhaeya hanayo)", translation: "À qui dois-je m'adresser pour ça ?", example: "이 건에 대해 누구에게 연락해야 하나요?" },
+          ],
+          grammarNote: "'~어버리다' = faire quelque chose de manière irréversible/regrettable (잃어버리다). '~고 있다' = être en train de. '~실 수 있나요?' = pouvez-vous (poli).",
+        },
+        {
+          title: "탐험하고 교류하기", description: "Découvrir et interagir avec les locaux", order: 2,
+          vocabulary: [
+            { word: "이 지역은 무엇으로 유명한가요? (i jiyeogeun mueoseuro yumyeonghangayo)", translation: "Pour quoi cette région est-elle connue ?", example: "이 지역은 무엇으로 유명한가요?" },
+            { word: "좋은 식당을 추천해 주실 수 있나요? (joeun sikdangeul chucheonhae jusil su innayo)", translation: "Pouvez-vous recommander un bon restaurant ?", example: "근처에 좋은 식당을 추천해 주실 수 있나요?" },
+            { word: "현지인들은 보통 어떻게 이동하나요? (hyeonjiin deuleun botong eotteoke idonganayo)", translation: "Comment les locaux se déplacent-ils ?", example: "현지인들은 보통 어떻게 이동하나요?" },
+            { word: "꼭 ...를 먹어보고 싶습니다 (kkok ...reul meogeobbogo sipsseumnida)", translation: "J'aimerais absolument goûter...", example: "꼭 전통 음식을 먹어보고 싶습니다." },
+            { word: "밤에 여기 걸어다녀도 안전한가요? (bame yeogi georeo-danyeodo anjeonhangayo)", translation: "Est-ce sûr de se promener ici la nuit ?", example: "밤에 여기 걸어다녀도 안전한가요?" },
+            { word: "몇 시에 열어요/닫아요? (myeot sie yeoreoyo/dadayo)", translation: "À quelle heure ça ouvre/ferme ?", example: "박물관은 몇 시에 열어요?" },
+            { word: "관광객에게 조언이 있으신가요? (gwangwanggaekege joeoeni isseusingayo)", translation: "Avez-vous des conseils pour les touristes ?", example: "이 도시를 방문하는 관광객에게 조언이 있으신가요?" },
+            { word: "혼자 여행하고 있습니다 (honja yeohaenghago issseumnida)", translation: "Je voyage seul(e)", example: "처음으로 혼자 여행하고 있습니다." },
+          ],
+          grammarNote: "'꼭' = absolument. '~어보다' = essayer de faire. '~어도' = même si. '현지인' = les locaux (habitants du lieu).",
+        },
+      ],
+    },
+    {
+      title: "이야기 들려주기 — Raconter une histoire", icon: "📖", description: "Narrer des événements passés avec détails et émotions", order: 4,
+      lessons: [
+        {
+          title: "추억 이야기하기", description: "Raconter un souvenir", order: 1,
+          vocabulary: [
+            { word: "모든 것은 ...에서 시작되었습니다 (modeun geoseun ...eseo sijakdoeossseumnida)", translation: "Tout a commencé à...", example: "모든 것은 서울로 이사하면서 시작되었습니다." },
+            { word: "그때 저는 아직 ...이었습니다 (geuttae jeoneun ajik ...ieossseumnida)", translation: "À cette époque, j'étais encore...", example: "그때 저는 아직 학생이었습니다." },
+            { word: "갑자기... (gapjagi)", translation: "Soudainement...", example: "갑자기 모든 것이 변했습니다." },
+            { word: "그런 경험은 처음이었습니다 (geureon gyeongheomeun cheoeumieossseumnida)", translation: "C'était la première fois que je vivais ça", example: "그런 경험은 처음이었습니다." },
+            { word: "돌이켜보면... (dorityeoboMyeon)", translation: "Avec le recul...", example: "돌이켜보면, 그것이 최선의 결정이었습니다." },
+            { word: "가장 기억에 남는 것은... (gajang gieoge namneun geoseun)", translation: "Ce dont je me souviens le plus...", example: "가장 기억에 남는 것은 현지인들과의 만남입니다." },
+            { word: "알고 보니... (algo boni)", translation: "Il s'est avéré que...", example: "알고 보니 우리가 완전히 틀렸습니다." },
+            { word: "...를 절대 잊지 못할 것입니다 (...reul jeoldae itji mothal geosimnida)", translation: "Je n'oublierai jamais...", example: "도쿄에서 길을 잃었던 것을 절대 잊지 못할 것입니다." },
+          ],
+          grammarNote: "'~면서' = en même temps que. '알고 보니' = quand on y regarde de plus près. '~지 못하다' = ne pas pouvoir. '절대' = jamais/absolument.",
+        },
+        {
+          title: "감정과 반응 표현하기", description: "Décrire des émotions dans un récit", order: 2,
+          vocabulary: [
+            { word: "정말 기뻤습니다 (jeongmal gippeossseumnida)", translation: "J'étais vraiment content(e)", example: "그 소식을 들었을 때 정말 기뻤습니다." },
+            { word: "눈을 의심했습니다 (nuneul uisimhaessseumnida)", translation: "Je n'en croyais pas mes yeux", example: "그 풍경을 보고 눈을 의심했습니다." },
+            { word: "...한 기분이 들었습니다 (...han gibuni deureossseumnida)", translation: "J'ai ressenti un sentiment de...", example: "감사한 기분이 들었습니다." },
+            { word: "안도감을 느꼈습니다 (andogameul neukkyeossseumnida)", translation: "J'ai ressenti du soulagement", example: "모두 무사하다는 것을 알고 안도감을 느꼈습니다." },
+            { word: "처음에는 무서웠지만, 나중에는... (cheoeumeNeun museoweojiman, najungeneun)", translation: "Au début j'avais peur, mais après...", example: "처음에는 무서웠지만, 나중에는 즐기기 시작했습니다." },
+            { word: "씁쓸한 순간이었습니다 (sseupsseulhan sunganieossseumnida)", translation: "C'était un moment amer", example: "작별 인사를 하는 것은 씁쓸한 순간이었습니다." },
+            { word: "성취감을 느꼈습니다 (seongchwigameul neukkyeossseumnida)", translation: "J'ai ressenti un sentiment d'accomplissement", example: "마라톤을 완주한 후 성취감을 느꼈습니다." },
+            { word: "압도당했습니다 (apdodanghaessseumnida)", translation: "J'ai été submergé(e)", example: "그렇게 많은 사람들의 응원에 압도당했습니다." },
+          ],
+          grammarNote: "'~을/를 느끼다' = ressentir. '~었/았지만' = mais (contraste avec le passé). '~당하다' = subir (voix passive). '기분이 들다' = ressentir (un sentiment).",
+        },
+      ],
+    },
+    {
+      title: "비즈니스 커뮤니케이션 — Communication professionnelle", icon: "📧", description: "Maîtriser les emails et appels téléphoniques professionnels", order: 5,
+      lessons: [
+        {
+          title: "비즈니스 이메일 작성", description: "Rédiger des emails professionnels en coréen", order: 1,
+          vocabulary: [
+            { word: "...님께 (...nimkke)", translation: "À l'attention de M./Mme...", example: "김 부장님께, 안녕하십니까." },
+            { word: "...건으로 메일 드립니다 (...geoNeuro meil deurimnida)", translation: "Je vous écris au sujet de...", example: "회의 건으로 메일 드립니다." },
+            { word: "첨부 파일을 확인해 주시기 바랍니다 (cheombu paireul hwaginhae jusigi baramnida)", translation: "Veuillez vérifier le fichier joint", example: "첨부 파일을 확인해 주시기 바랍니다." },
+            { word: "...해 주시면 감사하겠습니다 (...hae jusimyeon gamsahagessseubnida)", translation: "Je vous serais reconnaissant si vous...", example: "금요일까지 답변해 주시면 감사하겠습니다." },
+            { word: "답변 기다리겠습니다 (dapbyeon gidarigessseumnida)", translation: "J'attends votre réponse", example: "답변 기다리겠습니다." },
+            { word: "감사합니다 (gamsahamnida)", translation: "Cordialement", example: "감사합니다. 김민수 드림." },
+            { word: "지난 대화에 이어서... (jinan daehwae ieoseo)", translation: "Suite à notre conversation...", example: "지난 대화에 이어서 세부 사항을 보내드립니다." },
+            { word: "답변이 늦어 죄송합니다 (dapbyeoni neujeeo joessonghamnida)", translation: "Je m'excuse du retard de réponse", example: "답변이 늦어 죄송합니다." },
+          ],
+          grammarNote: "'~드리다' = forme humble de '주다' (donner). '~시기 바랍니다' = veuillez (très formel). '드림' = signature d'email (humble).",
+        },
+        {
+          title: "전화 통화", description: "Gérer des appels professionnels en coréen", order: 2,
+          vocabulary: [
+            { word: "안녕하십니까, ...입니다 (annyeonghasimnikka, ...imnida)", translation: "Bonjour, je suis...", example: "안녕하십니까, 마케팅부 김민수입니다." },
+            { word: "...님 계신가요? (...nim gyesingayo)", translation: "Est-ce que M./Mme ... est disponible ?", example: "영업부 이 과장님 계신가요?" },
+            { word: "...건으로 전화 드렸습니다 (...geoNeuro jeonhwa deuryeossseumnida)", translation: "J'appelle au sujet de...", example: "청구서 건으로 전화 드렸습니다." },
+            { word: "잠시만 기다려 주시겠습니까? (jamsiman gidaryeo jusigessseumnikka)", translation: "Pourriez-vous patienter un instant ?", example: "잠시만 기다려 주시겠습니까? 연결해 드리겠습니다." },
+            { word: "다시 연락드리겠습니다 (dasi yeollakdeurigessseumnida)", translation: "Je vous recontacterai", example: "내일까지 다시 연락드리겠습니다." },
+            { word: "다시 한번 말씀해 주시겠습니까? (dasi hanbeon malsseumhae jusigessseumnikka)", translation: "Pourriez-vous répéter ?", example: "죄송합니다, 다시 한번 말씀해 주시겠습니까?" },
+            { word: "메시지를 남겨도 될까요? (mesijireul namgyeodo doelkkayo)", translation: "Puis-je laisser un message ?", example: "자리에 안 계시네요. 메시지를 남겨도 될까요?" },
+            { word: "시간 내주셔서 감사합니다 (sigan naejusyeoseo gamsahamnida)", translation: "Merci pour votre temps", example: "시간 내주셔서 감사합니다. 좋은 하루 되세요." },
+          ],
+          grammarNote: "'~시겠습니까?' = formule de demande la plus polie. '~드리다' = forme humble de '주다'. '계시다' = honorifique de '있다' (être/exister).",
+        },
+      ],
+    },
+  ]);
+
   // ---------- FRANÇAIS ----------
   console.log("📚 Français...");
   const frA1 = await upsertCourse(langMap["fr"], "A1", "Français — Débutant (A1)", "Les bases du français pour te débrouiller au quotidien.", 1, false);
   const frA2 = await upsertCourse(langMap["fr"], "A2", "Français — Élémentaire (A2)", "Renforce tes bases et commence à avoir des conversations simples.", 2, false);
-  await upsertCourse(langMap["fr"], "B1", "Français — Intermédiaire (B1)", "Développe ta fluidité et aborde des sujets plus complexes.", 3, true);
+  const frB1 = await upsertCourse(langMap["fr"], "B1", "Français — Intermédiaire (B1)", "Développe ta fluidité et aborde des sujets plus complexes.", 3, true);
 
   await seedChaptersWithContent(frA1, [
     {
@@ -1894,6 +2888,175 @@ async function main() {
             { word: "Passer l'aspirateur", translation: "To vacuum", example: "Je passe l'aspirateur tous les deux jours." },
           ],
           grammarNote: "'Faire' (to do/make) is very common: 'faire la cuisine' (to cook), 'faire le ménage' (to clean), 'faire les courses' (to shop).",
+        },
+      ],
+    },
+  ]);
+
+  // FR B1 Chapitres
+  await seedChaptersWithContent(frB1, [
+    {
+      title: "L'entretien d'embauche", icon: "💼", description: "Prepare and succeed in a job interview in French", order: 1,
+      lessons: [
+        {
+          title: "Se présenter professionnellement", description: "Talk about your career and skills", order: 1,
+          vocabulary: [
+            { word: "J'ai une formation en...", translation: "I have a background in...", example: "J'ai une formation en ingénierie informatique." },
+            { word: "Je travaille actuellement comme...", translation: "I currently work as...", example: "Je travaille actuellement comme chef de projet." },
+            { word: "Ma principale responsabilité est...", translation: "My main responsibility is...", example: "Ma principale responsabilité est la gestion de l'équipe." },
+            { word: "Je suis à la recherche d'un nouveau défi", translation: "I'm looking for a new challenge", example: "Je suis à la recherche d'un nouveau défi professionnel." },
+            { word: "Je me décrirais comme...", translation: "I would describe myself as...", example: "Je me décrirais comme rigoureux et motivé." },
+            { word: "Cela fait cinq ans que je travaille dans...", translation: "I've been working in ... for five years", example: "Cela fait cinq ans que je travaille dans le marketing digital." },
+            { word: "Mon poste précédent consistait à...", translation: "My previous role involved...", example: "Mon poste précédent consistait à gérer les relations clients." },
+            { word: "Je suis diplômé(e) de...", translation: "I graduated from...", example: "Je suis diplômé de l'université de Lyon en gestion." },
+          ],
+          grammarNote: "'Cela fait + durée + que' expresses duration: 'Cela fait trois ans que j'habite ici' = I've been living here for three years.",
+        },
+        {
+          title: "Questions et négociation", description: "Answer tough questions and negotiate", order: 2,
+          vocabulary: [
+            { word: "Quelles sont vos prétentions salariales ?", translation: "What are your salary expectations?", example: "Quelles sont vos prétentions salariales pour ce poste ?" },
+            { word: "Je suis ouvert(e) à la discussion", translation: "I'm open to discussion", example: "Je suis ouverte à la discussion sur les conditions." },
+            { word: "Où vous voyez-vous dans cinq ans ?", translation: "Where do you see yourself in five years?", example: "Où vous voyez-vous dans cinq ans ?" },
+            { word: "Mon principal défaut est...", translation: "My main weakness is...", example: "Mon principal défaut est le perfectionnisme." },
+            { word: "Pourriez-vous me parler de l'équipe ?", translation: "Could you tell me about the team?", example: "Pourriez-vous me parler de l'équipe que je rejoindrais ?" },
+            { word: "À quoi ressemble une journée type ?", translation: "What does a typical day look like?", example: "À quoi ressemble une journée type à ce poste ?" },
+            { word: "Ce qui m'intéresse particulièrement, c'est...", translation: "What particularly interests me is...", example: "Ce qui m'intéresse particulièrement, c'est votre projet d'expansion." },
+            { word: "Quand puis-je espérer avoir des nouvelles ?", translation: "When can I expect to hear back?", example: "Quand puis-je espérer avoir des nouvelles ?" },
+          ],
+          grammarNote: "The conditional 'pourriez-vous' is essential for polite requests. 'Ce qui... c'est...' is an emphatic structure: 'What... is...'.",
+        },
+      ],
+    },
+    {
+      title: "Débattre et donner son avis", icon: "💬", description: "Express and defend your point of view in French", order: 2,
+      lessons: [
+        {
+          title: "Exprimer son opinion", description: "Give your opinion and react to others", order: 1,
+          vocabulary: [
+            { word: "À mon avis...", translation: "In my opinion...", example: "À mon avis, le télétravail est plus productif." },
+            { word: "Je suis convaincu(e) que...", translation: "I'm convinced that...", example: "Je suis convaincue que l'éducation devrait être gratuite." },
+            { word: "Je comprends votre point de vue, mais...", translation: "I understand your point of view, but...", example: "Je comprends votre point de vue, mais je ne suis pas d'accord." },
+            { word: "C'est un argument valable", translation: "That's a valid point", example: "C'est un argument valable, je n'y avais pas pensé." },
+            { word: "En revanche...", translation: "On the other hand...", example: "En revanche, les risques sont importants." },
+            { word: "J'ai tendance à penser que...", translation: "I tend to think that...", example: "J'ai tendance à penser que la technologie améliore nos vies." },
+            { word: "Je suis tout à fait d'accord", translation: "I completely agree", example: "Je suis tout à fait d'accord avec votre analyse." },
+            { word: "Ce n'est pas forcément le cas", translation: "That's not necessarily the case", example: "Ce n'est pas forcément le cas dans toutes les situations." },
+          ],
+          grammarNote: "The subjunctive is used after expressions of doubt: 'Je ne crois pas que ce soit vrai'. After 'je crois que' (affirmative) → indicative.",
+        },
+        {
+          title: "Argumenter et convaincre", description: "Structure an argument and convince", order: 2,
+          vocabulary: [
+            { word: "Tout d'abord...", translation: "First of all...", example: "Tout d'abord, laissez-moi expliquer mon raisonnement." },
+            { word: "De plus...", translation: "Furthermore...", example: "De plus, les données soutiennent cette conclusion." },
+            { word: "Cependant...", translation: "However...", example: "Cependant, il faut prendre en compte les coûts." },
+            { word: "En résumé...", translation: "To sum up...", example: "En résumé, les avantages l'emportent sur les inconvénients." },
+            { word: "Le problème principal est...", translation: "The main problem is...", example: "Le problème principal est le manque de financement." },
+            { word: "Prenons un exemple", translation: "Let's take an example", example: "Prenons un exemple pour illustrer mon propos." },
+            { word: "D'après les études...", translation: "According to studies...", example: "D'après les études récentes, c'est efficace." },
+            { word: "En conclusion...", translation: "In conclusion...", example: "En conclusion, je pense que nous devrions continuer." },
+          ],
+          grammarNote: "Logical connectors: 'tout d'abord' (first), 'de plus' (moreover), 'cependant' (however), 'en conclusion' (in conclusion). Use the subjunctive after 'bien que' and 'pour que'.",
+        },
+      ],
+    },
+    {
+      title: "Voyager seul", icon: "🌍", description: "Handle solo travel situations autonomously", order: 3,
+      lessons: [
+        {
+          title: "Gérer les imprévus", description: "Solve problems while traveling", order: 1,
+          vocabulary: [
+            { word: "J'ai perdu mon passeport", translation: "I've lost my passport", example: "J'ai perdu mon passeport, où se trouve l'ambassade ?" },
+            { word: "Mon vol a été annulé", translation: "My flight has been cancelled", example: "Mon vol a été annulé, pouvez-vous me réserver un autre vol ?" },
+            { word: "Je souhaite déposer une réclamation", translation: "I would like to file a complaint", example: "Je souhaite déposer une réclamation concernant ma chambre d'hôtel." },
+            { word: "Pourriez-vous m'aider à trouver... ?", translation: "Could you help me find...?", example: "Pourriez-vous m'aider à trouver la pharmacie la plus proche ?" },
+            { word: "Je ne sais pas comment me rendre à...", translation: "I don't know how to get to...", example: "Je ne sais pas comment me rendre à la gare." },
+            { word: "Y a-t-il une alternative ?", translation: "Is there an alternative?", example: "Y a-t-il une alternative pour rejoindre l'aéroport ?" },
+            { word: "J'attends depuis plus d'une heure", translation: "I've been waiting for over an hour", example: "J'attends mes bagages depuis plus d'une heure." },
+            { word: "À qui dois-je m'adresser ?", translation: "Who should I contact?", example: "À qui dois-je m'adresser concernant ce problème ?" },
+          ],
+          grammarNote: "The passive voice in French: 'Mon vol a été annulé' (passé composé passif). 'Depuis' + duration for ongoing situations: 'J'attends depuis une heure'.",
+        },
+        {
+          title: "Découvrir et échanger", description: "Interact with locals and explore culture", order: 2,
+          vocabulary: [
+            { word: "Pour quoi ce quartier est-il connu ?", translation: "What is this neighborhood known for?", example: "Pour quoi ce quartier est-il connu ? Des spécialités locales ?" },
+            { word: "Pouvez-vous me recommander un bon restaurant ?", translation: "Can you recommend a good restaurant?", example: "Pouvez-vous me recommander un bon restaurant dans le coin ?" },
+            { word: "Comment les habitants se déplacent-ils ?", translation: "How do locals get around?", example: "Comment les habitants se déplacent-ils en ville ?" },
+            { word: "J'adorerais goûter...", translation: "I'd love to try...", example: "J'adorerais goûter la cuisine traditionnelle de la région." },
+            { word: "Est-ce sûr de se promener ici le soir ?", translation: "Is it safe to walk around here at night?", example: "Est-ce sûr de se promener ici le soir ?" },
+            { word: "À quelle heure ça ouvre / ça ferme ?", translation: "What time does it open/close?", example: "À quelle heure ouvre le musée ?" },
+            { word: "Avez-vous des conseils pour les visiteurs ?", translation: "Do you have any tips for visitors?", example: "Avez-vous des conseils pour les visiteurs de cette ville ?" },
+            { word: "Je voyage seul(e)", translation: "I'm traveling alone", example: "Je voyage seule pour la première fois." },
+          ],
+          grammarNote: "'Connu pour' = known for. The conditional 'j'adorerais' adds politeness. 'Dans le coin' = around here (informal but common).",
+        },
+      ],
+    },
+    {
+      title: "Raconter une histoire", icon: "📖", description: "Narrate past events with details and emotions", order: 4,
+      lessons: [
+        {
+          title: "Raconter un souvenir", description: "Talk about past events vividly", order: 1,
+          vocabulary: [
+            { word: "Tout a commencé quand...", translation: "It all started when...", example: "Tout a commencé quand j'ai déménagé à Lyon." },
+            { word: "À cette époque, j'étais...", translation: "At that time, I was...", example: "À cette époque, j'étais encore étudiant." },
+            { word: "Tout à coup...", translation: "Suddenly...", example: "Tout à coup, tout a changé." },
+            { word: "Je n'avais jamais vécu une telle chose", translation: "I had never experienced such a thing", example: "Je n'avais jamais vécu une telle chose auparavant." },
+            { word: "Avec le recul, je me rends compte que...", translation: "Looking back, I realize that...", example: "Avec le recul, je me rends compte que c'était la meilleure décision." },
+            { word: "Le moment le plus marquant a été...", translation: "The most striking moment was...", example: "Le moment le plus marquant a été la rencontre avec les habitants." },
+            { word: "Il s'est avéré que...", translation: "It turned out that...", example: "Il s'est avéré que nous avions complètement tort." },
+            { word: "Je n'oublierai jamais le jour où...", translation: "I'll never forget the day when...", example: "Je n'oublierai jamais le jour où je me suis perdu à Tokyo." },
+          ],
+          grammarNote: "Passé composé for main actions ('j'ai déménagé'). Imparfait for background/context ('j'étais'). Plus-que-parfait for earlier events ('je n'avais jamais vécu').",
+        },
+        {
+          title: "Exprimer des émotions", description: "Express feelings in a narrative", order: 2,
+          vocabulary: [
+            { word: "J'étais fou/folle de joie", translation: "I was overjoyed", example: "J'étais folle de joie quand j'ai appris la nouvelle." },
+            { word: "Je n'en croyais pas mes yeux", translation: "I couldn't believe my eyes", example: "Je n'en croyais pas mes yeux en voyant ce paysage." },
+            { word: "Ça m'a fait ressentir...", translation: "It made me feel...", example: "Ça m'a fait ressentir une immense gratitude." },
+            { word: "J'ai été tellement soulagé(e) que...", translation: "I was so relieved that...", example: "J'ai été tellement soulagée que tout le monde aille bien." },
+            { word: "Au début j'avais peur, mais ensuite...", translation: "At first I was scared, but then...", example: "Au début j'avais peur, mais ensuite j'ai commencé à apprécier." },
+            { word: "C'était un moment doux-amer", translation: "It was a bittersweet moment", example: "C'était un moment doux-amer de dire au revoir." },
+            { word: "J'ai ressenti un sentiment d'accomplissement", translation: "I felt a sense of accomplishment", example: "J'ai ressenti un sentiment d'accomplissement en terminant le marathon." },
+            { word: "C'était bouleversant", translation: "It was overwhelming", example: "C'était bouleversant de voir autant de soutien." },
+          ],
+          grammarNote: "Subjunctive after emotions: 'Je suis soulagé que tout le monde aille bien' (aille = subjunctive of aller). 'En + gerund' for simultaneous actions: 'en voyant'.",
+        },
+      ],
+    },
+    {
+      title: "Communication professionnelle", icon: "📧", description: "Master professional emails and phone calls in French", order: 5,
+      lessons: [
+        {
+          title: "Écrire un email professionnel", description: "Write clear and polite professional emails", order: 1,
+          vocabulary: [
+            { word: "Madame, Monsieur", translation: "Dear Sir/Madam", example: "Madame, Monsieur, je me permets de vous écrire pour..." },
+            { word: "Je me permets de vous contacter au sujet de...", translation: "I am writing to you regarding...", example: "Je me permets de vous contacter au sujet de notre réunion." },
+            { word: "Veuillez trouver ci-joint...", translation: "Please find attached...", example: "Veuillez trouver ci-joint le rapport demandé." },
+            { word: "Je vous serais reconnaissant(e) si...", translation: "I would be grateful if...", example: "Je vous serais reconnaissante si vous pouviez répondre avant vendredi." },
+            { word: "Dans l'attente de votre réponse", translation: "Looking forward to your reply", example: "Dans l'attente de votre réponse, je vous prie d'agréer..." },
+            { word: "Cordialement", translation: "Kind regards", example: "Cordialement, Marie Dupont." },
+            { word: "Suite à notre conversation...", translation: "Following our conversation...", example: "Suite à notre conversation, je vous envoie les détails." },
+            { word: "Veuillez m'excuser pour le retard de ma réponse", translation: "Please forgive me for the delay in my response", example: "Veuillez m'excuser pour le retard de ma réponse." },
+          ],
+          grammarNote: "French formal emails use fixed formulas. 'Je me permets de' = I take the liberty of. 'Veuillez' = please (imperative of 'vouloir'). The closing formula can be very long and formal.",
+        },
+        {
+          title: "Au téléphone", description: "Handle professional phone calls in French", order: 2,
+          vocabulary: [
+            { word: "Bonjour, c'est ... à l'appareil", translation: "Hello, this is ... speaking", example: "Bonjour, c'est Marie Dupont à l'appareil." },
+            { word: "Pourrais-je parler à... ?", translation: "Could I speak to...?", example: "Pourrais-je parler au directeur commercial, s'il vous plaît ?" },
+            { word: "J'appelle au sujet de...", translation: "I'm calling regarding...", example: "J'appelle au sujet de la facture que nous avons reçue." },
+            { word: "Pourriez-vous patienter un instant ?", translation: "Could you hold for a moment?", example: "Pourriez-vous patienter un instant ? Je vous transfère." },
+            { word: "Je reviendrai vers vous à ce sujet", translation: "I'll get back to you on this", example: "Je reviendrai vers vous à ce sujet demain." },
+            { word: "Pourriez-vous répéter, s'il vous plaît ?", translation: "Could you repeat that, please?", example: "Pourriez-vous répéter ? La ligne est mauvaise." },
+            { word: "Puis-je laisser un message ?", translation: "May I leave a message?", example: "Il n'est pas disponible. Puis-je laisser un message ?" },
+            { word: "Je vous remercie pour votre temps", translation: "Thank you for your time", example: "Je vous remercie pour votre temps. Bonne journée." },
+          ],
+          grammarNote: "On the phone, 'pourriez-vous' (conditional) is essential for politeness. 'À l'appareil' = on the phone/speaking. 'Transférer' = to transfer a call.",
         },
       ],
     },
