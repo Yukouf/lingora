@@ -1160,8 +1160,8 @@ export function DemoChat() {
       </AnimatePresence>
 
       {/* Decorative glow — animated */}
-      <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-[#34d399]/[0.06] blur-3xl demo-glow-float" />
-      <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[#60a5fa]/[0.05] blur-3xl demo-glow-float-reverse" />
+      <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-[#34d399]/[0.06] blur-3xl demo-glow-float hidden sm:block" />
+      <div className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-[#60a5fa]/[0.05] blur-3xl demo-glow-float-reverse hidden sm:block" />
     </div>
   );
 }

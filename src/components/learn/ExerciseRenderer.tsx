@@ -548,8 +548,6 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
           {availableWords.map((word, i) => (
             <motion.button
               key={`word-${i}`}
-              layout
-              whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 if (showResult) return;

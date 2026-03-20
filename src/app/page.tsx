@@ -18,11 +18,11 @@ import { DemoChat } from "@/components/landing/DemoChat";
 const ease = [0.22, 1, 0.36, 1] as const;
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.1, duration: 0.7, ease },
+    transition: { delay: i * 0.08, duration: 0.5, ease },
   }),
 };
 
@@ -41,7 +41,7 @@ export default function Home() {
 
   const navigateWithTransition = useCallback((href: string) => {
     setTransitioning(true);
-    setTimeout(() => router.push(href), 500);
+    setTimeout(() => router.push(href), 300);
   }, [router]);
 
   return (
@@ -55,7 +55,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="fixed inset-0 z-[9999] bg-[#0a1628]"
           />
         )}
@@ -64,8 +64,8 @@ export default function Home() {
       {/* ═══════ HERO ═══════ */}
       <section className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-4 sm:px-6">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-[15%] top-[20%] h-[500px] w-[500px] rounded-full bg-[#2563eb]/15 blur-[120px]" />
-          <div className="absolute -right-[10%] bottom-[15%] h-[400px] w-[400px] rounded-full bg-[#7c3aed]/10 blur-[100px]" />
+          <div className="absolute -left-[15%] top-[20%] h-[300px] w-[300px] rounded-full bg-[#2563eb]/15 blur-[80px] sm:h-[500px] sm:w-[500px] sm:blur-[120px]" />
+          <div className="absolute -right-[10%] bottom-[15%] h-[250px] w-[250px] rounded-full bg-[#7c3aed]/10 blur-[60px] sm:h-[400px] sm:w-[400px] sm:blur-[100px]" />
         </div>
 
         <motion.div
@@ -74,9 +74,9 @@ export default function Home() {
           className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center"
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.7 }}
+            initial={{ opacity: 0, scale: 0.85 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.8, ease }}
+            transition={{ delay: 0.15, duration: 0.5, ease }}
             className="mb-10"
           >
             <GhostMascot className="scale-100" />
@@ -104,22 +104,23 @@ export default function Home() {
               transition={{ duration: 0.5, ease }}
               className="mt-6 text-3xl font-bold leading-[1.15] tracking-tight text-white sm:text-5xl md:text-7xl"
             >
-              {t.hero.title.split("").map((char, i) => (
+              {t.hero.title.split(" ").map((word, i) => (
                 <motion.span
                   key={`${locale}-${i}`}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.05 + i * 0.03, duration: 0.4, ease }}
+                  transition={{ delay: 0.1 + i * 0.08, duration: 0.4, ease }}
+                  className="inline-block will-change-transform"
                 >
-                  {char === " " ? "\u00A0" : char}
+                  {word}&nbsp;
                 </motion.span>
               ))}
               {" "}
               <motion.span
-                initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                transition={{ delay: 0.4, duration: 0.8, ease }}
-                className="atmo-shimmer relative inline-block bg-gradient-to-r from-[#60a5fa] via-[#c084fc] to-[#60a5fa] bg-[length:200%_auto] bg-clip-text text-transparent"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4, duration: 0.6, ease }}
+                className="atmo-shimmer relative inline-block bg-gradient-to-r from-[#60a5fa] via-[#c084fc] to-[#60a5fa] bg-[length:200%_auto] bg-clip-text text-transparent will-change-transform"
               >
                 {t.hero.brand}
                 <span className="pointer-events-none absolute -inset-4 -z-10 block rounded-full bg-[#7c3aed]/20 blur-2xl" />
@@ -157,8 +158,8 @@ export default function Home() {
                   segment.highlight ? (
                     <motion.span
                       key={i}
-                      initial={{ opacity: 0, scale: 0.9, filter: "blur(4px)" }}
-                      animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 1.2 + i * 0.2, duration: 0.5, ease }}
                       className="relative inline-block bg-gradient-to-r from-[#60a5fa] via-[#a78bfa] to-[#c084fc] bg-clip-text text-transparent"
                     >
@@ -350,7 +351,7 @@ export default function Home() {
                 >
                   {/* Background image — visible on hover with zoom */}
                   <div
-                    className="absolute inset-0 bg-cover bg-center opacity-0 transition-all duration-700 ease-out group-hover:opacity-100 group-hover:scale-110"
+                    className="absolute inset-0 bg-cover bg-center opacity-0 transition-[opacity,transform] duration-700 ease-out group-hover:opacity-100 group-hover:scale-110"
                     style={{ backgroundImage: `url(${bgImage})` }}
                   />
                   {/* Dark overlay */}

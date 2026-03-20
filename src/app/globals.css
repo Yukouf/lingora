@@ -1718,3 +1718,41 @@
 .animate-pulse-soft { animation: pulse-soft 2.5s ease-in-out infinite; }
 .animate-float { animation: float 3s ease-in-out infinite; }
 .animate-fly { animation: fly 3s ease-in-out infinite; }
+
+/* ═══ Mobile Performance ═══ */
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Disable heavy decorative animations on mobile for performance */
+@media (max-width: 640px) {
+  .atmo-shimmer {
+    animation: none;
+    background-position: 0% center;
+  }
+
+  .demo-glow-float,
+  .demo-glow-float-reverse {
+    animation: none;
+  }
+
+  /* Reduce ghost animation frequency on mobile */
+  .ghost-an1, .ghost-an2, .ghost-an3, .ghost-an4,
+  .ghost-an6, .ghost-an7, .ghost-an8, .ghost-an9,
+  .ghost-an10, .ghost-an11, .ghost-an12, .ghost-an13,
+  .ghost-an15, .ghost-an16, .ghost-an17, .ghost-an18 {
+    animation-duration: 2s !important;
+  }
+
+  /* Disable blur-based background effects on low-end devices */
+  .blur-3xl {
+    filter: none;
+    opacity: 0.3;
+  }
+}

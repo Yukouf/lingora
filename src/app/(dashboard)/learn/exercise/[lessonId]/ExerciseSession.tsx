@@ -93,9 +93,9 @@ export default function ExerciseSession({
         >
           {/* Trophy */}
           <motion.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 150, delay: 0.2 }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
             className="mx-auto mb-6 w-24 h-24 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center"
           >
             <Trophy className="h-12 w-12 text-white" />
@@ -129,13 +129,12 @@ export default function ExerciseSession({
             {[1, 2, 3].map((star) => (
               <motion.div
                 key={star}
-                initial={{ scale: 0, rotate: -180 }}
+                initial={{ scale: 0 }}
                 animate={{
                   scale: star <= stars ? 1 : 0.6,
-                  rotate: 0,
                   opacity: star <= stars ? 1 : 0.2,
                 }}
-                transition={{ delay: 0.7 + star * 0.15, type: "spring" }}
+                transition={{ delay: 0.7 + star * 0.15, type: "spring", stiffness: 200, damping: 15 }}
               >
                 <Star
                   className={`h-10 w-10 ${
