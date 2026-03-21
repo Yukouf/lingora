@@ -400,6 +400,7 @@ export default function ExerciseSession({
             onAnswer={handleAnswer}
             onNext={handleNext}
             languageCode={language.code}
+            chapterTitle={chapter.title}
           />
         )}
       </AnimatePresence>

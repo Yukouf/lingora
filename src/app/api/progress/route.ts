@@ -10,6 +10,12 @@ export async function GET() {
 
   const userId = session.user.id;
 
+  // Get user profile
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { name: true, image: true, createdAt: true },
+  });
+
   // Get user's active language
   const userLang = await db.userLanguage.findFirst({
     where: { userId },
@@ -211,19 +217,64 @@ export async function GET() {
     ])
   );
 
+  // Average score across all exercises
+  const allScores = exerciseScores
+    .filter((ep) => ep.score !== null)
+    .map((ep) => ep.score as number);
+  const averageScore =
+    allScores.length > 0
+      ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length)
+      : 0;
+
+  // Activity heatmap: last 12 weeks of practice days
+  const twelveWeeksAgo = new Date();
+  twelveWeeksAgo.setDate(twelveWeeksAgo.getDate() - 84);
+  twelveWeeksAgo.setHours(0, 0, 0, 0);
+
+  const heatmapActivity = await db.userProgress.findMany({
+    where: {
+      userId,
+      completedAt: { not: null, gte: twelveWeeksAgo },
+    },
+    select: { completedAt: true },
+  });
+
+  const activityDays = new Set<string>();
+  for (const a of heatmapActivity) {
+    if (a.completedAt) {
+      const d = new Date(a.completedAt);
+      activityDays.add(
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+      );
+    }
+  }
+
+  // Has the user achieved a 100% score on any exam
+  const hasPerfectScore = allScores.some((s) => s === 100);
+
+  // Mastered flashcards count
+  const masteredWords = (masteryMap.MASTERED ?? 0) + (masteryMap.ACQUIRED ?? 0);
+
   return NextResponse.json({
     data: {
+      userName: user?.name ?? session.user.name ?? null,
+      userImage: user?.image ?? session.user.image ?? null,
+      memberSince: user?.createdAt ?? null,
       wordsLearned,
       lessonsCompleted,
       practiceHours,
       conversationsHeld,
       currentStreak,
+      averageScore,
       currentLevel: userLang?.level ?? "A1",
       nextLevel,
       levelProgress,
       flashcardTotal,
+      masteredWords,
+      hasPerfectScore,
       language: userLang?.language ?? null,
       skills,
+      activityDays: Array.from(activityDays),
     },
   });
 }

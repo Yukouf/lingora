@@ -1,31 +1,377 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { BookOpen, MessageSquare, Layers, Clock, Flame, TrendingUp, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import {
+  BookOpen,
+  MessageSquare,
+  Clock,
+  Flame,
+  Target,
+  CheckCircle,
+  Lock,
+  Loader2,
+} from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
 
+/* ------------------------------------------------------------------ */
+/*  Types                                                              */
+/* ------------------------------------------------------------------ */
+
 interface ProgressData {
+  userName: string | null;
+  userImage: string | null;
+  memberSince: string | null;
   wordsLearned: number;
   lessonsCompleted: number;
   practiceHours: number;
   conversationsHeld: number;
   currentStreak: number;
+  averageScore: number;
   currentLevel: string;
   nextLevel: string;
   levelProgress: number;
   flashcardTotal: number;
+  masteredWords: number;
+  hasPerfectScore: boolean;
   language: { name: string; flag: string; code: string } | null;
   skills: Record<string, number>;
+  activityDays: string[];
 }
 
-const skillColors: Record<string, string> = {
-  listening: "from-blue-500 to-blue-400",
-  reading: "from-emerald-500 to-emerald-400",
-  writing: "from-amber-500 to-amber-400",
-  speaking: "from-purple-500 to-purple-400",
-  grammar: "from-rose-500 to-rose-400",
-  vocabulary: "from-cyan-500 to-cyan-400",
+type TrophyRarity = "bronze" | "silver" | "gold" | "platinum";
+
+interface Trophy {
+  id: string;
+  label: string;
+  description: string;
+  rarity: TrophyRarity;
+  unlocked: boolean;
+  unlockedDate?: string;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Animated counter hook                                              */
+/* ------------------------------------------------------------------ */
+
+function useCountUp(target: number, duration = 1200) {
+  const [value, setValue] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (started.current) return;
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !started.current) {
+          started.current = true;
+          const start = performance.now();
+          const animate = (now: number) => {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            // ease-out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setValue(Math.round(eased * target));
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  return { value, ref };
+}
+
+/* ------------------------------------------------------------------ */
+/*  Radar chart (SVG)                                                  */
+/* ------------------------------------------------------------------ */
+
+interface RadarChartProps {
+  skills: Record<string, number>;
+  labels: Record<string, string>;
+}
+
+function RadarChart({ skills, labels }: RadarChartProps) {
+  const keys = Object.keys(skills);
+  const n = keys.length;
+  if (n === 0) return null;
+
+  const cx = 150;
+  const cy = 150;
+  const maxR = 110;
+  const levels = [0.2, 0.4, 0.6, 0.8, 1.0];
+
+  const angleStep = (2 * Math.PI) / n;
+  // Start from top (-PI/2)
+  const getPoint = (i: number, r: number) => {
+    const angle = angleStep * i - Math.PI / 2;
+    return {
+      x: cx + r * Math.cos(angle),
+      y: cy + r * Math.sin(angle),
+    };
+  };
+
+  const dataPoints = keys.map((k, i) => {
+    const val = (skills[k] ?? 0) / 100;
+    return getPoint(i, val * maxR);
+  });
+  const dataPath = dataPoints.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ") + "Z";
+
+  return (
+    <svg viewBox="0 0 300 300" className="mx-auto w-full max-w-[320px]">
+      {/* Grid levels */}
+      {levels.map((l) => {
+        const pts = keys.map((_, i) => getPoint(i, l * maxR));
+        const path = pts.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ") + "Z";
+        return <path key={l} d={path} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />;
+      })}
+
+      {/* Axis lines */}
+      {keys.map((_, i) => {
+        const p = getPoint(i, maxR);
+        return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="rgba(255,255,255,0.06)" strokeWidth="1" />;
+      })}
+
+      {/* Data fill */}
+      <path d={dataPath} fill="url(#radarGrad)" stroke="rgba(139,92,246,0.8)" strokeWidth="2" className="drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]" />
+
+      {/* Data points */}
+      {dataPoints.map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r="4" fill="#a78bfa" stroke="#1e1b2e" strokeWidth="2" className="drop-shadow-[0_0_6px_rgba(167,139,250,0.7)]" />
+      ))}
+
+      {/* Labels */}
+      {keys.map((k, i) => {
+        const p = getPoint(i, maxR + 22);
+        return (
+          <text
+            key={k}
+            x={p.x}
+            y={p.y}
+            textAnchor="middle"
+            dominantBaseline="central"
+            className="fill-white/50 text-[10px] font-medium"
+          >
+            {labels[k] ?? k}
+          </text>
+        );
+      })}
+
+      {/* Gradient def */}
+      <defs>
+        <radialGradient id="radarGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="rgba(139,92,246,0.35)" />
+          <stop offset="100%" stopColor="rgba(139,92,246,0.08)" />
+        </radialGradient>
+      </defs>
+    </svg>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Trophy card                                                        */
+/* ------------------------------------------------------------------ */
+
+const rarityConfig: Record<TrophyRarity, { border: string; glow: string; icon: string; bg: string; label: string }> = {
+  bronze: {
+    border: "border-amber-700/40",
+    glow: "shadow-[0_0_20px_rgba(180,83,9,0.25)]",
+    icon: "text-amber-600",
+    bg: "bg-amber-900/20",
+    label: "Bronze",
+  },
+  silver: {
+    border: "border-gray-400/40",
+    glow: "shadow-[0_0_20px_rgba(156,163,175,0.25)]",
+    icon: "text-gray-300",
+    bg: "bg-gray-500/15",
+    label: "Argent",
+  },
+  gold: {
+    border: "border-yellow-500/40",
+    glow: "shadow-[0_0_20px_rgba(234,179,8,0.3)]",
+    icon: "text-yellow-400",
+    bg: "bg-yellow-500/15",
+    label: "Or",
+  },
+  platinum: {
+    border: "border-blue-400/40",
+    glow: "shadow-[0_0_24px_rgba(96,165,250,0.35)]",
+    icon: "text-blue-400",
+    bg: "bg-blue-500/15",
+    label: "Platine",
+  },
 };
+
+function TrophyCard({ trophy }: { trophy: Trophy }) {
+  const config = rarityConfig[trophy.rarity];
+
+  if (!trophy.unlocked) {
+    return (
+      <div className="flex flex-col items-center gap-2 rounded-xl border border-white/[0.04] bg-white/[0.02] p-4 opacity-50">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/[0.04]">
+          <Lock className="h-5 w-5 text-white/20" />
+        </div>
+        <p className="text-center text-xs text-white/20">{trophy.label}</p>
+        <span className="rounded-full bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/15">
+          {config.label}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`flex flex-col items-center gap-2 rounded-xl border ${config.border} ${config.bg} ${config.glow} p-4 transition-transform hover:scale-105`}
+    >
+      <div className={`flex h-12 w-12 items-center justify-center rounded-full ${config.bg}`}>
+        <span className="text-2xl">
+          {trophy.rarity === "platinum" ? "💎" : "🏆"}
+        </span>
+      </div>
+      <p className={`text-center text-xs font-medium ${config.icon}`}>{trophy.label}</p>
+      <span className={`rounded-full ${config.bg} px-2 py-0.5 text-[10px] ${config.icon}`}>
+        {config.label}
+      </span>
+      {trophy.unlockedDate && (
+        <p className="text-[10px] text-white/20">{trophy.unlockedDate}</p>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Activity heatmap                                                   */
+/* ------------------------------------------------------------------ */
+
+function ActivityHeatmap({ activityDays }: { activityDays: string[] }) {
+  const daySet = new Set(activityDays);
+  const weeks: { date: string; active: boolean }[][] = [];
+
+  // Build 12 weeks of dates ending today
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Find the start of the grid: go back 83 days from today, then to the previous Monday
+  const startDate = new Date(today);
+  startDate.setDate(startDate.getDate() - 83);
+  // Adjust to Monday
+  const dayOfWeek = startDate.getDay();
+  const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  startDate.setDate(startDate.getDate() + diff);
+
+  const cursor = new Date(startDate);
+  let currentWeek: { date: string; active: boolean }[] = [];
+
+  while (cursor <= today) {
+    const dateStr = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, "0")}-${String(cursor.getDate()).padStart(2, "0")}`;
+    currentWeek.push({ date: dateStr, active: daySet.has(dateStr) });
+
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek);
+      currentWeek = [];
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  if (currentWeek.length > 0) {
+    weeks.push(currentWeek);
+  }
+
+  return (
+    <div className="flex gap-[3px]">
+      {weeks.map((week, wi) => (
+        <div key={wi} className="flex flex-col gap-[3px]">
+          {week.map((day, di) => (
+            <div
+              key={di}
+              title={day.date}
+              className={`h-3 w-3 rounded-[2px] transition-colors ${
+                day.active
+                  ? "bg-emerald-500/80 shadow-[0_0_4px_rgba(16,185,129,0.4)]"
+                  : "bg-white/[0.06]"
+              }`}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Stat card                                                          */
+/* ------------------------------------------------------------------ */
+
+interface StatCardProps {
+  label: string;
+  value: number;
+  suffix?: string;
+  icon: React.ElementType;
+  accentColor: string;
+  glowColor: string;
+}
+
+function StatCard({ label, value, suffix, icon: Icon, accentColor, glowColor }: StatCardProps) {
+  const { value: animatedValue, ref } = useCountUp(value);
+
+  return (
+    <div
+      ref={ref}
+      className={`group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 backdrop-blur-sm transition-all hover:border-white/[0.12] hover:bg-white/[0.05] ${glowColor}`}
+    >
+      {/* Subtle gradient accent top border */}
+      <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${accentColor} opacity-60`} />
+
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-3xl font-bold tracking-tight text-white/90">
+            {animatedValue}
+            {suffix && <span className="text-xl text-white/50">{suffix}</span>}
+          </p>
+          <p className="mt-1 text-xs text-white/35">{label}</p>
+        </div>
+        <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${accentColor} opacity-20`}>
+          <Icon className="h-5 w-5 text-white" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Level badge                                                        */
+/* ------------------------------------------------------------------ */
+
+function LevelBadge({ level }: { level: string }) {
+  const levelColors: Record<string, string> = {
+    A1: "from-green-400 to-emerald-600",
+    A2: "from-teal-400 to-cyan-600",
+    B1: "from-blue-400 to-indigo-600",
+    B2: "from-violet-400 to-purple-600",
+    C1: "from-amber-400 to-orange-600",
+    C2: "from-rose-400 to-red-600",
+  };
+
+  const gradient = levelColors[level] ?? "from-gray-400 to-gray-600";
+
+  return (
+    <div className={`inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r ${gradient} px-3 py-1.5 text-sm font-bold tracking-wider text-white shadow-lg`}>
+      <span className="text-[10px] uppercase opacity-80">Rank</span>
+      <span>{level}</span>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main page                                                          */
+/* ------------------------------------------------------------------ */
 
 export default function ProgressPage() {
   const { t } = useI18n();
@@ -49,6 +395,71 @@ export default function ProgressPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const buildTrophies = useCallback(
+    (d: ProgressData): Trophy[] => {
+      const today = new Date().toLocaleDateString("fr-FR");
+      return [
+        {
+          id: "first-lesson",
+          label: "Premiere lecon",
+          description: "Termine ta premiere lecon",
+          rarity: "bronze" as TrophyRarity,
+          unlocked: d.lessonsCompleted >= 1,
+          unlockedDate: d.lessonsCompleted >= 1 ? today : undefined,
+        },
+        {
+          id: "10-words",
+          label: "10 mots appris",
+          description: "Apprends 10 mots",
+          rarity: "bronze" as TrophyRarity,
+          unlocked: d.wordsLearned >= 10,
+          unlockedDate: d.wordsLearned >= 10 ? today : undefined,
+        },
+        {
+          id: "first-conversation",
+          label: "Premiere conversation IA",
+          description: "Tiens ta premiere conversation avec l'IA",
+          rarity: "silver" as TrophyRarity,
+          unlocked: d.conversationsHeld >= 1,
+          unlockedDate: d.conversationsHeld >= 1 ? today : undefined,
+        },
+        {
+          id: "level-a2",
+          label: "Niveau A2 atteint",
+          description: "Atteins le niveau A2",
+          rarity: "gold" as TrophyRarity,
+          unlocked: ["A2", "B1", "B2", "C1", "C2"].includes(d.currentLevel),
+          unlockedDate: ["A2", "B1", "B2", "C1", "C2"].includes(d.currentLevel) ? today : undefined,
+        },
+        {
+          id: "7-day-streak",
+          label: "7 jours consecutifs",
+          description: "Pratique 7 jours d'affilee",
+          rarity: "silver" as TrophyRarity,
+          unlocked: d.currentStreak >= 7,
+          unlockedDate: d.currentStreak >= 7 ? today : undefined,
+        },
+        {
+          id: "50-words-mastered",
+          label: "50 mots maitrises",
+          description: "Maitrise 50 mots de vocabulaire",
+          rarity: "gold" as TrophyRarity,
+          unlocked: d.masteredWords >= 50,
+          unlockedDate: d.masteredWords >= 50 ? today : undefined,
+        },
+        {
+          id: "perfect-exam",
+          label: "100% sur un examen",
+          description: "Obtiens un score parfait",
+          rarity: "platinum" as TrophyRarity,
+          unlocked: d.hasPerfectScore,
+          unlockedDate: d.hasPerfectScore ? today : undefined,
+        },
+      ];
+    },
+    []
+  );
+
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -65,93 +476,238 @@ export default function ProgressPage() {
     );
   }
 
-  const statCards = [
-    { label: t.dashboard.progressPage.wordsLearned, value: data.wordsLearned, icon: BookOpen, color: "text-blue-400", bg: "bg-blue-500/10" },
-    { label: t.dashboard.progressPage.lessonsCompleted, value: data.lessonsCompleted, icon: TrendingUp, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-    { label: t.dashboard.progressPage.conversations, value: data.conversationsHeld, icon: MessageSquare, color: "text-purple-400", bg: "bg-purple-500/10" },
-    { label: t.dashboard.progressPage.practiceHours, value: `${data.practiceHours}h`, icon: Clock, color: "text-amber-400", bg: "bg-amber-500/10" },
-    { label: t.dashboard.nav.flashcards, value: data.flashcardTotal, icon: Layers, color: "text-pink-400", bg: "bg-pink-500/10" },
-    { label: t.dashboard.progressPage.streak, value: data.currentStreak, icon: Flame, color: "text-red-400", bg: "bg-red-500/10" },
-  ];
+  const trophies = buildTrophies(data);
+  const unlockedCount = trophies.filter((t) => t.unlocked).length;
+  const initials = data.userName
+    ? data.userName
+        .split(" ")
+        .map((w) => w[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "??";
+
+  const memberDate = data.memberSince
+    ? new Date(data.memberSince).toLocaleDateString("fr-FR", {
+        month: "long",
+        year: "numeric",
+      })
+    : null;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white/90">{t.dashboard.progressPage.title}</h1>
-        <p className="text-sm text-white/40">
-          {data.language ? data.language.name : t.dashboard.progressPage.noLanguage} — {t.dashboard.common.level} {data.currentLevel}
-        </p>
+    <div className="mx-auto max-w-5xl space-y-8 pb-12">
+      {/* ========== HERO — Player Card ========== */}
+      <div className="relative overflow-hidden rounded-3xl border border-white/[0.06] bg-white/[0.03] p-6 md:p-8">
+        {/* Animated gradient background */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute -left-1/4 -top-1/4 h-[200%] w-[200%] animate-[spin_20s_linear_infinite] opacity-[0.04]">
+            <div className="h-full w-full bg-[conic-gradient(from_0deg,#8b5cf6,#3b82f6,#06b6d4,#8b5cf6)]" />
+          </div>
+        </div>
+
+        <div className="relative flex flex-col items-center gap-6 md:flex-row md:items-start md:gap-8">
+          {/* Avatar with glow ring */}
+          <div className="relative">
+            <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-violet-500 via-blue-500 to-cyan-500 opacity-60 blur-md" />
+            <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-violet-500 via-blue-500 to-cyan-500" />
+            {data.userImage ? (
+              <img
+                src={data.userImage}
+                alt=""
+                className="relative h-24 w-24 rounded-full border-2 border-[#0d0b14] object-cover"
+              />
+            ) : (
+              <div className="relative flex h-24 w-24 items-center justify-center rounded-full border-2 border-[#0d0b14] bg-[#1a1625] text-2xl font-bold text-white/80">
+                {initials}
+              </div>
+            )}
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 text-center md:text-left">
+            <h1 className="text-2xl font-bold text-white/95 md:text-3xl">
+              {data.userName ?? "Joueur"}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center justify-center gap-3 md:justify-start">
+              <LevelBadge level={data.currentLevel} />
+              {data.language && (
+                <span className="text-sm text-white/40">
+                  {data.language.flag} {data.language.name}
+                </span>
+              )}
+            </div>
+            {memberDate && (
+              <p className="mt-2 text-xs text-white/25">
+                Membre depuis {memberDate}
+              </p>
+            )}
+
+            {/* XP progress bar */}
+            <div className="mt-5 max-w-md">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-white/40">
+                  {t.dashboard.progressPage.towardLevel}{" "}
+                  <span className="font-semibold text-white/60">{data.nextLevel}</span>
+                </span>
+                <span className="font-mono text-white/50">{data.levelProgress}%</span>
+              </div>
+              <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-white/[0.06]">
+                <div
+                  className="relative h-full rounded-full bg-gradient-to-r from-violet-500 to-blue-500 transition-all duration-1000 ease-out"
+                  style={{ width: `${data.levelProgress}%` }}
+                >
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 animate-[shimmer_2s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+                </div>
+              </div>
+            </div>
+
+            {/* Trophy summary */}
+            <div className="mt-3 flex items-center justify-center gap-1.5 md:justify-start">
+              <span className="text-sm">🏆</span>
+              <span className="text-xs text-white/40">
+                {unlockedCount}/{trophies.length} trophees debloques
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Level progress */}
-      <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs text-white/30 uppercase tracking-wider">{t.dashboard.progressPage.towardLevel}</p>
-            <p className="mt-0.5 text-lg font-bold text-white/90">{t.dashboard.common.level} {data.nextLevel}</p>
-          </div>
-          <span className="rounded-lg bg-white/[0.06] px-3 py-1.5 text-sm font-bold uppercase tracking-wider text-white/50">
-            {data.currentLevel}
-          </span>
-        </div>
-        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
-          <div
-            className="h-full rounded-full bg-white/60 transition-all duration-700"
-            style={{ width: `${data.levelProgress}%` }}
+      {/* ========== STATS GRID ========== */}
+      <div>
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/40">
+          Statistiques
+        </h2>
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
+          <StatCard
+            label={t.dashboard.progressPage.wordsLearned}
+            value={data.wordsLearned}
+            icon={BookOpen}
+            accentColor="from-blue-500 to-cyan-500"
+            glowColor="hover:shadow-[0_0_30px_rgba(59,130,246,0.1)]"
+          />
+          <StatCard
+            label={t.dashboard.progressPage.practiceHours}
+            value={data.practiceHours}
+            suffix="h"
+            icon={Clock}
+            accentColor="from-amber-500 to-orange-500"
+            glowColor="hover:shadow-[0_0_30px_rgba(245,158,11,0.1)]"
+          />
+          <StatCard
+            label={t.dashboard.progressPage.lessonsCompleted}
+            value={data.lessonsCompleted}
+            icon={CheckCircle}
+            accentColor="from-emerald-500 to-green-500"
+            glowColor="hover:shadow-[0_0_30px_rgba(16,185,129,0.1)]"
+          />
+          <StatCard
+            label="Score moyen"
+            value={data.averageScore}
+            suffix="%"
+            icon={Target}
+            accentColor="from-rose-500 to-pink-500"
+            glowColor="hover:shadow-[0_0_30px_rgba(244,63,94,0.1)]"
+          />
+          <StatCard
+            label={t.dashboard.progressPage.streak}
+            value={data.currentStreak}
+            icon={Flame}
+            accentColor="from-red-500 to-orange-500"
+            glowColor="hover:shadow-[0_0_30px_rgba(239,68,68,0.1)]"
+          />
+          <StatCard
+            label={t.dashboard.progressPage.conversations}
+            value={data.conversationsHeld}
+            icon={MessageSquare}
+            accentColor="from-purple-500 to-violet-500"
+            glowColor="hover:shadow-[0_0_30px_rgba(139,92,246,0.1)]"
           />
         </div>
-        <p className="mt-1.5 text-right text-xs text-white/25">{data.levelProgress}%</p>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
-        {statCards.map((stat) => (
-          <div
-            key={stat.label}
-            className="rounded-xl border border-white/5 bg-white/[0.03] p-4 transition-colors hover:bg-white/[0.05]"
-          >
-            <div className="flex items-center gap-3">
-              <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${stat.bg}`}>
-                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+      {/* ========== SKILLS RADAR + ACTIVITY ========== */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Radar chart */}
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/40">
+            {t.dashboard.progressPage.skills}
+          </h2>
+
+          {Object.values(data.skills).every((v) => v === 0) ? (
+            <p className="py-12 text-center text-xs text-white/20">
+              {t.dashboard.progressPage.noSkillsYet}
+            </p>
+          ) : (
+            <RadarChart skills={data.skills} labels={skillLabels} />
+          )}
+
+          {/* Skill list below radar */}
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {Object.entries(data.skills).map(([key, value]) => (
+              <div key={key} className="flex items-center justify-between rounded-lg bg-white/[0.03] px-3 py-1.5">
+                <span className="text-[11px] text-white/40">{skillLabels[key] ?? key}</span>
+                <span className="font-mono text-xs font-semibold text-white/60">{value}%</span>
               </div>
-              <div>
-                <p className="text-xl font-bold text-white/85">{stat.value}</p>
-                <p className="text-[11px] text-white/30">{stat.label}</p>
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
-
-      {/* Skills */}
-      <div className="rounded-2xl border border-white/5 bg-white/[0.03] p-5">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50">
-          {t.dashboard.progressPage.skills}
-        </h2>
-        <div className="mt-4 space-y-4">
-          {Object.entries(data.skills).map(([key, value]) => (
-            <div key={key}>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-white/60">{skillLabels[key] ?? key}</span>
-                <span className="font-mono text-xs text-white/40">{value}%</span>
-              </div>
-              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
-                <div
-                  className={`h-full rounded-full bg-gradient-to-r ${skillColors[key] ?? "from-gray-500 to-gray-400"} transition-all duration-700`}
-                  style={{ width: `${value}%` }}
-                />
-              </div>
-            </div>
-          ))}
         </div>
 
-        {Object.values(data.skills).every((v) => v === 0) && (
-          <p className="mt-4 text-center text-xs text-white/20">
-            {t.dashboard.progressPage.noSkillsYet}
-          </p>
-        )}
+        {/* Activity heatmap */}
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6">
+          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/40">
+            Activite — 12 semaines
+          </h2>
+          <div className="flex justify-center overflow-x-auto py-2">
+            <ActivityHeatmap activityDays={data.activityDays} />
+          </div>
+          <div className="mt-4 flex items-center justify-center gap-3 text-[10px] text-white/25">
+            <div className="flex items-center gap-1">
+              <div className="h-3 w-3 rounded-[2px] bg-white/[0.06]" />
+              <span>Inactif</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="h-3 w-3 rounded-[2px] bg-emerald-500/80" />
+              <span>Actif</span>
+            </div>
+          </div>
+
+          {/* Streak highlight */}
+          {data.currentStreak > 0 && (
+            <div className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-orange-500/10 to-red-500/10 px-4 py-3 border border-orange-500/20">
+              <Flame className="h-5 w-5 text-orange-400" />
+              <span className="text-sm font-semibold text-orange-300">
+                {data.currentStreak} {t.dashboard.progressPage.streak.toLowerCase()}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* ========== TROPHIES ========== */}
+      <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-white/40">
+            Trophees
+          </h2>
+          <span className="text-xs text-white/25">
+            {unlockedCount}/{trophies.length}
+          </span>
+        </div>
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
+          {trophies.map((trophy) => (
+            <TrophyCard key={trophy.id} trophy={trophy} />
+          ))}
+        </div>
+      </div>
+
+      {/* Shimmer keyframe (injected via style tag since Tailwind doesn't have it by default) */}
+      <style>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
+        }
+      `}</style>
     </div>
   );
 }

@@ -403,11 +403,47 @@ function speakText(text: string, langCode: string, delay = 300): void {
   }, delay);
 }
 
+// Themed images for exercise context (Unsplash)
+const exerciseContextImages: Record<string, string> = {
+  restaurant: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=70",
+  présenter: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=70",
+  courses: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800&q=70",
+  chemin: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=70",
+  hôtel: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=70",
+  travail: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=70",
+  voyage: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=70",
+  famille: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&q=70",
+  entretien: "https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=800&q=70",
+  santé: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=800&q=70",
+  marché: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800&q=70",
+  café: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&q=70",
+  aéroport: "https://images.unsplash.com/photo-1436491865332-7a61a109db05?w=800&q=70",
+  école: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=800&q=70",
+  sport: "https://images.unsplash.com/photo-1461896836934-bd45ba8fcfcb?w=800&q=70",
+  musique: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&q=70",
+  ville: "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800&q=70",
+  nature: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=70",
+  maison: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=800&q=70",
+  météo: "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=800&q=70",
+};
+
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=70";
+
+/** Match a chapter/lesson title against the image keyword map */
+function getContextImage(title: string): string {
+  const lower = title.toLowerCase();
+  for (const [keyword, url] of Object.entries(exerciseContextImages)) {
+    if (lower.includes(keyword)) return url;
+  }
+  return FALLBACK_IMAGE;
+}
+
 interface ExerciseRendererProps {
   exercise: ExerciseData;
   onAnswer: (correct: boolean, score: number) => void;
   onNext: () => void;
   languageCode?: string;
+  chapterTitle?: string;
 }
 
 // CSS-only confetti burst component
@@ -458,7 +494,7 @@ function ConfettiBurst() {
   );
 }
 
-export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageCode = "en" }: ExerciseRendererProps) {
+export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageCode = "en", chapterTitle = "" }: ExerciseRendererProps) {
   const { t } = useI18n();
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
@@ -1450,9 +1486,15 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
     }
   };
 
+  const contextImage = useMemo(() => getContextImage(chapterTitle), [chapterTitle]);
+
   return (
     <div className="w-full max-w-2xl mx-auto">
       <style>{`
+        @keyframes exercise-image-zoom {
+          0% { transform: scale(1); }
+          100% { transform: scale(1.05); }
+        }
         @keyframes shake-card {
           0%, 100% { transform: translateX(0); }
           10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
@@ -1493,7 +1535,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -20 }}
-        className={`relative p-6 sm:p-8 rounded-3xl border ${theme.border} bg-gradient-to-br ${theme.bg} backdrop-blur-xl ${theme.glow} transition-shadow duration-500`}
+        className={`relative overflow-hidden rounded-3xl border ${theme.border} bg-gradient-to-br ${theme.bg} backdrop-blur-xl ${theme.glow} transition-shadow duration-500`}
         style={{
           animation: shakeCard
             ? "shake-card 0.5s ease-in-out, red-flash 0.6s ease-out"
@@ -1502,10 +1544,24 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
             : "none",
         }}
       >
-        {/* Confetti overlay */}
-        {showConfetti && <ConfettiBurst />}
+        {/* Context image header strip */}
+        <div className="relative h-24 sm:h-32 w-full overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${contextImage})`,
+              animation: "exercise-image-zoom 20s ease-in-out infinite alternate",
+            }}
+          />
+          {/* Gradient fade to card background */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] via-[#0a0a1a]/60 to-transparent" />
+        </div>
 
-        {renderExercise()}
+        <div className="p-6 sm:p-8">
+          {/* Confetti overlay */}
+          {showConfetti && <ConfettiBurst />}
+
+          {renderExercise()}
 
         {/* Hint button */}
         {q.hints && q.hints.length > 0 && !showResult && (
@@ -1530,6 +1586,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
             </motion.div>
           )}
         </AnimatePresence>
+        </div>
       </motion.div>
 
       {/* Result feedback + Next button */}

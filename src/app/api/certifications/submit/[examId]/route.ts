@@ -4,13 +4,24 @@ import { db } from "@/lib/db";
 import { chat } from "@/lib/ai";
 import { checkAiRouteRateLimit } from "@/lib/rate-limit";
 
-interface ExamQuestion {
-  type: "mcq" | "writing";
+interface McqQuestion {
+  type: "mcq";
   question: string;
-  options?: string[];
-  correctAnswer: string;
+  options: string[];
+  correctAnswer: number; // index into options array
   points?: number;
 }
+
+interface WritingQuestion {
+  type: "writing";
+  question: string;
+  expectedKeywords?: string[];
+  correctAnswer?: string;
+  maxScore?: number;
+  points?: number;
+}
+
+type ExamQuestion = McqQuestion | WritingQuestion;
 
 export async function POST(
   req: NextRequest,
@@ -95,9 +106,11 @@ export async function POST(
 
     return NextResponse.json({
       data: {
+        certificationId,
         score: 0,
         passed: false,
         passScore: exam.passScore,
+        questionResults: [],
         timeExpired: true,
       },
       error: null,
@@ -119,13 +132,15 @@ export async function POST(
 
   for (let i = 0; i < questions.length; i++) {
     const q = questions[i];
-    const points = q.points ?? 1;
-    totalPoints += points;
     const userAnswer = answers[i.toString()] ?? "";
 
     if (q.type === "mcq") {
+      const points = q.points ?? 1;
+      totalPoints += points;
+      // correctAnswer is a numeric index into the options array
+      const correctAnswerText = q.options[q.correctAnswer] ?? "";
       const isCorrect =
-        userAnswer.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase();
+        userAnswer.trim().toLowerCase() === correctAnswerText.trim().toLowerCase();
       const questionScore = isCorrect ? points : 0;
       earnedPoints += questionScore;
       questionResults.push({
@@ -134,21 +149,26 @@ export async function POST(
         score: questionScore,
         maxPoints: points,
         userAnswer,
-        correctAnswer: q.correctAnswer,
+        correctAnswer: correctAnswerText,
       });
     } else if (q.type === "writing") {
+      const points = q.maxScore ?? q.points ?? 10;
+      totalPoints += points;
+      const expectedKeywords = q.expectedKeywords ?? [];
+      const expectedAnswer = q.correctAnswer ?? expectedKeywords.join(", ");
+
       // Use AI to evaluate writing answers
       try {
         const aiResult = await chat({
           systemPrompt: `You are a language exam grader. Evaluate the student's answer to the following question.
-The expected/correct answer is provided. Score the student's answer from 0 to ${points}.
-Consider: accuracy, grammar, vocabulary usage, and natural expression.
+The expected keywords/answer are provided. Score the student's answer from 0 to ${points}.
+Consider: accuracy, grammar, vocabulary usage, natural expression, and whether the expected keywords are used.
 Respond with ONLY a JSON object: {"score": <number>, "correct": <boolean>}
 A score above ${Math.ceil(points * 0.6)} means the answer is considered correct.`,
           messages: [
             {
               role: "user",
-              content: `Question: ${q.question}\nExpected answer: ${q.correctAnswer}\nStudent's answer: ${userAnswer}`,
+              content: `Question: ${q.question}\nExpected keywords: ${expectedKeywords.join(", ")}\nExpected answer guideline: ${expectedAnswer}\nStudent's answer: ${userAnswer}`,
             },
           ],
           maxTokens: 100,
@@ -163,13 +183,20 @@ A score above ${Math.ceil(points * 0.6)} means the answer is considered correct.
           score: questionScore,
           maxPoints: points,
           userAnswer,
-          correctAnswer: q.correctAnswer,
+          correctAnswer: expectedAnswer,
         });
       } catch {
-        // Fallback: simple string comparison
-        const isCorrect =
-          userAnswer.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase();
-        const questionScore = isCorrect ? points : 0;
+        // Fallback: keyword-based scoring
+        const lowerAnswer = userAnswer.trim().toLowerCase();
+        let matchedKeywords = 0;
+        for (const kw of expectedKeywords) {
+          if (lowerAnswer.includes(kw.toLowerCase())) {
+            matchedKeywords++;
+          }
+        }
+        const ratio = expectedKeywords.length > 0 ? matchedKeywords / expectedKeywords.length : 0;
+        const questionScore = Math.round(ratio * points);
+        const isCorrect = questionScore > points * 0.6;
         earnedPoints += questionScore;
         questionResults.push({
           questionIndex: i,
@@ -177,7 +204,7 @@ A score above ${Math.ceil(points * 0.6)} means the answer is considered correct.
           score: questionScore,
           maxPoints: points,
           userAnswer,
-          correctAnswer: q.correctAnswer,
+          correctAnswer: expectedAnswer,
         });
       }
     }
