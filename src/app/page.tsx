@@ -400,24 +400,20 @@ export default function Home() {
             className="mt-12 grid gap-4 sm:grid-cols-2"
           >
             {t.imagine.scenes.map((scene: { emoji: string; city: string; text: string }, i: number) => {
-              const cityImages: Record<string, string> = {
-                "Tokyo": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80",
-                "Londres": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80",
-                "London": "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80",
-                "Barcelone": "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=600&q=80",
-                "Barcelona": "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=600&q=80",
-                "Berlin": "https://images.unsplash.com/photo-1560969184-10fe8719e047?w=600&q=80",
-              };
-              const cityIcons: Record<string, React.ReactNode> = {
-                "Tokyo": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M8 6l4-4 4 4M6 10h12M8 14h8M10 18h4"/></svg>,
-                "Londres": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="14" rx="1"/><path d="M12 2v6M8 8V5M16 8V5M3 14h18M12 8v14"/></svg>,
-                "London": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="14" rx="1"/><path d="M12 2v6M8 8V5M16 8V5M3 14h18M12 8v14"/></svg>,
-                "Barcelone": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>,
-                "Barcelona": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>,
-                "Berlin": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/></svg>,
-              };
-              const bgImage = cityImages[scene.city] || "";
-              const icon = cityIcons[scene.city] || null;
+              const sceneImages = [
+                "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80",
+                "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80",
+                "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=600&q=80",
+                "https://images.unsplash.com/photo-1560969184-10fe8719e047?w=600&q=80",
+              ];
+              const sceneIcons = [
+                <svg key="tokyo" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M8 6l4-4 4 4M6 10h12M8 14h8M10 18h4"/></svg>,
+                <svg key="london" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="14" rx="1"/><path d="M12 2v6M8 8V5M16 8V5M3 14h18M12 8v14"/></svg>,
+                <svg key="barcelona" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+                <svg key="berlin" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/></svg>,
+              ];
+              const bgImage = sceneImages[i] || "";
+              const icon = sceneIcons[i] || null;
               return (
                 <motion.div
                   key={i}
