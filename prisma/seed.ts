@@ -3500,6 +3500,31 @@ type ExType =
   | "MULTIPLE_CHOICE" | "TRANSLATION" | "FILL_IN_BLANK" | "REORDER" | "MATCHING"
   | "CONTEXT_GUESS" | "SPOT_ERROR" | "DIALOGUE_COMPLETE" | "FREE_PRODUCTION";
 
+function shuffleArray<T>(arr: T[]): T[] {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function getDistractors(
+  vocabulary: { word: string; translation: string; example: string }[],
+  currentWord: { word: string; translation: string; example: string },
+  count: number = 3,
+  field: "word" | "translation" = "word"
+): string[] {
+  const others = vocabulary.filter((v) => v.word !== currentWord.word);
+  const shuffled = shuffleArray(others);
+  return shuffled.slice(0, count).map((v) => v[field]);
+}
+
+function buildOptions(correct: string, distractors: string[]): { options: string[]; correctAnswer: number } {
+  const options = shuffleArray([correct, ...distractors]);
+  return { options, correctAnswer: options.indexOf(correct) };
+}
+
 function generateExercises(lessonId: string, lesson: LessonData) {
   const exercises: {
     lessonId: string;
@@ -3512,44 +3537,58 @@ function generateExercises(lessonId: string, lesson: LessonData) {
   if (vocab.length < 3) return exercises;
 
   // 1. QCM — "Comment dit-on X ?"
-  exercises.push({
-    lessonId,
-    type: "MULTIPLE_CHOICE",
-    order: 1,
-    question: {
-      text: `Comment dit-on « ${vocab[0].translation} » ?`,
-      options: [vocab[0].word, vocab[1].word, vocab[2].word, vocab[3]?.word ?? vocab[vocab.length - 1].word],
-      correctAnswer: 0,
-      hint: vocab[0].example,
-    },
-  });
+  {
+    const distractors = getDistractors(vocab, vocab[0], 3, "word");
+    const { options, correctAnswer } = buildOptions(vocab[0].word, distractors);
+    exercises.push({
+      lessonId,
+      type: "MULTIPLE_CHOICE",
+      order: 1,
+      question: {
+        text: `Comment dit-on « ${vocab[0].translation} » ?`,
+        options,
+        correctAnswer,
+        hint: vocab[0].example,
+      },
+    });
+  }
 
   // 2. Traduction
-  exercises.push({
-    lessonId,
-    type: "TRANSLATION",
-    order: 2,
-    question: {
-      text: vocab[1].word,
-      correctAnswer: vocab[1].translation,
-      direction: "target_to_native",
-      hint: vocab[1].example,
-    },
-  });
+  {
+    const distractors = getDistractors(vocab, vocab[1], 3, "translation");
+    const { options, correctAnswer } = buildOptions(vocab[1].translation, distractors);
+    exercises.push({
+      lessonId,
+      type: "TRANSLATION",
+      order: 2,
+      question: {
+        text: vocab[1].word,
+        correctAnswer,
+        options,
+        direction: "target_to_native",
+        hint: vocab[1].example,
+      },
+    });
+  }
 
   // 3. Fill in the blank
-  const fillWord = vocab[2];
-  const blankText = fillWord.example.replace(fillWord.word, "___");
-  exercises.push({
-    lessonId,
-    type: "FILL_IN_BLANK",
-    order: 3,
-    question: {
-      text: blankText,
-      correctAnswer: fillWord.word,
-      hint: fillWord.translation,
-    },
-  });
+  {
+    const fillWord = vocab[2];
+    const blankText = fillWord.example.replace(fillWord.word, "___");
+    const distractors = getDistractors(vocab, fillWord, 3, "word");
+    const { options, correctAnswer } = buildOptions(fillWord.word, distractors);
+    exercises.push({
+      lessonId,
+      type: "FILL_IN_BLANK",
+      order: 3,
+      question: {
+        text: blankText,
+        correctAnswer,
+        options,
+        hint: fillWord.translation,
+      },
+    });
+  }
 
   // 4. Matching (si assez de vocabulaire)
   if (vocab.length >= 4) {
@@ -3568,14 +3607,16 @@ function generateExercises(lessonId: string, lesson: LessonData) {
 
   // 5. QCM inversé — "Que signifie X ?"
   if (vocab.length >= 4) {
+    const distractors = getDistractors(vocab, vocab[3], 3, "translation");
+    const { options, correctAnswer } = buildOptions(vocab[3].translation, distractors);
     exercises.push({
       lessonId,
       type: "MULTIPLE_CHOICE",
       order: 5,
       question: {
         text: `Que signifie « ${vocab[3].word} » ?`,
-        options: [vocab[3].translation, vocab[0].translation, vocab[1].translation, vocab[2].translation],
-        correctAnswer: 0,
+        options,
+        correctAnswer,
         hint: vocab[3].example,
       },
     });
@@ -3587,10 +3628,8 @@ function generateExercises(lessonId: string, lesson: LessonData) {
   // On affiche la phrase d'exemple et on demande ce que le mot signifie
   if (vocab.length >= 4) {
     const guessWord = vocab[Math.min(4, vocab.length - 1)];
-    const wrongOptions = vocab
-      .filter((v) => v.word !== guessWord.word)
-      .slice(0, 3)
-      .map((v) => v.translation);
+    const distractors = getDistractors(vocab, guessWord, 3, "translation");
+    const { options, correctAnswer } = buildOptions(guessWord.translation, distractors);
     exercises.push({
       lessonId,
       type: "CONTEXT_GUESS",
@@ -3598,8 +3637,8 @@ function generateExercises(lessonId: string, lesson: LessonData) {
       question: {
         context: guessWord.example,
         targetWord: guessWord.word,
-        options: [guessWord.translation, ...wrongOptions],
-        correctAnswer: 0,
+        options,
+        correctAnswer,
         instruction: `Lis la phrase et devine le sens de « ${guessWord.word} » grâce au contexte.`,
       },
     });
@@ -3630,10 +3669,8 @@ function generateExercises(lessonId: string, lesson: LessonData) {
   // On crée un mini-dialogue avec un trou à compléter
   if (vocab.length >= 3) {
     const dialogueWord = vocab[Math.min(2, vocab.length - 1)];
-    const wrongAnswers = vocab
-      .filter((v) => v.word !== dialogueWord.word)
-      .slice(0, 2)
-      .map((v) => v.word);
+    const distractors = getDistractors(vocab, dialogueWord, 3, "word");
+    const { options, correctAnswer } = buildOptions(dialogueWord.word, distractors);
     exercises.push({
       lessonId,
       type: "DIALOGUE_COMPLETE",
@@ -3643,8 +3680,8 @@ function generateExercises(lessonId: string, lesson: LessonData) {
           { speaker: "A", text: dialogueWord.example.split(".")[0] + "?" },
           { speaker: "B", text: "___" },
         ],
-        options: [dialogueWord.word, ...wrongAnswers],
-        correctAnswer: 0,
+        options,
+        correctAnswer,
         context: lesson.title,
         instruction: "Complète le dialogue avec la réponse la plus appropriée.",
       },
