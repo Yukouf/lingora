@@ -1,6 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+
+const createClubSchema = z.object({
+  name: z.string().min(1).max(100),
+  description: z.string().max(500).optional().default(""),
+  languageCode: z.string().min(1).max(10),
+  isPublic: z.boolean().optional().default(true),
+  maxMembers: z.number().int().min(2).max(500).optional().default(50),
+});
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -63,24 +72,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Non autorise" }, { status: 401 });
   }
 
-  const body = await req.json();
-  const { name, description, languageCode, isPublic, maxMembers } = body;
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
 
-  if (!name || !languageCode) {
+  const parsed = createClubSchema.safeParse(body);
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "Nom et langue requis" },
+      { error: parsed.error.issues[0]?.message ?? "Donnees invalides" },
       { status: 400 }
     );
   }
 
+  const { name, description, languageCode, isPublic, maxMembers } = parsed.data;
+
   const club = await db.club.create({
     data: {
       name,
-      description: description || "",
+      description,
       languageCode,
       ownerId: session.user.id,
-      isPublic: isPublic ?? true,
-      maxMembers: maxMembers || 50,
+      isPublic,
+      maxMembers,
       members: {
         create: {
           userId: session.user.id,

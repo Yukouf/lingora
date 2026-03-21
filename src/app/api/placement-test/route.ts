@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 
 // Placement test questions organized by difficulty
@@ -73,10 +74,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Non autorise" }, { status: 401 });
   }
 
-  const { lang, answers } = await req.json() as {
-    lang: string;
-    answers: Record<number, string>;
-  };
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+
+  const placementSchema = z.object({
+    lang: z.string().min(1).max(10),
+    answers: z.record(z.string(), z.string().max(200)),
+  });
+
+  const parsed = placementSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: parsed.error.issues[0]?.message ?? "Donnees invalides" },
+      { status: 400 }
+    );
+  }
+
+  const { lang, answers } = parsed.data;
 
   const questions = PLACEMENT_TESTS[lang] ?? PLACEMENT_TESTS.en;
 

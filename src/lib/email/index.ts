@@ -33,8 +33,17 @@ export async function sendWelcomeEmail(to: string, name: string) {
   }
 }
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function getWelcomeEmailHtml(name: string): string {
-  const firstName = name.split(" ")[0] || name;
+  const firstName = escapeHtml(name.split(" ")[0] || name);
 
   return `
 <!DOCTYPE html>

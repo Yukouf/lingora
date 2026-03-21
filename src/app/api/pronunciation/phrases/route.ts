@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { chat } from "@/lib/ai";
+import { checkAiRouteRateLimit } from "@/lib/rate-limit";
 
 const LANG_NAMES: Record<string, string> = {
   en: "English",
@@ -30,6 +31,15 @@ export async function GET(request: NextRequest) {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // AI route rate limit
+    const aiCheck = await checkAiRouteRateLimit(session.user.id);
+    if (!aiCheck.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests — please wait" },
+        { status: 429, headers: { "Retry-After": "60" } }
+      );
     }
 
     const { searchParams } = new URL(request.url);

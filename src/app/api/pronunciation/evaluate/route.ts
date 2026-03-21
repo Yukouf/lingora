@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { chat } from "@/lib/ai";
+import { checkAiRouteRateLimit, checkIpRateLimit } from "@/lib/rate-limit";
 
 function normalizeText(text: string): string {
   return text
@@ -144,6 +145,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // IP rate limit
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    const ipCheck = await checkIpRateLimit(ip);
+    if (!ipCheck.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429, headers: { "Retry-After": "60" } }
+      );
+    }
+
+    // AI route rate limit (per user)
+    const aiCheck = await checkAiRouteRateLimit(session.user.id);
+    if (!aiCheck.allowed) {
+      return NextResponse.json(
+        { error: "Too many AI requests — please wait" },
+        { status: 429, headers: { "Retry-After": "60" } }
+      );
+    }
+
     const body = await request.json();
     const { targetText, spokenText, languageCode, exerciseId } = body;
 
@@ -152,6 +172,17 @@ export async function POST(request: NextRequest) {
         { error: "Missing required fields: targetText, spokenText, languageCode" },
         { status: 400 }
       );
+    }
+
+    // Input length validation
+    if (typeof targetText !== "string" || targetText.length > 1000) {
+      return NextResponse.json({ error: "targetText too long (max 1000)" }, { status: 400 });
+    }
+    if (typeof spokenText !== "string" || spokenText.length > 1000) {
+      return NextResponse.json({ error: "spokenText too long (max 1000)" }, { status: 400 });
+    }
+    if (typeof languageCode !== "string" || languageCode.length > 10) {
+      return NextResponse.json({ error: "Invalid languageCode" }, { status: 400 });
     }
 
     const score = computeAccuracy(targetText, spokenText);

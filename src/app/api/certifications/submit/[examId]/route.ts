@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { chat } from "@/lib/ai";
+import { checkAiRouteRateLimit } from "@/lib/rate-limit";
 
 interface ExamQuestion {
   type: "mcq" | "writing";
@@ -33,6 +34,15 @@ export async function POST(
     return NextResponse.json(
       { error: "Données manquantes" },
       { status: 400 }
+    );
+  }
+
+  // AI route rate limit (per user)
+  const aiCheck = await checkAiRouteRateLimit(userId);
+  if (!aiCheck.allowed) {
+    return NextResponse.json(
+      { error: "Trop de requetes — reessaie dans une minute" },
+      { status: 429, headers: { "Retry-After": "60" } }
     );
   }
 

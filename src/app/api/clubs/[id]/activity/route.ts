@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 interface ActivityItem {
@@ -14,7 +15,21 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non autorise" }, { status: 401 });
+  }
+
   const { id } = await params;
+
+  // Verify user is a member of the club
+  const membership = await db.clubMember.findUnique({
+    where: { clubId_userId: { clubId: id, userId: session.user.id } },
+  });
+
+  if (!membership) {
+    return NextResponse.json({ error: "Acces refuse" }, { status: 403 });
+  }
 
   // Get club members
   const members = await db.clubMember.findMany({

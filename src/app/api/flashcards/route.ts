@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { calculateNextReview } from "@/lib/srs";
+
+const reviewSchema = z.object({
+  cardId: z.string().min(1),
+  quality: z.number().int().min(0).max(5),
+});
 
 // GET — fetch cards due for review
 export async function GET() {
@@ -82,14 +88,17 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { cardId, quality } = await req.json();
+    const body = await req.json();
+    const parsed = reviewSchema.safeParse(body);
 
-    if (!cardId || quality === undefined || quality < 0 || quality > 5) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Données invalides (cardId + quality 0-5 requis)" },
+        { error: parsed.error.issues[0]?.message ?? "Données invalides (cardId + quality 0-5 requis)" },
         { status: 400 }
       );
     }
+
+    const { cardId, quality } = parsed.data;
 
     // Get the card
     const card = await db.flashcard.findUnique({

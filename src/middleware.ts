@@ -10,5 +10,8 @@ export const config = {
     "/progress/:path*",
     "/settings/:path*",
     "/onboarding/:path*",
+    "/certifications/:path*",
+    "/clubs/:path*",
+    "/community/:path*",
   ],
 };
