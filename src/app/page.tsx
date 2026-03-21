@@ -408,32 +408,41 @@ export default function Home() {
                 "Barcelona": "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=600&q=80",
                 "Berlin": "https://images.unsplash.com/photo-1560969184-10fe8719e047?w=600&q=80",
               };
+              const cityIcons: Record<string, React.ReactNode> = {
+                "Tokyo": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M8 6l4-4 4 4M6 10h12M8 14h8M10 18h4"/></svg>,
+                "Londres": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="14" rx="1"/><path d="M12 2v6M8 8V5M16 8V5M3 14h18M12 8v14"/></svg>,
+                "London": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="14" rx="1"/><path d="M12 2v6M8 8V5M16 8V5M3 14h18M12 8v14"/></svg>,
+                "Barcelone": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+                "Barcelona": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+                "Berlin": <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/></svg>,
+              };
               const bgImage = cityImages[scene.city] || "";
+              const icon = cityIcons[scene.city] || null;
               return (
                 <motion.div
                   key={i}
                   custom={i}
                   variants={isMobile ? fadeUpMobile : fadeUp}
-                  className="group relative h-48 overflow-hidden rounded-2xl border border-white/[0.06] transition-all duration-500 hover:border-[#fbbf24]/30"
+                  className="group relative h-52 overflow-hidden rounded-2xl border border-white/[0.08] transition-all duration-500 hover:border-[#fbbf24]/30"
                 >
-                  {/* Background image — visible on hover with zoom */}
+                  {/* Background image — always visible */}
                   <div
-                    className="absolute inset-0 bg-cover bg-center opacity-0 transition-[opacity,transform] duration-700 ease-out group-hover:opacity-100 group-hover:scale-110"
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110"
                     style={{ backgroundImage: `url(${bgImage})` }}
                   />
                   {/* Dark overlay */}
-                  <div className="absolute inset-0 bg-[#0a1628]/80 transition-opacity duration-500 group-hover:bg-[#0a1628]/50" />
-                  {/* Gradient bottom for text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628]/95 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628]/95 via-[#0a1628]/60 to-[#0a1628]/40 transition-opacity duration-500 group-hover:from-[#0a1628]/90 group-hover:via-[#0a1628]/40 group-hover:to-transparent" />
                   {/* Content */}
                   <div className="relative z-10 flex h-full flex-col justify-end p-6">
-                    <div className="flex items-start gap-4">
-                      <span className="text-3xl drop-shadow-lg">{scene.emoji}</span>
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/10 text-[#fbbf24] backdrop-blur-sm">
+                        {icon}
+                      </div>
                       <div>
-                        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#fbbf24]/50 transition-colors duration-500 group-hover:text-[#fbbf24]/80">
+                        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.3em] text-[#fbbf24]/70 transition-colors duration-500 group-hover:text-[#fbbf24]">
                           {scene.city}
                         </p>
-                        <p className="mt-2 text-[15px] leading-relaxed text-white/70 transition-colors duration-500 group-hover:text-white">
+                        <p className="mt-1.5 text-[15px] leading-relaxed text-white/80 transition-colors duration-500 group-hover:text-white">
                           {scene.text}
                         </p>
                       </div>

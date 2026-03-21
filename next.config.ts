@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://va.vercel-scripts.com",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://*.googleusercontent.com https://*.supabase.co",
+              "img-src 'self' data: blob: https://*.googleusercontent.com https://*.supabase.co https://flagcdn.com https://images.unsplash.com",
               "font-src 'self' data:",
               "connect-src 'self' https://api.stripe.com https://vitals.vercel-insights.com https://*.supabase.co https://*.upstash.io",
               "frame-src 'self' https://js.stripe.com",
