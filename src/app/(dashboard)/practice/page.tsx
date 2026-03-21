@@ -16,6 +16,7 @@ import {
   Layers,
   ArrowRight,
   Loader2,
+  Mic,
 } from "lucide-react";
 import { scenarios } from "@/lib/ai/scenarios";
 import { useI18n } from "@/lib/i18n/context";
@@ -101,6 +102,28 @@ export default function PracticePage() {
           <Loader2 className="h-4 w-4 animate-spin text-white/20" />
         </div>
       )}
+
+      {/* Pronunciation practice banner */}
+      <Link href="/practice/pronunciation">
+        <div className="mb-6 flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-5 py-4 transition-all hover:bg-white/[0.04]">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10">
+              <Mic className="h-4 w-4 text-purple-400" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-white/80">
+                {t.dashboard.exercise.pronunciation}
+              </p>
+              <p className="text-[11px] text-white/30">
+                {t.dashboard.practice.pronunciationDesc}
+              </p>
+            </div>
+          </div>
+          <span className="text-[11px] font-medium text-white/40">
+            {t.dashboard.practice.startSession} <ArrowRight className="ml-1 inline h-3 w-3" />
+          </span>
+        </div>
+      </Link>
 
       {/* Free scenarios */}
       <div className="mb-8">

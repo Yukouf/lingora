@@ -15,9 +15,16 @@ interface PronunciationExerciseProps {
   onAnswer: (correct: boolean, score: number) => void;
 }
 
+interface WordDiff {
+  word: string;
+  status: "correct" | "mispronounced" | "missing" | "extra";
+  expected?: string;
+}
+
 interface EvalResult {
   score: number;
   feedback: string | null;
+  wordDiff: WordDiff[];
 }
 
 export default function PronunciationExercise({
@@ -77,6 +84,7 @@ export default function PronunciationExercise({
       const evalResult: EvalResult = {
         score: data.data.score,
         feedback: data.data.feedback,
+        wordDiff: data.data.wordDiff ?? [],
       };
       setResult(evalResult);
       onAnswer(evalResult.score >= 60, Math.round(evalResult.score));
@@ -110,6 +118,19 @@ export default function PronunciationExercise({
     if (score >= 85) return t.dashboard.exercise.excellent;
     if (score >= 60) return t.dashboard.exercise.keepGoing;
     return t.dashboard.exercise.tryAgain;
+  };
+
+  const getWordDiffColor = (status: WordDiff["status"]) => {
+    switch (status) {
+      case "correct":
+        return "text-emerald-400";
+      case "mispronounced":
+        return "text-red-400 underline decoration-red-400/50 decoration-wavy";
+      case "missing":
+        return "text-white/20 line-through";
+      case "extra":
+        return "text-amber-400 italic";
+    }
   };
 
   if (!isSupported) {
@@ -228,11 +249,46 @@ export default function PronunciationExercise({
               </p>
             </div>
 
-            {/* Your transcript */}
-            <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
-              <p className="text-xs text-white/40 mb-1">{t.dashboard.exercise.speakNow}</p>
-              <p className="text-white/80">{transcript}</p>
-            </div>
+            {/* Word-level diff */}
+            {result.wordDiff.length > 0 && (
+              <div className="p-4 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
+                <p className="text-xs font-medium text-white/40 mb-2">
+                  Analyse mot par mot
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {result.wordDiff.map((wd, i) => (
+                    <span
+                      key={i}
+                      className={`rounded-md px-2 py-1 text-sm ${getWordDiffColor(wd.status)} ${
+                        wd.status === "correct"
+                          ? "bg-emerald-500/10"
+                          : wd.status === "mispronounced"
+                            ? "bg-red-500/10"
+                            : wd.status === "missing"
+                              ? "bg-white/[0.03]"
+                              : "bg-amber-500/10"
+                      }`}
+                      title={
+                        wd.status === "mispronounced"
+                          ? `Attendu : ${wd.expected}`
+                          : wd.status === "missing"
+                            ? "Mot manquant"
+                            : wd.status === "extra"
+                              ? "Mot en trop"
+                              : "Correct"
+                      }
+                    >
+                      {wd.word}
+                      {wd.status === "mispronounced" && wd.expected && (
+                        <span className="ml-1 text-[10px] text-white/30">
+                          ({wd.expected})
+                        </span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* AI Feedback */}
             {result.feedback && (

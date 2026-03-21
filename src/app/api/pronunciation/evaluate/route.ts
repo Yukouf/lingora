@@ -48,6 +48,78 @@ function computeAccuracy(target: string, spoken: string): number {
   return Math.max(0, Math.round(similarity * 100));
 }
 
+// Word-level status for highlight feedback
+type WordStatus = "correct" | "mispronounced" | "missing" | "extra";
+
+interface WordDiff {
+  word: string;
+  status: WordStatus;
+  expected?: string; // the expected word when mispronounced
+}
+
+/**
+ * Compute word-level diff between target and spoken text using
+ * Levenshtein on word arrays to find the optimal alignment.
+ */
+function computeWordDiff(target: string, spoken: string): WordDiff[] {
+  const targetWords = normalizeText(target).split(" ").filter(Boolean);
+  const spokenWords = normalizeText(spoken).split(" ").filter(Boolean);
+
+  const m = targetWords.length;
+  const n = spokenWords.length;
+
+  // Build cost matrix
+  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (targetWords[i - 1] === spokenWords[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = 1 + Math.min(
+          dp[i - 1][j],     // deletion (missing word)
+          dp[i][j - 1],     // insertion (extra word)
+          dp[i - 1][j - 1], // substitution (mispronounced)
+        );
+      }
+    }
+  }
+
+  // Backtrack to build diff
+  const result: WordDiff[] = [];
+  let i = m;
+  let j = n;
+
+  while (i > 0 || j > 0) {
+    if (i > 0 && j > 0 && targetWords[i - 1] === spokenWords[j - 1]) {
+      result.unshift({ word: spokenWords[j - 1], status: "correct" });
+      i--;
+      j--;
+    } else if (i > 0 && j > 0 && dp[i][j] === dp[i - 1][j - 1] + 1) {
+      // Substitution — mispronounced
+      result.unshift({
+        word: spokenWords[j - 1],
+        status: "mispronounced",
+        expected: targetWords[i - 1],
+      });
+      i--;
+      j--;
+    } else if (j > 0 && dp[i][j] === dp[i][j - 1] + 1) {
+      // Insertion — extra word the user said
+      result.unshift({ word: spokenWords[j - 1], status: "extra" });
+      j--;
+    } else {
+      // Deletion — word the user missed
+      result.unshift({ word: targetWords[i - 1], status: "missing" });
+      i--;
+    }
+  }
+
+  return result;
+}
+
 const LANG_NAMES: Record<string, string> = {
   en: "English",
   es: "Spanish",
@@ -83,6 +155,7 @@ export async function POST(request: NextRequest) {
     }
 
     const score = computeAccuracy(targetText, spokenText);
+    const wordDiff = computeWordDiff(targetText, spokenText);
 
     let feedback: string | null = null;
 
@@ -90,15 +163,31 @@ export async function POST(request: NextRequest) {
     if (score < 85) {
       try {
         const langName = LANG_NAMES[languageCode] ?? languageCode;
+        const mispronounced = wordDiff
+          .filter((w) => w.status === "mispronounced")
+          .map((w) => `"${w.word}" (attendu: "${w.expected}")`)
+          .join(", ");
+        const missing = wordDiff
+          .filter((w) => w.status === "missing")
+          .map((w) => `"${w.word}"`)
+          .join(", ");
+
+        const details = [
+          mispronounced ? `Mots mal prononcés : ${mispronounced}` : "",
+          missing ? `Mots manquants : ${missing}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n");
+
         const result = await chat({
-          systemPrompt: `You are a ${langName} pronunciation coach. Give a brief, helpful tip (2-3 sentences max) about pronunciation differences. Be encouraging. Reply in the user's language context.`,
+          systemPrompt: `You are a ${langName} pronunciation coach. Give a brief, helpful tip (2-3 sentences max) about pronunciation differences. Focus on the specific mispronounced words. Be encouraging. Reply in French.`,
           messages: [
             {
               role: "user",
-              content: `Target phrase: "${targetText}"\nWhat I said: "${spokenText}"\nAccuracy: ${score}%\nGive me a quick pronunciation tip.`,
+              content: `Phrase cible : "${targetText}"\nCe que j'ai dit : "${spokenText}"\nPrécision : ${score}%\n${details}\nDonne-moi un conseil rapide de prononciation.`,
             },
           ],
-          maxTokens: 150,
+          maxTokens: 200,
         });
         feedback = result.content;
       } catch {
@@ -124,6 +213,7 @@ export async function POST(request: NextRequest) {
       data: {
         score,
         feedback,
+        wordDiff,
         attempt: {
           id: attempt.id,
           accuracyScore: attempt.accuracyScore,

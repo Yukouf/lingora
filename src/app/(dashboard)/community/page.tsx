@@ -2,14 +2,16 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { useI18n } from "@/lib/i18n/context";
 import { ContentCard } from "@/components/community/ContentCard";
+import { FlagModal } from "@/components/community/FlagModal";
 
 interface ContentItem {
   id: string;
   title: string;
+  description: string | null;
   type: string;
   level: string;
   languageCode: string;
@@ -38,13 +40,20 @@ export default function CommunityPage() {
   const [levelFilter, setLevelFilter] = useState("");
   const [search, setSearch] = useState("");
   const [searchInput, setSearchInput] = useState("");
+  const [sort, setSort] = useState("recent");
 
   const [userVotes, setUserVotes] = useState<UserVoteMap>({});
+
+  // Flag modal
+  const [flagTargetId, setFlagTargetId] = useState<string | null>(null);
+  const [flagTargetTitle, setFlagTargetTitle] = useState("");
+  const [flagSuccess, setFlagSuccess] = useState(false);
 
   const fetchContent = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
     params.set("page", String(page));
+    params.set("sort", sort);
     if (typeFilter) params.set("type", typeFilter);
     if (languageFilter) params.set("language", languageFilter);
     if (levelFilter) params.set("level", levelFilter);
@@ -56,23 +65,20 @@ export default function CommunityPage() {
       if (json.data) {
         setItems(json.data.items);
         setTotalPages(json.data.totalPages);
+        // Load user votes from API
+        if (json.data.userVotes) {
+          setUserVotes((prev) => ({ ...prev, ...json.data.userVotes }));
+        }
       }
     } catch {
       // silent
     }
     setLoading(false);
-  }, [page, typeFilter, languageFilter, levelFilter, search]);
+  }, [page, typeFilter, languageFilter, levelFilter, search, sort]);
 
   useEffect(() => {
     fetchContent();
   }, [fetchContent]);
-
-  // Load user votes for displayed items
-  useEffect(() => {
-    if (!session?.user?.id || items.length === 0) return;
-    // Fetch each item detail for vote info — or we just track locally
-    // For simplicity, we keep vote state client-side after voting
-  }, [session, items]);
 
   async function handleVote(contentId: string, vote: number) {
     if (!session?.user?.id) return;
@@ -95,11 +101,18 @@ export default function CommunityPage() {
           }
           return copy;
         });
-        // Refresh to update counts
         fetchContent();
       }
     } catch {
       // silent
+    }
+  }
+
+  function handleFlag(contentId: string) {
+    const item = items.find((i) => i.id === contentId);
+    if (item) {
+      setFlagTargetId(contentId);
+      setFlagTargetTitle(item.title);
     }
   }
 
@@ -111,10 +124,19 @@ export default function CommunityPage() {
 
   const tabs = [
     { key: "", label: tc.all },
-    { key: "LESSON", label: tc.lessons },
+    { key: "VOCABULARY", label: tc.vocabulary },
+    { key: "EXPRESSION", label: tc.expressions },
+    { key: "CULTURAL_NOTE", label: tc.culturalNotes },
     { key: "DIALOGUE", label: tc.dialogues },
     { key: "FLASHCARD_PACK", label: tc.flashcardPacks },
+    { key: "LESSON", label: tc.lessons },
     { key: "EXERCISE_SET", label: tc.exerciseSets },
+  ];
+
+  const sortOptions = [
+    { key: "recent", label: tc.sortRecent },
+    { key: "popular", label: tc.sortPopular },
+    { key: "used", label: tc.sortMostUsed },
   ];
 
   const selectClass =
@@ -165,7 +187,7 @@ export default function CommunityPage() {
         ))}
       </div>
 
-      {/* Filters + Search */}
+      {/* Filters + Search + Sort */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
         <form onSubmit={handleSearchSubmit} className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
@@ -194,6 +216,7 @@ export default function CommunityPage() {
           <option value="ru">Russian</option>
           <option value="ko">Korean</option>
           <option value="de">Deutsch</option>
+          <option value="ar">Arabic</option>
         </select>
         <select
           value={levelFilter}
@@ -211,6 +234,24 @@ export default function CommunityPage() {
           <option value="C1">C1</option>
           <option value="C2">C2</option>
         </select>
+        {/* Sort dropdown */}
+        <div className="flex items-center gap-1.5">
+          <ArrowUpDown className="h-3.5 w-3.5 text-white/30" />
+          <select
+            value={sort}
+            onChange={(e) => {
+              setSort(e.target.value);
+              setPage(1);
+            }}
+            className={selectClass}
+          >
+            {sortOptions.map((opt) => (
+              <option key={opt.key} value={opt.key}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Grid */}
@@ -220,7 +261,14 @@ export default function CommunityPage() {
         </div>
       ) : items.length === 0 ? (
         <div className="py-20 text-center">
-          <p className="text-white/30">{tc.noContent}</p>
+          <p className="mb-4 text-white/30">{tc.noContent}</p>
+          <Link
+            href="/community/submit"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#a78bfa] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#a78bfa]/20 hover:bg-[#9575f0] transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            {tc.submitContent}
+          </Link>
         </div>
       ) : (
         <>
@@ -230,14 +278,19 @@ export default function CommunityPage() {
                 key={item.id}
                 id={item.id}
                 title={item.title}
+                description={item.description}
                 type={item.type}
                 level={item.level}
+                languageCode={item.languageCode}
                 authorName={item.author?.name}
+                authorImage={item.author?.image}
                 upvotes={item.upvotes}
                 downvotes={item.downvotes}
                 usageCount={item.usageCount}
                 userVote={userVotes[item.id] ?? null}
                 onVote={handleVote}
+                onFlag={handleFlag}
+                showFlagButton={!!session?.user?.id}
               />
             ))}
           </div>
@@ -265,6 +318,27 @@ export default function CommunityPage() {
             </div>
           )}
         </>
+      )}
+
+      {/* Flag success toast */}
+      {flagSuccess && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300 shadow-lg backdrop-blur-sm">
+          {tc.flagSuccess}
+        </div>
+      )}
+
+      {/* Flag modal */}
+      {flagTargetId && (
+        <FlagModal
+          contentId={flagTargetId}
+          contentTitle={flagTargetTitle}
+          onClose={() => setFlagTargetId(null)}
+          onSuccess={() => {
+            setFlagTargetId(null);
+            setFlagSuccess(true);
+            setTimeout(() => setFlagSuccess(false), 4000);
+          }}
+        />
       )}
     </div>
   );

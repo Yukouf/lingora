@@ -2,25 +2,19 @@
 
 import { Globe, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
+import { useImmersionStore } from "@/stores/useImmersionStore";
 import { localeLabels } from "@/lib/i18n/locales";
 import type { Locale } from "@/lib/i18n/locales";
 
 export function ImmersionBadge() {
-  const { isImmersion, immersionLang, disableImmersion, t } = useI18n();
+  const { t, disableImmersion } = useI18n();
+  const { enabled, lang, disable } = useImmersionStore();
 
-  if (!isImmersion || !immersionLang) return null;
+  if (!enabled || !lang) return null;
 
   async function handleDisable() {
     disableImmersion();
-    try {
-      await fetch("/api/settings/immersion", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ immersionMode: false }),
-      });
-    } catch {
-      console.error("Failed to disable immersion");
-    }
+    await disable();
   }
 
   return (
@@ -30,7 +24,7 @@ export function ImmersionBadge() {
       title={t.dashboard.settingsPage.immersionBadge}
     >
       <Globe className="h-3.5 w-3.5" />
-      <span>{localeLabels[immersionLang as Locale]}</span>
+      <span>{localeLabels[lang as Locale]}</span>
       <X className="h-3 w-3 opacity-60" />
     </button>
   );

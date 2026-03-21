@@ -1,102 +1,51 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { Globe, Loader2 } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
+import { useImmersionStore } from "@/stores/useImmersionStore";
 import type { Locale } from "@/lib/i18n/locales";
 import { localeLabels } from "@/lib/i18n/locales";
 
 const immersionLanguages: { code: Locale; label: string }[] = [
   { code: "en", label: "English" },
-  { code: "es", label: "Español" },
+  { code: "es", label: "Espanol" },
   { code: "de", label: "Deutsch" },
   { code: "zh", label: "中文" },
   { code: "ja", label: "日本語" },
   { code: "ru", label: "Русский" },
   { code: "ko", label: "한국어" },
   { code: "ar", label: "العربية" },
-  { code: "fr", label: "Français" },
+  { code: "fr", label: "Francais" },
 ];
 
 export function ImmersionToggle() {
-  const { t, isImmersion, immersionLang, enableImmersion, disableImmersion } = useI18n();
-  const [enabled, setEnabled] = useState(isImmersion);
-  const [selectedLang, setSelectedLang] = useState<Locale>(immersionLang ?? "en");
-  const [saving, setSaving] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const { t, enableImmersion, disableImmersion } = useI18n();
+  const { enabled, lang, initialized, saving, enable, disable, changeLang } =
+    useImmersionStore();
 
-  useEffect(() => {
-    fetch("/api/settings/immersion")
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.data) {
-          setEnabled(json.data.immersionMode);
-          if (json.data.immersionLang) {
-            setSelectedLang(json.data.immersionLang as Locale);
-          }
-          if (json.data.immersionMode && json.data.immersionLang) {
-            enableImmersion(json.data.immersionLang as Locale);
-          }
-        }
-      })
-      .catch(console.error)
-      .finally(() => setLoaded(true));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const selectedLang = lang ?? "en";
 
   async function handleToggle() {
-    const newEnabled = !enabled;
-    setEnabled(newEnabled);
-    setSaving(true);
-
-    try {
-      const res = await fetch("/api/settings/immersion", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          immersionMode: newEnabled,
-          immersionLang: newEnabled ? selectedLang : undefined,
-        }),
-      });
-      const json = await res.json();
-      if (json.data) {
-        if (json.data.immersionMode && json.data.immersionLang) {
-          enableImmersion(json.data.immersionLang as Locale);
-        } else {
-          disableImmersion();
-        }
-      }
-    } catch {
-      setEnabled(!newEnabled);
-      console.error("Failed to update immersion setting");
-    } finally {
-      setSaving(false);
+    if (enabled) {
+      disableImmersion();
+      await disable();
+    } else {
+      enableImmersion(selectedLang);
+      await enable(selectedLang);
     }
   }
 
-  async function handleLangChange(lang: Locale) {
-    setSelectedLang(lang);
-    if (!enabled) return;
-
-    setSaving(true);
-    try {
-      const res = await fetch("/api/settings/immersion", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ immersionMode: true, immersionLang: lang }),
-      });
-      const json = await res.json();
-      if (json.data?.immersionMode && json.data.immersionLang) {
-        enableImmersion(json.data.immersionLang as Locale);
-      }
-    } catch {
-      console.error("Failed to update immersion language");
-    } finally {
-      setSaving(false);
+  async function handleLangChange(newLang: Locale) {
+    if (!enabled) {
+      // Just update the selection visually; don't persist yet
+      useImmersionStore.setState({ lang: newLang });
+      return;
     }
+    enableImmersion(newLang);
+    await changeLang(newLang);
   }
 
-  if (!loaded) {
+  if (!initialized) {
     return (
       <div className="flex items-center gap-2 py-2 text-white/30">
         <Loader2 className="h-4 w-4 animate-spin" />
@@ -114,9 +63,13 @@ export function ImmersionToggle() {
           </div>
           <div>
             <p className="text-sm font-medium text-white/80">
-              {enabled ? t.dashboard.settingsPage.immersionEnabled : t.dashboard.settingsPage.immersionDisabled}
+              {enabled
+                ? t.dashboard.settingsPage.immersionEnabled
+                : t.dashboard.settingsPage.immersionDisabled}
             </p>
-            <p className="text-xs text-white/30">{t.dashboard.settingsPage.immersionDesc}</p>
+            <p className="text-xs text-white/30">
+              {t.dashboard.settingsPage.immersionDesc}
+            </p>
           </div>
         </div>
 
@@ -141,18 +94,18 @@ export function ImmersionToggle() {
             {t.dashboard.settingsPage.immersionLanguage}
           </label>
           <div className="flex flex-wrap gap-2">
-            {immersionLanguages.map((lang) => (
+            {immersionLanguages.map((item) => (
               <button
-                key={lang.code}
-                onClick={() => handleLangChange(lang.code)}
+                key={item.code}
+                onClick={() => handleLangChange(item.code)}
                 disabled={saving}
                 className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${
-                  selectedLang === lang.code
+                  selectedLang === item.code
                     ? "border-amber-500/50 bg-amber-500/20 text-amber-300"
                     : "border-white/5 bg-white/[0.03] text-white/50 hover:bg-white/[0.06]"
                 }`}
               >
-                {localeLabels[lang.code]} — {lang.label}
+                {localeLabels[item.code]} — {item.label}
               </button>
             ))}
           </div>

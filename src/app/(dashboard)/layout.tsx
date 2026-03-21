@@ -1,6 +1,7 @@
 import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { ImmersionBadge } from "@/components/layout/ImmersionBadge";
+import { ImmersionInitializer } from "@/components/layout/ImmersionInitializer";
 
 export default function DashboardLayout({
   children,
@@ -9,6 +10,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="dash-layout">
+      <ImmersionInitializer />
       <DashboardSidebar />
       <div className="dash-content">
         <DashboardHeader />

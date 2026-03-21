@@ -3,15 +3,9 @@
   "configurations": [
     {
       "name": "Next.js Dev (Turbopack)",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["next", "dev", "--turbopack"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
       "port": 3000
-    },
-    {
-      "name": "Prisma Studio",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["prisma", "studio"],
-      "port": 5555
     }
   ]
 }

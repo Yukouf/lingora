@@ -10,7 +10,10 @@ export async function GET(req: NextRequest) {
   const where: Record<string, unknown> = { isPublic: true };
 
   if (search) {
-    where.name = { contains: search, mode: "insensitive" };
+    where.OR = [
+      { name: { contains: search, mode: "insensitive" } },
+      { description: { contains: search, mode: "insensitive" } },
+    ];
   }
   if (language) {
     where.languageCode = language;
@@ -19,19 +22,45 @@ export async function GET(req: NextRequest) {
   const clubs = await db.club.findMany({
     where,
     include: {
-      _count: { select: { members: true } },
+      _count: {
+        select: {
+          members: true,
+          challenges: { where: { endsAt: { gte: new Date() } } },
+        },
+      },
+      members: {
+        take: 5,
+        orderBy: { joinedAt: "asc" },
+        include: {
+          user: { select: { name: true, image: true } },
+        },
+      },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ members: { _count: "desc" } }, { createdAt: "desc" }],
     take: 50,
   });
 
-  return NextResponse.json({ data: clubs });
+  // Transform response to include avatar data
+  const data = clubs.map((club) => ({
+    id: club.id,
+    name: club.name,
+    description: club.description,
+    languageCode: club.languageCode,
+    maxMembers: club.maxMembers,
+    _count: club._count,
+    memberAvatars: club.members.map((m) => ({
+      name: m.user.name,
+      image: m.user.image,
+    })),
+  }));
+
+  return NextResponse.json({ data });
 }
 
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    return NextResponse.json({ error: "Non autorise" }, { status: 401 });
   }
 
   const body = await req.json();

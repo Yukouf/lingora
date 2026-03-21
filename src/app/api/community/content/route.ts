@@ -2,13 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-// GET — list approved community content (filterable, paginated)
+// GET — list approved community content (filterable, paginated, sortable)
 export async function GET(req: NextRequest) {
+  const session = await auth();
   const { searchParams } = new URL(req.url);
   const language = searchParams.get("language");
   const type = searchParams.get("type");
   const level = searchParams.get("level");
   const search = searchParams.get("search");
+  const sort = searchParams.get("sort") ?? "recent"; // recent | popular | used
   const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10));
   const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") ?? "12", 10)));
   const skip = (page - 1) * limit;
@@ -25,6 +27,20 @@ export async function GET(req: NextRequest) {
     ];
   }
 
+  // Build sort order
+  type OrderByEntry = Record<string, string>;
+  let orderBy: OrderByEntry;
+  switch (sort) {
+    case "popular":
+      orderBy = { upvotes: "desc" };
+      break;
+    case "used":
+      orderBy = { usageCount: "desc" };
+      break;
+    default:
+      orderBy = { createdAt: "desc" };
+  }
+
   try {
     const [items, total] = await Promise.all([
       db.communityContent.findMany({
@@ -32,12 +48,28 @@ export async function GET(req: NextRequest) {
         include: {
           author: { select: { id: true, name: true, image: true } },
         },
-        orderBy: { createdAt: "desc" },
+        orderBy,
         skip,
         take: limit,
       }),
       db.communityContent.count({ where }),
     ]);
+
+    // If user is authenticated, fetch their votes for these items
+    let userVotes: Record<string, number> = {};
+    if (session?.user?.id && items.length > 0) {
+      const contentIds = items.map((item) => item.id);
+      const votes = await db.contentVote.findMany({
+        where: {
+          userId: session.user.id,
+          contentId: { in: contentIds },
+        },
+        select: { contentId: true, vote: true },
+      });
+      userVotes = Object.fromEntries(
+        votes.map((v) => [v.contentId, v.vote])
+      );
+    }
 
     return NextResponse.json({
       data: {
@@ -45,6 +77,7 @@ export async function GET(req: NextRequest) {
         total,
         page,
         totalPages: Math.ceil(total / limit),
+        userVotes,
       },
     });
   } catch {
@@ -67,7 +100,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Champs obligatoires manquants" }, { status: 400 });
     }
 
-    const validTypes = ["LESSON", "DIALOGUE", "FLASHCARD_PACK", "EXERCISE_SET"];
+    const validTypes = [
+      "LESSON",
+      "DIALOGUE",
+      "FLASHCARD_PACK",
+      "EXERCISE_SET",
+      "VOCABULARY",
+      "EXPRESSION",
+      "CULTURAL_NOTE",
+    ];
     if (!validTypes.includes(type)) {
       return NextResponse.json({ error: "Type invalide" }, { status: 400 });
     }

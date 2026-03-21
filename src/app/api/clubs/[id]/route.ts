@@ -21,6 +21,9 @@ export async function GET(
         where: { endsAt: { gte: new Date() } },
         include: {
           _count: { select: { participants: true } },
+          participants: {
+            select: { userId: true, progress: true },
+          },
         },
         orderBy: { startsAt: "desc" },
       },
@@ -41,7 +44,7 @@ export async function PATCH(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    return NextResponse.json({ error: "Non autorise" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -51,7 +54,7 @@ export async function PATCH(
   });
 
   if (!membership || (membership.role !== "OWNER" && membership.role !== "ADMIN")) {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
+    return NextResponse.json({ error: "Non autorise" }, { status: 403 });
   }
 
   const body = await req.json();
@@ -76,14 +79,14 @@ export async function DELETE(
 ) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    return NextResponse.json({ error: "Non autorise" }, { status: 401 });
   }
 
   const { id } = await params;
 
   const club = await db.club.findUnique({ where: { id } });
   if (!club || club.ownerId !== session.user.id) {
-    return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
+    return NextResponse.json({ error: "Non autorise" }, { status: 403 });
   }
 
   await db.club.delete({ where: { id } });

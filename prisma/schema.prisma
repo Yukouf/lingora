@@ -34,6 +34,7 @@ model User {
   pronunciations PronunciationAttempt[]
   communityContent CommunityContent[]
   contentVotes   ContentVote[]
+  contentFlags   ContentFlag[]
   clubMemberships ClubMember[]
   certifications Certification[]
 }
@@ -390,6 +391,7 @@ model CommunityContent {
 
   author User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
   votes  ContentVote[]
+  flags  ContentFlag[]
 
   @@index([languageCode, status])
   @@index([authorId])
@@ -408,11 +410,37 @@ model ContentVote {
   @@unique([userId, contentId])
 }
 
+model ContentFlag {
+  id        String     @id @default(cuid())
+  userId    String
+  contentId String
+  reason    FlagReason
+  details   String?
+  createdAt DateTime   @default(now())
+
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content CommunityContent @relation(fields: [contentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, contentId])
+}
+
+enum FlagReason {
+  INAPPROPRIATE
+  SPAM
+  INCORRECT
+  OFFENSIVE
+  COPYRIGHT
+  OTHER
+}
+
 enum CommunityContentType {
   LESSON
   DIALOGUE
   FLASHCARD_PACK
   EXERCISE_SET
+  VOCABULARY
+  EXPRESSION
+  CULTURAL_NOTE
 }
 
 enum ModerationStatus {
