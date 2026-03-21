@@ -333,28 +333,70 @@ const ttsLangMap: Record<string, string> = {
   ar: "ar-SA",
 };
 
+// Module-level audio cache for TTS (persists across renders)
+const ttsAudioCache = new Map<string, ArrayBuffer>();
+
+/** Fallback: speak using browser Web Speech API */
+function speakWithWebSpeech(text: string, langCode: string): void {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  const bcp47 = ttsLangMap[langCode] ?? langCode;
+  utterance.lang = bcp47;
+  utterance.rate = 0.85;
+  utterance.pitch = 1;
+
+  const voices = window.speechSynthesis.getVoices();
+  const langPrefix = bcp47.split("-")[0];
+  const voice = voices.find((v) => v.lang.startsWith(langPrefix));
+  if (voice) utterance.voice = voice;
+
+  window.speechSynthesis.speak(utterance);
+}
+
 /**
- * Speak text aloud using the Web Speech API with the correct language voice.
+ * Speak text aloud using OpenAI TTS API, with Web Speech API fallback.
  * Used for auto-speaking correct answers after exercise completion.
  */
 function speakText(text: string, langCode: string, delay = 300): void {
-  if (typeof window === "undefined" || !window.speechSynthesis || !text) return;
+  if (typeof window === "undefined" || !text) return;
 
-  setTimeout(() => {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    const bcp47 = ttsLangMap[langCode] ?? langCode;
-    utterance.lang = bcp47;
-    utterance.rate = 0.85;
-    utterance.pitch = 1;
+  setTimeout(async () => {
+    // Stop any ongoing speech
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
 
-    // Try to find a matching voice
-    const voices = window.speechSynthesis.getVoices();
-    const langPrefix = bcp47.split("-")[0];
-    const voice = voices.find((v) => v.lang.startsWith(langPrefix));
-    if (voice) utterance.voice = voice;
+    const cacheKey = `${langCode}:${text}`;
 
-    window.speechSynthesis.speak(utterance);
+    try {
+      let audioBuffer = ttsAudioCache.get(cacheKey);
+
+      if (!audioBuffer) {
+        const res = await fetch("/api/tts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, lang: langCode }),
+        });
+
+        if (!res.ok) throw new Error(`TTS error: ${res.status}`);
+
+        audioBuffer = await res.arrayBuffer();
+        ttsAudioCache.set(cacheKey, audioBuffer);
+      }
+
+      const blob = new Blob([audioBuffer], { type: "audio/mpeg" });
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audio.onended = () => URL.revokeObjectURL(url);
+      audio.onerror = () => {
+        URL.revokeObjectURL(url);
+        speakWithWebSpeech(text, langCode);
+      };
+      await audio.play();
+    } catch {
+      // Fallback to Web Speech API
+      speakWithWebSpeech(text, langCode);
+    }
   }, delay);
 }
 
