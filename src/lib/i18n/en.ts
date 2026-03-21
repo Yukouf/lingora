@@ -362,6 +362,7 @@ const en = {
       home: "Back",
       restart: "Restart",
       showHint: "Show hint",
+      hideHint: "Hide hint",
       validate: "Validate",
       correctAnswer: "Correct answer:",
       translate: "Translate",

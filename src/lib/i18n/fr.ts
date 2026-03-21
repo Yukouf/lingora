@@ -371,6 +371,7 @@ const fr = {
       home: "Retour",
       restart: "Recommencer",
       showHint: "Voir un indice",
+      hideHint: "Masquer l'indice",
       validate: "Valider",
       correctAnswer: "Bonne réponse :",
       translate: "Traduire",

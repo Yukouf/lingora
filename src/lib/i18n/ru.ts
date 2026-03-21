@@ -362,6 +362,7 @@ const ru = {
       home: "Назад",
       restart: "Заново",
       showHint: "Показать подсказку",
+      hideHint: "Скрыть подсказку",
       validate: "Проверить",
       correctAnswer: "Правильный ответ:",
       translate: "Перевести",

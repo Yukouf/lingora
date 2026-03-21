@@ -189,6 +189,13 @@ export async function saveExerciseProgress(
   score: number,
   timeSpent: number
 ) {
+  // Read existing score to keep the best one on retry
+  const existing = await db.userProgress.findUnique({
+    where: { userId_exerciseId: { userId, exerciseId } },
+    select: { score: true },
+  });
+  const bestScore = existing ? Math.max(existing.score ?? 0, score) : score;
+
   // Upsert exercise progress
   await db.userProgress.upsert({
     where: {
@@ -198,18 +205,18 @@ export async function saveExerciseProgress(
       userId,
       exerciseId,
       lessonId,
-      score,
-      completed: score >= 60,
+      score: bestScore,
+      completed: bestScore >= 60,
       attempts: 1,
       timeSpent,
-      completedAt: score >= 60 ? new Date() : null,
+      completedAt: bestScore >= 60 ? new Date() : null,
     },
     update: {
-      score: { set: score },
-      completed: score >= 60,
+      score: { set: bestScore },
+      completed: bestScore >= 60,
       attempts: { increment: 1 },
       timeSpent: { increment: timeSpent },
-      completedAt: score >= 60 ? new Date() : null,
+      completedAt: bestScore >= 60 ? new Date() : null,
     },
   });
 

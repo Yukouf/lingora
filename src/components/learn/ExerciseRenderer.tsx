@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle2,
@@ -20,6 +20,16 @@ import {
 import { SpeakButton } from "@/components/ui/speak-button";
 import PronunciationExercise from "@/components/learn/PronunciationExercise";
 import { useI18n } from "@/lib/i18n/context";
+
+/** Fisher-Yates (Knuth) shuffle — returns a new shuffled array */
+function fisherYatesShuffle<T>(array: readonly T[]): T[] {
+  const result = [...array];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
 
 // Color themes for each exercise type
 const exerciseThemes: Record<string, { bg: string; border: string; accent: string; glow: string; icon: React.ReactNode; label: string }> = {
@@ -137,12 +147,16 @@ interface ExerciseQuestionRaw {
   error_explanation?: string;
   errorExplanation?: string;
   errorWord?: string;
+  correctWord?: string;
+  correct_word?: string;
+  explanation?: string;
   dialogue?: Array<{ speaker: string; text: string }>;
   blank_position?: string;
   blankPosition?: string;
   prompt?: string;
   instruction?: string;
   criteria?: string[];
+  evaluationCriteria?: string[];
   words_to_order?: string[];
   wordsToOrder?: string[];
   pairs?: Array<{ left: string; right: string }>;
@@ -151,6 +165,84 @@ interface ExerciseQuestionRaw {
   sentence_with_word?: string;
   sentenceWithWord?: string;
   direction?: string;
+}
+
+// ---- Fuzzy matching utilities ----
+
+/** Remove punctuation from a string */
+function removePunctuation(s: string): string {
+  return s.replace(/[^\w\sÀ-ÿ]/g, "");
+}
+
+/** Remove diacritics/accents from a string */
+function removeAccents(s: string): string {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+/** Compute Levenshtein distance between two strings */
+function levenshteinDistance(a: string, b: string): number {
+  const m = a.length;
+  const n = b.length;
+  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0) as number[]);
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = a[i - 1] === b[j - 1]
+        ? dp[i - 1][j - 1]
+        : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+
+/** Normalize a string for comparison: lowercase, trim, remove punctuation */
+function normalizeForComparison(s: string): string {
+  return removePunctuation(s.toLowerCase().trim());
+}
+
+/**
+ * Fuzzy match for translation exercises.
+ * Returns a score: 100 (exact), 80 (minor typo, levenshtein <= 2), 70 (keyword match 80%+), 0 (wrong).
+ */
+function fuzzyMatchTranslation(userAnswer: string, expected: string): { isCorrect: boolean; score: number } {
+  const normUser = normalizeForComparison(userAnswer);
+  const normExpected = normalizeForComparison(expected);
+
+  // Exact match after normalization
+  if (normUser === normExpected) return { isCorrect: true, score: 100 };
+
+  // Minor typo: Levenshtein distance <= 2
+  const dist = levenshteinDistance(normUser, normExpected);
+  if (dist <= 2) return { isCorrect: true, score: 80 };
+
+  // Keyword match: 80%+ of expected words found in user answer
+  const expectedWords = normExpected.split(/\s+/).filter(Boolean);
+  if (expectedWords.length > 0) {
+    const userWords = new Set(normUser.split(/\s+/).filter(Boolean));
+    const matchCount = expectedWords.filter((w) => userWords.has(w)).length;
+    const matchRatio = matchCount / expectedWords.length;
+    if (matchRatio >= 0.8) return { isCorrect: true, score: 70 };
+  }
+
+  return { isCorrect: false, score: 0 };
+}
+
+/**
+ * Fuzzy match for fill-in-blank exercises.
+ * Returns a score: 100 (exact), 80 (1 char typo), 0 (wrong).
+ * Also strips accents for comparison.
+ */
+function fuzzyMatchFillInBlank(userAnswer: string, expected: string): { isCorrect: boolean; score: number } {
+  const normUser = removeAccents(normalizeForComparison(userAnswer));
+  const normExpected = removeAccents(normalizeForComparison(expected));
+
+  if (normUser === normExpected) return { isCorrect: true, score: 100 };
+
+  const dist = levenshteinDistance(normUser, normExpected);
+  if (dist <= 1) return { isCorrect: true, score: 80 };
+
+  return { isCorrect: false, score: 0 };
 }
 
 // Normalize seed data (camelCase + index) to renderer format (snake_case + string)
@@ -164,6 +256,12 @@ function normalizeQuestion(raw: ExerciseQuestionRaw): ExerciseQuestion {
   } else if (typeof rawCA === "string" && !correctAnswer) {
     correctAnswer = rawCA;
   }
+  // For SPOT_ERROR, fall back to correctWord / correct_word if correct_answer is empty
+  if (!correctAnswer) {
+    const cw = raw.correctWord ?? raw.correct_word;
+    if (cw) correctAnswer = cw;
+  }
+
   return {
     text: raw.text ?? raw.instruction ?? "",
     options,
@@ -174,13 +272,13 @@ function normalizeQuestion(raw: ExerciseQuestionRaw): ExerciseQuestion {
     context: raw.context,
     sentence_with_error: raw.sentence_with_error,
     correct_sentence: raw.correct_sentence ?? raw.correctSentence,
-    error_explanation: raw.error_explanation ?? raw.errorExplanation,
+    error_explanation: raw.error_explanation ?? raw.errorExplanation ?? raw.explanation,
     errorWord: raw.errorWord,
     dialogue: raw.dialogue,
     blank_position: raw.blank_position ?? raw.blankPosition,
     prompt: raw.prompt,
     instruction: raw.instruction,
-    criteria: raw.criteria,
+    criteria: raw.criteria ?? raw.evaluationCriteria,
     words_to_order: raw.words_to_order ?? raw.wordsToOrder,
     pairs: raw.pairs,
     word_to_guess: raw.word_to_guess ?? raw.targetWord,
@@ -257,6 +355,20 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
   const theme = { ...baseTheme, label: exerciseTypeLabels[exercise.type] || baseTheme.label };
   const q = normalizeQuestion(exercise.question);
 
+  // Shuffle options once per exercise (Fisher-Yates) for types that display options
+  const shuffledOptions = useMemo(
+    () => fisherYatesShuffle(q.options?.filter(Boolean) ?? []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [exercise.id],
+  );
+
+  // Shuffle right column for matching exercises once per exercise
+  const shuffledMatchingIndices = useMemo(
+    () => fisherYatesShuffle((q.pairs || []).map((_, i) => i)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [exercise.id],
+  );
+
   const resetState = () => {
     setSelectedAnswer(null);
     setTextInput("");
@@ -269,11 +381,31 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
     setAvailableWords([]);
   };
 
-  const checkAnswer = (answer: string) => {
-    const correct = (answer ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
-    setIsCorrect(correct);
-    setShowResult(true);
-    onAnswer(correct, correct ? 100 : 0);
+  const checkAnswer = (answer: string, mode: "translation" | "fill_in_blank" | "spot_error" | "exact" = "exact") => {
+    if (mode === "spot_error") {
+      // For SPOT_ERROR: check if the user's corrected text contains the correct word
+      const normalizedAnswer = (answer ?? "").toLowerCase().trim();
+      const correctWord = (q.correct_answer ?? "").toLowerCase().trim();
+      const correct = correctWord !== "" && normalizedAnswer.includes(correctWord);
+      setIsCorrect(correct);
+      setShowResult(true);
+      onAnswer(correct, correct ? 100 : 0);
+    } else if (mode === "translation") {
+      const result = fuzzyMatchTranslation(answer, q.correct_answer ?? "");
+      setIsCorrect(result.isCorrect);
+      setShowResult(true);
+      onAnswer(result.isCorrect, result.score);
+    } else if (mode === "fill_in_blank") {
+      const result = fuzzyMatchFillInBlank(answer, q.correct_answer ?? "");
+      setIsCorrect(result.isCorrect);
+      setShowResult(true);
+      onAnswer(result.isCorrect, result.score);
+    } else {
+      const correct = (answer ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
+      setIsCorrect(correct);
+      setShowResult(true);
+      onAnswer(correct, correct ? 100 : 0);
+    }
   };
 
   const handleNext = () => {
@@ -289,7 +421,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
         <SpeakButton text={q.text} lang={languageCode} size="sm" className="mt-0.5 shrink-0" />
       </div>
       <div className="grid gap-3">
-        {q.options?.filter(Boolean).map((option, i) => {
+        {shuffledOptions.map((option, i) => {
           const isSelected = selectedAnswer === option;
           const showCorrectness = showResult;
           const optionIsCorrect = (option ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
@@ -375,7 +507,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
               type="text"
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && textInput && checkAnswer(textInput)}
+              onKeyDown={(e) => e.key === "Enter" && textInput && checkAnswer(textInput, "fill_in_blank")}
               placeholder="Tape ta réponse..."
               className="flex-1 bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-blue-400/60 transition-colors"
               autoFocus
@@ -383,7 +515,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => textInput && checkAnswer(textInput)}
+              onClick={() => textInput && checkAnswer(textInput, "fill_in_blank")}
               className="px-6 py-3 bg-blue-500 hover:bg-blue-400 text-white rounded-xl font-medium transition-colors"
             >
               Valider
@@ -429,7 +561,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => textInput && checkAnswer(textInput)}
+            onClick={() => textInput && checkAnswer(textInput, "translation")}
             className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-medium transition-colors"
           >
             Vérifier ma traduction
@@ -470,10 +602,14 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
         <p className="text-sm text-amber-300/60">Clique pour écouter</p>
       </div>
 
-      <p className="text-lg font-medium text-white text-center">{q.text}</p>
+      {showResult ? (
+        <p className="text-lg font-medium text-white text-center">{q.text}</p>
+      ) : (
+        <p className="text-sm text-amber-300/80 text-center italic">Écoute attentivement et choisis la bonne réponse</p>
+      )}
 
       <div className="grid gap-3">
-        {q.options?.filter(Boolean).map((option, i) => {
+        {shuffledOptions.map((option, i) => {
           const isSelected = selectedAnswer === option;
           const showCorrectness = showResult;
           const optionIsCorrect = (option ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
@@ -508,7 +644,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
   const renderReorder = () => {
     // Initialize available words on first render
     if (availableWords.length === 0 && reorderedWords.length === 0 && q.words_to_order) {
-      const shuffled = [...q.words_to_order].sort(() => Math.random() - 0.5);
+      const shuffled = fisherYatesShuffle(q.words_to_order);
       setAvailableWords(shuffled);
       return null;
     }
@@ -580,7 +716,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
   // ====== MATCHING ======
   const renderMatching = () => {
     const pairs = q.pairs || [];
-    const shuffledRight = pairs.map((_, i) => i).sort(() => Math.random() - 0.5);
+    const shuffledRight = shuffledMatchingIndices;
 
     return (
       <div className="space-y-6">
@@ -675,7 +811,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       <p className="text-center text-white/60 text-sm">Que signifie ce mot selon le contexte ?</p>
 
       <div className="grid gap-3">
-        {q.options?.filter(Boolean).map((option, i) => {
+        {shuffledOptions.map((option, i) => {
           const isSelected = selectedAnswer === option;
           const showCorrectness = showResult;
           const optionIsCorrect = (option ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
@@ -723,7 +859,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
             type="text"
             value={textInput}
             onChange={(e) => setTextInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && textInput && checkAnswer(textInput)}
+            onKeyDown={(e) => e.key === "Enter" && textInput && checkAnswer(textInput, "spot_error")}
             placeholder="Écris la phrase corrigée..."
             className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-red-400/60 transition-colors"
             autoFocus
@@ -731,7 +867,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => textInput && checkAnswer(textInput)}
+            onClick={() => textInput && checkAnswer(textInput, "spot_error")}
             className="w-full py-3 bg-red-500 hover:bg-red-400 text-white rounded-xl font-medium transition-colors"
           >
             Vérifier ma correction
@@ -800,7 +936,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
         <div className="flex gap-3">
           {q.options ? (
             <div className="grid gap-2 w-full">
-              {q.options.map((opt, i) => (
+              {shuffledOptions.map((opt, i) => (
                 <motion.button
                   key={i}
                   whileHover={{ scale: 1.02 }}
@@ -851,7 +987,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
         <p className={`text-xs mb-2 uppercase tracking-wide font-medium ${
           exercise.type === "FREE_PRODUCTION" ? "text-pink-400" : "text-rose-400"
         }`}>
-          {exercise.type === "FREE_PRODUCTION" ? "✨ Production libre" : "✍️ Écris en anglais"}
+          {exercise.type === "FREE_PRODUCTION" ? "✨ Production libre" : "✍️ Écris dans la langue cible"}
         </p>
         <p className="text-base text-white">{q.prompt || q.text}</p>
       </div>
@@ -881,11 +1017,22 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => {
-              if (textInput.trim().length >= 3) {
-                // For writing exercises, any non-empty answer gets partial credit
-                setIsCorrect(true);
+              const trimmed = textInput.trim();
+              if (trimmed.length >= 3) {
+                // Score based on response length
+                let writingScore: number;
+                if (trimmed.length < 10) {
+                  writingScore = 40;
+                } else if (trimmed.length < 30) {
+                  writingScore = 60;
+                } else if (trimmed.length < 80) {
+                  writingScore = 80;
+                } else {
+                  writingScore = 95;
+                }
+                setIsCorrect(writingScore >= 60);
                 setShowResult(true);
-                onAnswer(true, 80);
+                onAnswer(writingScore >= 60, writingScore);
               }
             }}
             className={`w-full py-3 text-white rounded-xl font-medium transition-colors ${
@@ -898,14 +1045,25 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
           </motion.button>
         </div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-2xl bg-white/5 border border-white/10"
-        >
-          <p className="text-xs text-white/40 mb-1 uppercase tracking-wide">Exemple de réponse</p>
-          <p className="text-base text-emerald-300">{q.correct_answer}</p>
-        </motion.div>
+        <div className="space-y-3">
+          {textInput.trim().length < 10 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30"
+            >
+              <p className="text-sm text-amber-300">Trop court, développe ta réponse</p>
+            </motion.div>
+          )}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 rounded-2xl bg-white/5 border border-white/10"
+          >
+            <p className="text-xs text-white/40 mb-1 uppercase tracking-wide">Exemple de réponse</p>
+            <p className="text-base text-emerald-300">{q.correct_answer}</p>
+          </motion.div>
+        </div>
       )}
     </div>
   );
@@ -941,7 +1099,11 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
             hint={q.hints?.[0]}
             languageCode={languageCode}
             exerciseId={exercise.id}
-            onAnswer={onAnswer}
+            onAnswer={(correct, score) => {
+              setIsCorrect(correct);
+              setShowResult(true);
+              onAnswer(correct, score);
+            }}
           />
         );
       default:
@@ -978,7 +1140,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
             className="mt-4 flex items-center gap-2 text-sm text-white/40 hover:text-white/60 transition-colors"
           >
             <Lightbulb className="h-4 w-4" />
-            {showHint ? t.dashboard.exercise.showHint : t.dashboard.exercise.showHint}
+            {showHint ? t.dashboard.exercise.hideHint : t.dashboard.exercise.showHint}
           </motion.button>
         )}
 
