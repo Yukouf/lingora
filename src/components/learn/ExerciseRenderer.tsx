@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle2,
@@ -20,6 +20,7 @@ import {
 import { SpeakButton } from "@/components/ui/speak-button";
 import PronunciationExercise from "@/components/learn/PronunciationExercise";
 import { useI18n } from "@/lib/i18n/context";
+import { playCorrectSound, playWrongSound } from "@/lib/sounds";
 
 /** Fisher-Yates (Knuth) shuffle — returns a new shuffled array */
 function fisherYatesShuffle<T>(array: readonly T[]): T[] {
@@ -34,98 +35,98 @@ function fisherYatesShuffle<T>(array: readonly T[]): T[] {
 // Color themes for each exercise type
 const exerciseThemes: Record<string, { bg: string; border: string; accent: string; glow: string; icon: React.ReactNode; label: string }> = {
   MULTIPLE_CHOICE: {
-    bg: "from-violet-500/20 to-purple-600/10",
-    border: "border-violet-500/40",
-    accent: "bg-violet-500",
-    glow: "shadow-[0_0_30px_rgba(139,92,246,0.3)]",
+    bg: "from-blue-500/15 to-blue-600/5",
+    border: "border-blue-500/30",
+    accent: "bg-blue-500",
+    glow: "shadow-[0_0_40px_rgba(59,130,246,0.2)]",
     icon: <HelpCircle className="h-5 w-5" />,
     label: "Choix multiple",
   },
   FILL_IN_BLANK: {
-    bg: "from-blue-500/20 to-cyan-600/10",
-    border: "border-blue-500/40",
-    accent: "bg-blue-500",
-    glow: "shadow-[0_0_30px_rgba(59,130,246,0.3)]",
+    bg: "from-cyan-500/15 to-teal-600/5",
+    border: "border-cyan-500/30",
+    accent: "bg-cyan-500",
+    glow: "shadow-[0_0_40px_rgba(6,182,212,0.2)]",
     icon: <PenTool className="h-5 w-5" />,
-    label: "Compléter",
+    label: "Compl\u00e9ter",
   },
   TRANSLATION: {
-    bg: "from-emerald-500/20 to-green-600/10",
-    border: "border-emerald-500/40",
-    accent: "bg-emerald-500",
-    glow: "shadow-[0_0_30px_rgba(16,185,129,0.3)]",
+    bg: "from-purple-500/15 to-violet-600/5",
+    border: "border-purple-500/30",
+    accent: "bg-purple-500",
+    glow: "shadow-[0_0_40px_rgba(168,85,247,0.2)]",
     icon: <Shuffle className="h-5 w-5" />,
     label: "Traduction",
   },
   LISTENING: {
-    bg: "from-amber-500/20 to-yellow-600/10",
-    border: "border-amber-500/40",
+    bg: "from-amber-500/15 to-orange-600/5",
+    border: "border-amber-500/30",
     accent: "bg-amber-500",
-    glow: "shadow-[0_0_30px_rgba(245,158,11,0.3)]",
+    glow: "shadow-[0_0_40px_rgba(245,158,11,0.2)]",
     icon: <Volume2 className="h-5 w-5" />,
-    label: "Écoute",
+    label: "\u00c9coute",
   },
   WRITING: {
-    bg: "from-rose-500/20 to-pink-600/10",
-    border: "border-rose-500/40",
-    accent: "bg-rose-500",
-    glow: "shadow-[0_0_30px_rgba(244,63,94,0.3)]",
+    bg: "from-violet-500/15 to-purple-600/5",
+    border: "border-violet-500/30",
+    accent: "bg-violet-500",
+    glow: "shadow-[0_0_40px_rgba(139,92,246,0.2)]",
     icon: <PenTool className="h-5 w-5" />,
-    label: "Écriture",
+    label: "\u00c9criture",
   },
   REORDER: {
-    bg: "from-cyan-500/20 to-teal-600/10",
-    border: "border-cyan-500/40",
-    accent: "bg-cyan-500",
-    glow: "shadow-[0_0_30px_rgba(6,182,212,0.3)]",
+    bg: "from-emerald-500/15 to-green-600/5",
+    border: "border-emerald-500/30",
+    accent: "bg-emerald-500",
+    glow: "shadow-[0_0_40px_rgba(16,185,129,0.2)]",
     icon: <Shuffle className="h-5 w-5" />,
     label: "Remettre en ordre",
   },
   MATCHING: {
-    bg: "from-orange-500/20 to-amber-600/10",
-    border: "border-orange-500/40",
-    accent: "bg-orange-500",
-    glow: "shadow-[0_0_30px_rgba(249,115,22,0.3)]",
+    bg: "from-pink-500/15 to-rose-600/5",
+    border: "border-pink-500/30",
+    accent: "bg-pink-500",
+    glow: "shadow-[0_0_40px_rgba(236,72,153,0.2)]",
     icon: <Sparkles className="h-5 w-5" />,
     label: "Associer",
   },
   CONTEXT_GUESS: {
-    bg: "from-indigo-500/20 to-blue-600/10",
-    border: "border-indigo-500/40",
+    bg: "from-indigo-500/15 to-blue-600/5",
+    border: "border-indigo-500/30",
     accent: "bg-indigo-500",
-    glow: "shadow-[0_0_30px_rgba(99,102,241,0.3)]",
+    glow: "shadow-[0_0_40px_rgba(99,102,241,0.2)]",
     icon: <Lightbulb className="h-5 w-5" />,
     label: "Deviner le sens",
   },
   SPOT_ERROR: {
-    bg: "from-red-500/20 to-rose-600/10",
-    border: "border-red-500/40",
+    bg: "from-red-500/15 to-rose-600/5",
+    border: "border-red-500/30",
     accent: "bg-red-500",
-    glow: "shadow-[0_0_30px_rgba(239,68,68,0.3)]",
+    glow: "shadow-[0_0_40px_rgba(239,68,68,0.2)]",
     icon: <Search className="h-5 w-5" />,
     label: "Trouver l'erreur",
   },
   DIALOGUE_COMPLETE: {
-    bg: "from-teal-500/20 to-emerald-600/10",
-    border: "border-teal-500/40",
-    accent: "bg-teal-500",
-    glow: "shadow-[0_0_30px_rgba(20,184,166,0.3)]",
+    bg: "from-green-500/15 to-emerald-600/5",
+    border: "border-green-500/30",
+    accent: "bg-green-500",
+    glow: "shadow-[0_0_40px_rgba(34,197,94,0.2)]",
     icon: <MessageCircle className="h-5 w-5" />,
     label: "Dialogue",
   },
   FREE_PRODUCTION: {
-    bg: "from-pink-500/20 to-fuchsia-600/10",
-    border: "border-pink-500/40",
+    bg: "from-pink-500/15 to-fuchsia-600/5",
+    border: "border-pink-500/30",
     accent: "bg-pink-500",
-    glow: "shadow-[0_0_30px_rgba(236,72,153,0.3)]",
+    glow: "shadow-[0_0_40px_rgba(236,72,153,0.2)]",
     icon: <Sparkles className="h-5 w-5" />,
     label: "Production libre",
   },
   PRONUNCIATION: {
-    bg: "from-rose-500/20 to-pink-600/10",
-    border: "border-rose-500/40",
+    bg: "from-rose-500/15 to-pink-600/5",
+    border: "border-rose-500/30",
     accent: "bg-rose-500",
-    glow: "shadow-[0_0_30px_rgba(244,63,94,0.3)]",
+    glow: "shadow-[0_0_40px_rgba(244,63,94,0.2)]",
     icon: <Mic className="h-5 w-5" />,
     label: "Prononciation",
   },
@@ -407,6 +408,54 @@ interface ExerciseRendererProps {
   languageCode?: string;
 }
 
+// CSS-only confetti burst component
+function ConfettiBurst() {
+  const [particles] = useState(() =>
+    Array.from({ length: 24 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 200 - 100,
+      y: -(Math.random() * 180 + 60),
+      rotation: Math.random() * 720 - 360,
+      scale: Math.random() * 0.6 + 0.4,
+      delay: Math.random() * 0.3,
+      duration: Math.random() * 0.6 + 0.8,
+      color: [
+        "bg-emerald-400", "bg-green-400", "bg-teal-400",
+        "bg-yellow-400", "bg-amber-400", "bg-sky-400",
+        "bg-pink-400", "bg-violet-400", "bg-cyan-400",
+        "bg-lime-400", "bg-rose-400", "bg-blue-400",
+      ][i % 12],
+      shape: i % 3,
+    }))
+  );
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden z-50">
+      <style>{`
+        @keyframes confetti-burst {
+          0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+          100% { transform: translate(var(--cx), var(--cy)) rotate(var(--cr)) scale(var(--cs)); opacity: 0; }
+        }
+      `}</style>
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className={`absolute left-1/2 top-1/2 ${p.color} ${
+            p.shape === 0 ? "rounded-full w-2 h-2" : p.shape === 1 ? "rounded-sm w-2.5 h-2.5" : "rounded-sm w-3 h-1.5"
+          }`}
+          style={{
+            "--cx": `${p.x}px`,
+            "--cy": `${p.y}px`,
+            "--cr": `${p.rotation}deg`,
+            "--cs": p.scale,
+            animation: `confetti-burst ${p.duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${p.delay}s forwards`,
+          } as React.CSSProperties}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageCode = "en" }: ExerciseRendererProps) {
   const { t } = useI18n();
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -418,6 +467,22 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
   const [selectedLeft, setSelectedLeft] = useState<number | null>(null);
   const [reorderedWords, setReorderedWords] = useState<string[]>([]);
   const [availableWords, setAvailableWords] = useState<string[]>([]);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [shakeCard, setShakeCard] = useState(false);
+
+  // Trigger confetti on correct, shake on wrong
+  useEffect(() => {
+    if (showResult && isCorrect) {
+      setShowConfetti(true);
+      const timer = setTimeout(() => setShowConfetti(false), 1500);
+      return () => clearTimeout(timer);
+    }
+    if (showResult && !isCorrect) {
+      setShakeCard(true);
+      const timer = setTimeout(() => setShakeCard(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [showResult, isCorrect]);
 
   const baseTheme = exerciseThemes[exercise.type] || exerciseThemes.MULTIPLE_CHOICE;
   const exerciseTypeLabels: Record<string, string> = {
@@ -461,16 +526,20 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
     setSelectedLeft(null);
     setReorderedWords([]);
     setAvailableWords([]);
+    setShowConfetti(false);
+    setShakeCard(false);
   };
 
   const checkAnswer = (answer: string, mode: "translation" | "fill_in_blank" | "spot_error" | "exact" = "exact") => {
     let textToSpeak = "";
+    let answeredCorrectly = false;
 
     if (mode === "spot_error") {
       // For SPOT_ERROR: check if the user's corrected text contains the correct word
       const normalizedAnswer = (answer ?? "").toLowerCase().trim();
       const correctWord = (q.correct_answer ?? "").toLowerCase().trim();
       const correct = correctWord !== "" && normalizedAnswer.includes(correctWord);
+      answeredCorrectly = correct;
       setIsCorrect(correct);
       setShowResult(true);
       onAnswer(correct, correct ? 100 : 0);
@@ -478,6 +547,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       textToSpeak = q.correct_sentence || q.correct_answer || "";
     } else if (mode === "translation") {
       const result = fuzzyMatchTranslation(answer, q.correct_answer ?? "");
+      answeredCorrectly = result.isCorrect;
       setIsCorrect(result.isCorrect);
       setShowResult(true);
       onAnswer(result.isCorrect, result.score);
@@ -485,6 +555,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       textToSpeak = q.text || "";
     } else if (mode === "fill_in_blank") {
       const result = fuzzyMatchFillInBlank(answer, q.correct_answer ?? "");
+      answeredCorrectly = result.isCorrect;
       setIsCorrect(result.isCorrect);
       setShowResult(true);
       onAnswer(result.isCorrect, result.score);
@@ -492,6 +563,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       textToSpeak = q.correct_answer || "";
     } else {
       const correct = (answer ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
+      answeredCorrectly = correct;
       setIsCorrect(correct);
       setShowResult(true);
       onAnswer(correct, correct ? 100 : 0);
@@ -509,9 +581,16 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       }
     }
 
-    // Auto-speak the correct answer with a small delay for visual feedback first
+    // Play sound effect immediately (ding for correct, buzz for wrong)
+    if (answeredCorrectly) {
+      playCorrectSound();
+    } else {
+      playWrongSound();
+    }
+
+    // Auto-speak the correct answer after 500ms delay (sound effect first, then TTS)
     if (textToSpeak) {
-      speakText(textToSpeak, languageCode);
+      speakText(textToSpeak, languageCode, 500);
     }
   };
 
@@ -864,10 +943,11 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
                   onClick={() => {
                     if (matchedPairs.has(originalIdx) || showResult || selectedLeft === null) return;
                     if (selectedLeft === originalIdx) {
-                      // Correct match — speak the matched pair
+                      // Correct match — play ding and speak the matched pair
+                      playCorrectSound();
                       const matchedPair = pairs[originalIdx];
                       if (matchedPair) {
-                        speakText(matchedPair.left, languageCode, 100);
+                        speakText(matchedPair.left, languageCode, 500);
                       }
                       setMatchedPairs((prev) => new Set([...prev, originalIdx]));
                       setSelectedLeft(null);
@@ -1228,31 +1308,64 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
 
   return (
     <div className="w-full max-w-2xl mx-auto">
+      <style>{`
+        @keyframes shake-card {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+          20%, 40%, 60%, 80% { transform: translateX(4px); }
+        }
+        @keyframes red-flash {
+          0% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+          30% { box-shadow: 0 0 30px 5px rgba(239,68,68,0.3); }
+          100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+        }
+        @keyframes green-glow-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+          50% { box-shadow: 0 0 40px 8px rgba(16,185,129,0.25); }
+          100% { box-shadow: 0 0 20px 4px rgba(16,185,129,0.1); }
+        }
+        @keyframes scale-bounce-in {
+          0% { transform: scale(0.8); opacity: 0; }
+          60% { transform: scale(1.05); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+
       {/* Exercise type badge */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium mb-6 ${theme.accent} text-white`}
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-6 ${theme.accent} text-white shadow-lg`}
       >
         {theme.icon}
         {theme.label}
       </motion.div>
 
-      {/* Exercise content */}
+      {/* Exercise content card */}
       <motion.div
         key={exercise.id}
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -20 }}
-        className={`p-6 rounded-3xl border ${theme.border} bg-gradient-to-br ${theme.bg} backdrop-blur-xl ${theme.glow}`}
+        className={`relative p-6 sm:p-8 rounded-3xl border ${theme.border} bg-gradient-to-br ${theme.bg} backdrop-blur-xl ${theme.glow} transition-shadow duration-500`}
+        style={{
+          animation: shakeCard
+            ? "shake-card 0.5s ease-in-out, red-flash 0.6s ease-out"
+            : showResult && isCorrect
+            ? "green-glow-pulse 1s ease-out forwards"
+            : "none",
+        }}
       >
+        {/* Confetti overlay */}
+        {showConfetti && <ConfettiBurst />}
+
         {renderExercise()}
 
         {/* Hint button */}
         {q.hints && q.hints.length > 0 && !showResult && (
           <motion.button
             onClick={() => setShowHint(!showHint)}
-            className="mt-4 flex items-center gap-2 text-sm text-white/40 hover:text-white/60 transition-colors"
+            className="mt-5 flex items-center gap-2 text-sm text-white/40 hover:text-white/60 transition-colors"
           >
             <Lightbulb className="h-4 w-4" />
             {showHint ? t.dashboard.exercise.hideHint : t.dashboard.exercise.showHint}
@@ -1267,7 +1380,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
               exit={{ opacity: 0, height: 0 }}
               className="mt-3 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20"
             >
-              <p className="text-sm text-yellow-200">💡 {q.hints[0]}</p>
+              <p className="text-sm text-yellow-200">{q.hints[0]}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1281,13 +1394,16 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
             animate={{ opacity: 1, y: 0 }}
             className="mt-6 space-y-4"
           >
-            {/* Feedback */}
+            {/* Feedback banner */}
             <div
-              className={`p-4 rounded-2xl flex items-center gap-3 ${
+              className={`p-4 rounded-2xl flex items-center gap-3 backdrop-blur-sm ${
                 isCorrect
-                  ? "bg-emerald-500/20 border border-emerald-500/30"
-                  : "bg-red-500/20 border border-red-500/30"
+                  ? "bg-emerald-500/15 border border-emerald-500/30 shadow-[0_0_20px_rgba(16,185,129,0.15)]"
+                  : "bg-red-500/15 border border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.15)]"
               }`}
+              style={{
+                animation: isCorrect ? "scale-bounce-in 0.4s ease-out" : "none",
+              }}
             >
               {isCorrect ? (
                 <>
@@ -1296,10 +1412,10 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ type: "spring", stiffness: 200 }}
                   >
-                    <CheckCircle2 className="h-6 w-6 text-emerald-400" />
+                    <CheckCircle2 className="h-7 w-7 text-emerald-400 drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]" />
                   </motion.div>
                   <div>
-                    <p className="font-medium text-emerald-300">{t.dashboard.exercise.excellent}</p>
+                    <p className="font-bold text-emerald-300 text-base">{t.dashboard.exercise.excellent}</p>
                     <p className="text-sm text-emerald-300/60">{t.dashboard.exercise.keepGoing}</p>
                   </div>
                 </>
@@ -1309,10 +1425,10 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                   >
-                    <XCircle className="h-6 w-6 text-red-400" />
+                    <XCircle className="h-7 w-7 text-red-400 drop-shadow-[0_0_6px_rgba(239,68,68,0.5)]" />
                   </motion.div>
                   <div>
-                    <p className="font-medium text-red-300">{t.dashboard.exercise.wrongAnswer}</p>
+                    <p className="font-bold text-red-300 text-base">{t.dashboard.exercise.wrongAnswer}</p>
                     <p className="text-sm text-red-300/60">{t.dashboard.exercise.tryAgain}</p>
                   </div>
                 </>
@@ -1321,10 +1437,17 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
 
             {/* Next button */}
             <motion.button
-              whileHover={{ scale: 1.02 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              whileHover={{ scale: 1.02, y: -1 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleNext}
-              className="w-full py-4 bg-white/10 hover:bg-white/15 border border-white/20 text-white rounded-2xl font-medium transition-all flex items-center justify-center gap-2"
+              className={`w-full py-4 rounded-2xl font-semibold transition-all flex items-center justify-center gap-2 ${
+                isCorrect
+                  ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-lg shadow-emerald-500/20"
+                  : "bg-white/10 hover:bg-white/15 border border-white/20 text-white"
+              }`}
             >
               {t.dashboard.exercise.next}
               <ArrowRight className="h-4 w-4" />

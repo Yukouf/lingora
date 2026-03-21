@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Trophy, Star, Zap, Home, RotateCcw, Layers } from "lucide-react";
 import Link from "next/link";
 import ExerciseRenderer from "@/components/learn/ExerciseRenderer";
 import { useI18n } from "@/lib/i18n/context";
+import { playLevelUpSound } from "@/lib/sounds";
 
 interface ExerciseData {
   id: string;
@@ -83,9 +84,65 @@ export default function ExerciseSession({
   const correctCount = scores.filter((s) => s >= 60).length;
   const stars = avgScore >= 90 ? 3 : avgScore >= 70 ? 2 : avgScore >= 50 ? 1 : 0;
 
+  // Play level-up sound when lesson is completed
+  const levelUpPlayed = useRef(false);
+  useEffect(() => {
+    if (isFinished && !levelUpPlayed.current) {
+      levelUpPlayed.current = true;
+      playLevelUpSound();
+    }
+  }, [isFinished]);
+
+  // Dynamic progress bar color: blue -> green -> gold
+  const progressColor = progress < 40
+    ? "from-blue-500 to-cyan-400"
+    : progress < 75
+    ? "from-cyan-400 to-emerald-400"
+    : "from-emerald-400 to-amber-400";
+
   if (isFinished) {
     return (
       <div className="mx-auto max-w-lg">
+        <style>{`
+          @keyframes completion-confetti {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) rotate(var(--dr)); opacity: 0; }
+          }
+          @keyframes trophy-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(251,191,36,0.2); }
+            50% { box-shadow: 0 0 40px rgba(251,191,36,0.4); }
+          }
+          @keyframes star-sparkle {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.4); }
+          }
+          @keyframes score-pop {
+            0% { transform: scale(0.3); opacity: 0; }
+            60% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+          }
+        `}</style>
+
+        {/* Completion confetti */}
+        <div className="pointer-events-none fixed inset-0 overflow-hidden z-50">
+          {Array.from({ length: 30 }, (_, i) => (
+            <div
+              key={i}
+              className={`absolute w-2 h-2 ${
+                ["bg-amber-400", "bg-emerald-400", "bg-pink-400", "bg-blue-400", "bg-violet-400", "bg-cyan-400"][i % 6]
+              } ${i % 3 === 0 ? "rounded-full" : "rounded-sm"}`}
+              style={{
+                left: `${10 + Math.random() * 80}%`,
+                top: "-5%",
+                "--dx": `${Math.random() * 100 - 50}px`,
+                "--dy": `${800 + Math.random() * 400}px`,
+                "--dr": `${Math.random() * 1080}deg`,
+                animation: `completion-confetti ${2 + Math.random() * 2}s linear ${Math.random() * 1}s forwards`,
+              } as React.CSSProperties}
+            />
+          ))}
+        </div>
+
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -96,9 +153,10 @@ export default function ExerciseSession({
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-            className="mx-auto mb-6 w-24 h-24 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center"
+            className="mx-auto mb-6 w-24 h-24 rounded-full bg-gradient-to-br from-amber-500/20 to-yellow-600/10 border border-amber-500/30 flex items-center justify-center"
+            style={{ animation: "trophy-glow 2s ease-in-out infinite" }}
           >
-            <Trophy className="h-12 w-12 text-white" />
+            <Trophy className="h-12 w-12 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
           </motion.div>
 
           <motion.h1
@@ -114,34 +172,51 @@ export default function ExerciseSession({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-white/40 mb-8"
+            className="text-white/40 mb-6"
           >
             {chapter.icon} {lesson.title}
           </motion.p>
+
+          {/* Big animated score */}
+          <motion.div
+            initial={{ scale: 0.3, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.55, type: "spring", stiffness: 150 }}
+            className="mb-6"
+          >
+            <div
+              className="text-6xl font-black bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent"
+              style={{ animation: "score-pop 0.6s ease-out 0.55s both" }}
+            >
+              {avgScore}%
+            </div>
+          </motion.div>
 
           {/* Stars */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
-            className="flex items-center justify-center gap-2 mb-8"
+            className="flex items-center justify-center gap-3 mb-8"
           >
             {[1, 2, 3].map((star) => (
               <motion.div
                 key={star}
-                initial={{ scale: 0 }}
+                initial={{ scale: 0, rotate: -30 }}
                 animate={{
                   scale: star <= stars ? 1 : 0.6,
                   opacity: star <= stars ? 1 : 0.2,
+                  rotate: 0,
                 }}
-                transition={{ delay: 0.7 + star * 0.15, type: "spring", stiffness: 200, damping: 15 }}
+                transition={{ delay: 0.7 + star * 0.2, type: "spring", stiffness: 200, damping: 12 }}
               >
                 <Star
-                  className={`h-10 w-10 ${
+                  className={`h-12 w-12 ${
                     star <= stars
-                      ? "text-amber-400 fill-amber-400"
+                      ? "text-amber-400 fill-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]"
                       : "text-white/20"
                   }`}
+                  style={star <= stars ? { animation: "star-sparkle 2s ease-in-out infinite", animationDelay: `${star * 0.3}s` } : undefined}
                 />
               </motion.div>
             ))}
@@ -154,15 +229,15 @@ export default function ExerciseSession({
             transition={{ delay: 0.9 }}
             className="grid grid-cols-3 gap-2 sm:gap-4 mb-8"
           >
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
               <div className="text-2xl font-bold text-emerald-400">{correctCount}</div>
               <div className="text-xs text-white/40">{t.dashboard.exercise.correctAnswers}</div>
             </div>
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+            <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
               <div className="text-2xl font-bold text-blue-400">{totalExercises}</div>
               <div className="text-xs text-white/40">{t.dashboard.exercise.exercises}</div>
             </div>
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10">
+            <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20">
               <div className="text-2xl font-bold text-purple-400">{avgScore}%</div>
               <div className="text-xs text-white/40">{t.dashboard.exercise.avgScore}</div>
             </div>
@@ -190,7 +265,7 @@ export default function ExerciseSession({
           >
             <Link
               href={`/learn/${chapter.id}`}
-              className="flex-1 py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/20 text-white font-medium transition-all flex items-center justify-center gap-2"
+              className="flex-1 py-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/20 text-white font-medium transition-all flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Home className="h-4 w-4" />
               {t.dashboard.exercise.home}
@@ -201,7 +276,7 @@ export default function ExerciseSession({
                 setScores([]);
                 setIsFinished(false);
               }}
-              className="flex-1 py-3 rounded-2xl bg-[#5353ff] hover:bg-[#6b6bff] text-white font-medium transition-all flex items-center justify-center gap-2"
+              className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 text-white font-semibold transition-all flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98]"
             >
               <RotateCcw className="h-4 w-4" />
               {t.dashboard.exercise.restart}
@@ -214,6 +289,13 @@ export default function ExerciseSession({
 
   return (
     <div className="mx-auto max-w-2xl">
+      <style>{`
+        @keyframes progress-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+      `}</style>
+
       {/* Top bar */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
@@ -225,19 +307,22 @@ export default function ExerciseSession({
             {chapter.icon} {chapter.title}
           </Link>
           <div className="flex items-center gap-2 text-sm">
-            <Zap className="h-4 w-4 text-[#5353ff]" />
-            <span className="text-white font-medium">{currentIndex + 1}</span>
+            <Zap className="h-4 w-4 text-amber-400" />
+            <span className="text-white font-bold">{currentIndex + 1}</span>
             <span className="text-white/40">/ {totalExercises}</span>
           </div>
         </div>
 
-        {/* Progress bar */}
-        <div className="h-1 rounded-full bg-white/[0.06] overflow-hidden">
+        {/* Animated gradient progress bar */}
+        <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
           <motion.div
-            className="h-full rounded-full bg-white/60"
+            className={`h-full rounded-full bg-gradient-to-r ${progressColor}`}
             initial={{ width: 0 }}
             animate={{ width: `${progress}%` }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            style={{
+              animation: "progress-pulse 2s ease-in-out infinite",
+            }}
           />
         </div>
       </div>
