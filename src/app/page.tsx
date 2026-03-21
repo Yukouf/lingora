@@ -380,7 +380,7 @@ export default function Home() {
       <div className="mx-auto h-px max-w-5xl bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
       {/* ═══════ IMAGINE ═══════ */}
-      <section className="px-4 py-16 sm:px-6 sm:py-28">
+      <section id="method" className="px-4 py-16 sm:px-6 sm:py-28">
         <div className="mx-auto max-w-4xl">
           <motion.div
             initial="hidden"
@@ -465,7 +465,7 @@ export default function Home() {
       <div className="mx-auto h-px max-w-5xl bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
       {/* ═══════ DEMO MOCKUP ═══════ */}
-      <section className="px-4 py-16 sm:px-6 sm:py-28">
+      <section id="features" className="px-4 py-16 sm:px-6 sm:py-28">
         <div className="mx-auto max-w-5xl">
           <div className="grid items-center gap-10 sm:gap-16 lg:grid-cols-[1fr_1.1fr]">
             <motion.div

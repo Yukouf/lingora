@@ -58,7 +58,19 @@ export function Header({ onNavigate }: HeaderProps) {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-6 md:flex">
+            <a
+              href="#method"
+              className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40 transition-colors duration-300 hover:text-white/80"
+            >
+              {t.nav.method}
+            </a>
+            <a
+              href="#features"
+              className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40 transition-colors duration-300 hover:text-white/80"
+            >
+              {t.nav.features}
+            </a>
             <a
               href="#pricing"
               className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40 transition-colors duration-300 hover:text-white/80"
@@ -139,6 +151,20 @@ export function Header({ onNavigate }: HeaderProps) {
       {mobileOpen && (
         <div className="fixed inset-0 z-40 flex flex-col bg-[#0a1628]/95 backdrop-blur-xl pt-14 md:hidden">
           <div className="flex flex-1 flex-col items-center justify-center gap-8 px-6">
+            <a
+              href="#method"
+              onClick={() => setMobileOpen(false)}
+              className="font-mono text-sm uppercase tracking-[0.2em] text-white/60 transition-colors hover:text-white"
+            >
+              {t.nav.method}
+            </a>
+            <a
+              href="#features"
+              onClick={() => setMobileOpen(false)}
+              className="font-mono text-sm uppercase tracking-[0.2em] text-white/60 transition-colors hover:text-white"
+            >
+              {t.nav.features}
+            </a>
             <a
               href="#pricing"
               onClick={() => setMobileOpen(false)}
