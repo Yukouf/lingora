@@ -401,10 +401,10 @@ export default function Home() {
           >
             {t.imagine.scenes.map((scene: { emoji: string; city: string; text: string }, i: number) => {
               const sceneImages = [
-                "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80",
-                "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80",
-                "https://images.unsplash.com/photo-1523531294919-4bcd7c65e216?w=600&q=80",
-                "https://images.unsplash.com/photo-1560969184-10fe8719e047?w=600&q=80",
+                "/images/cities/tokyo.jpg",
+                "/images/cities/london.jpg",
+                "/images/cities/barcelona.jpg",
+                "/images/cities/berlin.jpg",
               ];
               const sceneIcons = [
                 <svg key="tokyo" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M8 6l4-4 4 4M6 10h12M8 14h8M10 18h4"/></svg>,

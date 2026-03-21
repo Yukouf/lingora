@@ -30,12 +30,14 @@ export default function CreateClubPage() {
   const [isPublic, setIsPublic] = useState(true);
   const [maxMembers, setMaxMembers] = useState(50);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
 
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/clubs", {
         method: "POST",
@@ -52,7 +54,12 @@ export default function CreateClubPage() {
       if (res.ok) {
         const json = await res.json();
         router.push(`/clubs/${json.data.id}`);
+      } else {
+        const json = await res.json();
+        setError(json.error || t.dashboard.common.error);
       }
+    } catch {
+      setError(t.dashboard.common.error);
     } finally {
       setLoading(false);
     }
@@ -77,6 +84,12 @@ export default function CreateClubPage() {
           {t.dashboard.clubs.createClub}
         </h1>
       </div>
+
+      {error && (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+          {error}
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}

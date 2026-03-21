@@ -396,7 +396,7 @@ export default function ExerciseSession({
         {!showOverview && currentExercise && (
           <ExerciseRenderer
             key={currentExercise.id}
-            exercise={currentExercise as any}
+            exercise={currentExercise}
             onAnswer={handleAnswer}
             onNext={handleNext}
             languageCode={language.code}

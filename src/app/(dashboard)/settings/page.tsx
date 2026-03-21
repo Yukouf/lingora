@@ -10,7 +10,20 @@ interface SubData {
   status: string;
   cancelAtPeriodEnd: boolean;
   currentPeriodEnd: string | null;
+  nativeLanguage: string;
 }
+
+const nativeLanguageLabels: Record<string, string> = {
+  fr: "Fran\u00e7ais",
+  en: "English",
+  es: "Espa\u00f1ol",
+  de: "Deutsch",
+  zh: "\u4e2d\u6587",
+  ja: "\u65e5\u672c\u8a9e",
+  ko: "\ud55c\uad6d\uc5b4",
+  ru: "\u0420\u0443\u0441\u0441\u043a\u0438\u0439",
+  ar: "\u0627\u0644\u0639\u0631\u0628\u064a\u0629",
+};
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -88,7 +101,7 @@ export default function SettingsPage() {
           <div className="h-px bg-white/5" />
           <div>
             <p className="text-xs text-white/30">{t.dashboard.settingsPage.nativeLanguage}</p>
-            <p className="mt-0.5 text-white/80">Français</p>
+            <p className="mt-0.5 text-white/80">{sub ? (nativeLanguageLabels[sub.nativeLanguage] ?? sub.nativeLanguage) : "\u2014"}</p>
           </div>
         </div>
       </div>

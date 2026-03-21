@@ -20,6 +20,18 @@ import { SpeakButton } from "@/components/ui/speak-button";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import { useI18n } from "@/lib/i18n/context";
 
+const localeMap: Record<string, string> = {
+  fr: "fr-FR",
+  en: "en-US",
+  es: "es-ES",
+  de: "de-DE",
+  zh: "zh-CN",
+  ja: "ja-JP",
+  ko: "ko-KR",
+  ru: "ru-RU",
+  ar: "ar-SA",
+};
+
 // ===== Types =====
 
 interface Phrase {
@@ -59,17 +71,18 @@ interface HistoryAttempt {
 
 // ===== Category config =====
 
-const categories = [
-  { id: "general", label: "Quotidien", icon: "💬" },
-  { id: "travel", label: "Voyage", icon: "✈️" },
-  { id: "work", label: "Travail", icon: "💼" },
-  { id: "social", label: "Social", icon: "🤝" },
-];
+const categoryIds = ["general", "travel", "work", "social"] as const;
+const categoryIcons: Record<string, string> = {
+  general: "💬",
+  travel: "✈️",
+  work: "💼",
+  social: "🤝",
+};
 
 // ===== Component =====
 
 export default function PronunciationPracticePage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   // State: language info
   const [languageCode, setLanguageCode] = useState<string | null>(null);
@@ -155,10 +168,10 @@ export default function PronunciationPracticePage() {
             setPhrases(json.data.phrases);
           }
         })
-        .catch(() => setError("Impossible de charger les phrases."))
+        .catch(() => setError(t.dashboard.progressPage.loadError))
         .finally(() => setLoadingPhrases(false));
     },
-    [languageCode, userLevel]
+    [languageCode, userLevel, t]
   );
 
   useEffect(() => {
@@ -206,7 +219,7 @@ export default function PronunciationPracticePage() {
       setResult(evalResult);
       setSessionScore((prev) => [...prev, evalResult.score]);
     } catch {
-      setError("Impossible d'évaluer la prononciation.");
+      setError(t.dashboard.progressPage.loadError);
     } finally {
       setIsEvaluating(false);
     }
@@ -284,13 +297,13 @@ export default function PronunciationPracticePage() {
     return (
       <div className="mx-auto max-w-lg py-20 text-center">
         <p className="text-white/50">
-          Choisis une langue dans l&apos;onboarding pour commencer.
+          {t.dashboard.practice.pronunciationNoLanguage}
         </p>
         <Link
           href="/onboarding"
           className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/[0.06] px-4 py-2 text-sm text-white/60 hover:bg-white/[0.1]"
         >
-          Onboarding <ChevronRight className="h-3.5 w-3.5" />
+          {t.dashboard.common.start} <ChevronRight className="h-3.5 w-3.5" />
         </Link>
       </div>
     );
@@ -336,7 +349,7 @@ export default function PronunciationPracticePage() {
             className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2 text-sm text-white/60 transition-all hover:bg-white/[0.06] hover:text-white/80"
           >
             <BarChart3 className="h-4 w-4" />
-            Historique
+            {t.dashboard.practice.pronunciationHistory}
           </button>
         </div>
       </div>
@@ -346,17 +359,17 @@ export default function PronunciationPracticePage() {
         <div className="mb-6 grid grid-cols-3 gap-3">
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-center">
             <p className="text-lg font-bold text-white">{stats.totalAttempts}</p>
-            <p className="text-[11px] text-white/30">Essais totaux</p>
+            <p className="text-[11px] text-white/30">{t.dashboard.practice.pronunciationTotalAttempts}</p>
           </div>
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-center">
             <p className={`text-lg font-bold ${getScoreColor(stats.avgScore)}`}>
               {stats.avgScore}%
             </p>
-            <p className="text-[11px] text-white/30">Score moyen</p>
+            <p className="text-[11px] text-white/30">{t.dashboard.practice.pronunciationAvgScore}</p>
           </div>
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-center">
             <p className="text-lg font-bold text-emerald-400">{stats.perfectCount}</p>
-            <p className="text-[11px] text-white/30">Parfaits (90%+)</p>
+            <p className="text-[11px] text-white/30">{t.dashboard.practice.pronunciationPerfect}</p>
           </div>
         </div>
       )}
@@ -372,10 +385,10 @@ export default function PronunciationPracticePage() {
           >
             <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4">
               <h3 className="mb-3 text-sm font-medium text-white/60">
-                Derniers essais
+                {t.dashboard.practice.pronunciationLastAttempts}
               </h3>
               {history.length === 0 ? (
-                <p className="text-sm text-white/30">Aucun essai pour le moment.</p>
+                <p className="text-sm text-white/30">{t.dashboard.practice.pronunciationNoAttempts}</p>
               ) : (
                 <div className="space-y-2">
                   {history.map((attempt) => (
@@ -388,7 +401,7 @@ export default function PronunciationPracticePage() {
                           {attempt.targetText}
                         </p>
                         <p className="text-[11px] text-white/30">
-                          {new Date(attempt.createdAt).toLocaleDateString("fr-FR", {
+                          {new Date(attempt.createdAt).toLocaleDateString(localeMap[locale] ?? "fr-FR", {
                             day: "numeric",
                             month: "short",
                             hour: "2-digit",
@@ -414,18 +427,18 @@ export default function PronunciationPracticePage() {
 
       {/* Category selector */}
       <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
-        {categories.map((cat) => (
+        {categoryIds.map((catId) => (
           <button
-            key={cat.id}
-            onClick={() => handleCategoryChange(cat.id)}
+            key={catId}
+            onClick={() => handleCategoryChange(catId)}
             className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-sm transition-all ${
-              category === cat.id
+              category === catId
                 ? "bg-[#5353ff]/20 border border-[#5353ff]/40 text-[#818cf8]"
                 : "border border-white/[0.06] bg-white/[0.02] text-white/50 hover:bg-white/[0.05]"
             }`}
           >
-            <span>{cat.icon}</span>
-            {cat.label}
+            <span>{categoryIcons[catId]}</span>
+            {t.dashboard.practice.pronunciationCategories[catId]}
           </button>
         ))}
       </div>
@@ -448,7 +461,7 @@ export default function PronunciationPracticePage() {
               </span>
               {sessionScore.length > 0 && (
                 <span className="text-xs text-white/40">
-                  Moyenne : {avgSessionScore}%
+                  {t.dashboard.practice.pronunciationAverage} : {avgSessionScore}%
                 </span>
               )}
             </div>
@@ -487,10 +500,10 @@ export default function PronunciationPracticePage() {
                       }`}
                     >
                       {currentPhrase.difficulty === "easy"
-                        ? "Facile"
+                        ? t.dashboard.practice.pronunciationEasy
                         : currentPhrase.difficulty === "medium"
-                          ? "Moyen"
-                          : "Difficile"}
+                          ? t.dashboard.practice.pronunciationMedium
+                          : t.dashboard.practice.pronunciationHard}
                     </span>
                   </div>
 
@@ -523,6 +536,7 @@ export default function PronunciationPracticePage() {
                     <motion.button
                       onClick={handleToggleMic}
                       whileTap={{ scale: 0.95 }}
+                      aria-label={isListening ? t.dashboard.exercise.listening : t.dashboard.exercise.tapToSpeak}
                       className={`relative flex h-20 w-20 items-center justify-center rounded-full transition-all duration-300 ${
                         isListening
                           ? "border-2 border-rose-400/60 bg-rose-500/30 text-rose-300"
@@ -645,7 +659,7 @@ export default function PronunciationPracticePage() {
                       {result.wordDiff.length > 0 && (
                         <div className="rounded-2xl border border-white/[0.06] bg-white/[0.04] p-4">
                           <p className="mb-2 text-xs font-medium text-white/40">
-                            Analyse mot par mot
+                            {t.dashboard.practice.pronunciationWordAnalysis}
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {result.wordDiff.map((wd, i) => (
@@ -664,12 +678,12 @@ export default function PronunciationPracticePage() {
                                 }`}
                                 title={
                                   wd.status === "mispronounced"
-                                    ? `Attendu : ${wd.expected}`
+                                    ? `${wd.expected}`
                                     : wd.status === "missing"
-                                      ? "Mot manquant"
+                                      ? t.dashboard.practice.pronunciationMissing
                                       : wd.status === "extra"
-                                        ? "Mot en trop"
-                                        : "Correct"
+                                        ? t.dashboard.practice.pronunciationExtra
+                                        : t.dashboard.practice.pronunciationCorrect
                                 }
                               >
                                 {wd.word}
@@ -684,19 +698,19 @@ export default function PronunciationPracticePage() {
                           <div className="mt-3 flex gap-4 text-[10px] text-white/30">
                             <span className="flex items-center gap-1">
                               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
-                              Correct
+                              {t.dashboard.practice.pronunciationCorrect}
                             </span>
                             <span className="flex items-center gap-1">
                               <span className="inline-block h-2 w-2 rounded-full bg-red-400" />
-                              Mal prononcé
+                              {t.dashboard.practice.pronunciationMispronounced}
                             </span>
                             <span className="flex items-center gap-1">
                               <span className="inline-block h-2 w-2 rounded-full bg-white/20" />
-                              Manquant
+                              {t.dashboard.practice.pronunciationMissing}
                             </span>
                             <span className="flex items-center gap-1">
                               <span className="inline-block h-2 w-2 rounded-full bg-amber-400" />
-                              En trop
+                              {t.dashboard.practice.pronunciationExtra}
                             </span>
                           </div>
                         </div>
@@ -759,10 +773,10 @@ export default function PronunciationPracticePage() {
             >
               <Trophy className="mx-auto mb-3 h-10 w-10 text-amber-400" />
               <h3 className="text-lg font-bold text-white">
-                Session terminée !
+                {t.dashboard.practice.pronunciationSessionDone}
               </h3>
               <p className="mt-1 text-sm text-white/40">
-                {sessionScore.length} phrases pratiquées
+                {sessionScore.length} {t.dashboard.practice.pronunciationPhrasesPracticed}
               </p>
               <div className="mt-4 flex justify-center gap-6">
                 <div>
@@ -773,13 +787,13 @@ export default function PronunciationPracticePage() {
                   >
                     {avgSessionScore}%
                   </p>
-                  <p className="text-xs text-white/30">Score moyen</p>
+                  <p className="text-xs text-white/30">{t.dashboard.practice.pronunciationAvgScore}</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-emerald-400">
                     {sessionScore.filter((s) => s >= 85).length}
                   </p>
-                  <p className="text-xs text-white/30">Excellents</p>
+                  <p className="text-xs text-white/30">{t.dashboard.practice.pronunciationExcellent}</p>
                 </div>
               </div>
               <div className="mt-5 flex justify-center gap-3">
@@ -788,7 +802,7 @@ export default function PronunciationPracticePage() {
                   className="flex items-center gap-2 rounded-xl border border-[#5353ff]/40 bg-[#5353ff]/20 px-5 py-2.5 font-medium text-[#818cf8] transition-all hover:bg-[#5353ff]/30"
                 >
                   <Target className="h-4 w-4" />
-                  Nouvelle session
+                  {t.dashboard.practice.pronunciationNewSession}
                 </button>
                 <Link
                   href="/practice"
@@ -807,7 +821,7 @@ export default function PronunciationPracticePage() {
         <div className="py-20 text-center">
           <Mic className="mx-auto mb-4 h-10 w-10 text-white/20" />
           <p className="text-sm text-white/40">
-            Aucune phrase disponible. Essaie une autre catégorie.
+            {t.dashboard.practice.pronunciationNoPhrases}
           </p>
         </div>
       )}

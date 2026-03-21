@@ -128,7 +128,7 @@ export default function MyContentPage() {
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-xl border border-white/5 bg-white/[0.03] p-4 text-center">
             <div className="text-xl font-bold text-white/90">{totalItems}</div>
-            <div className="text-xs text-white/40">Total</div>
+            <div className="text-xs text-white/40">{tc.total}</div>
           </div>
           <div className="rounded-xl border border-white/5 bg-white/[0.03] p-4 text-center">
             <div className="text-xl font-bold text-emerald-400">
@@ -209,7 +209,7 @@ export default function MyContentPage() {
                     </p>
                   )}
                   <div className="mt-1 text-xs text-white/25">
-                    {new Date(item.createdAt).toLocaleDateString("fr-FR")}
+                    {new Date(item.createdAt).toLocaleDateString()}
                   </div>
                 </div>
 

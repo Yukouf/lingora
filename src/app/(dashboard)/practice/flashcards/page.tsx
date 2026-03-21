@@ -291,7 +291,7 @@ export default function FlashcardsPage() {
           className="flex items-center text-sm text-white/40 transition-colors hover:text-white/70"
         >
           <ArrowLeft className="mr-1 h-4 w-4" />
-          Retour
+          {t.dashboard.common.back}
         </Link>
         <div className="flex items-center gap-3">
           <button
@@ -339,8 +339,12 @@ export default function FlashcardsPage() {
             transition={{ duration: 0.2 }}
           >
             <div
+              role="button"
+              tabIndex={0}
+              aria-label={flipped ? t.dashboard.common.back : t.dashboard.flashcardLabels.clickToFlip}
               className="flex min-h-[280px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-white/5 bg-white/[0.03] p-8 backdrop-blur-sm transition-all hover:border-white/10"
               onClick={() => setFlipped(!flipped)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setFlipped(!flipped); } }}
             >
               <span
                 className={`rounded-full border px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wider ${

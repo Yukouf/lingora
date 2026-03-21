@@ -22,19 +22,18 @@ interface Club {
   myRole?: string;
 }
 
-const languageFilters = [
-  { code: "", label: "Toutes" },
+const languageOptions = [
   { code: "en", label: "English" },
-  { code: "es", label: "Espanol" },
-  { code: "fr", label: "Francais" },
+  { code: "es", label: "Español" },
+  { code: "fr", label: "Français" },
   { code: "de", label: "Deutsch" },
-  { code: "ja", label: "Japanese" },
-  { code: "zh", label: "Chinese" },
-  { code: "ko", label: "Korean" },
-  { code: "ar", label: "Arabic" },
-  { code: "pt", label: "Portugues" },
+  { code: "ja", label: "日本語" },
+  { code: "zh", label: "中文" },
+  { code: "ko", label: "한국어" },
+  { code: "ar", label: "العربية" },
+  { code: "pt", label: "Português" },
   { code: "it", label: "Italiano" },
-  { code: "ru", label: "Russian" },
+  { code: "ru", label: "Русский" },
 ];
 
 export default function ClubsPage() {
@@ -49,21 +48,29 @@ export default function ClubsPage() {
   const [joiningId, setJoiningId] = useState<string | null>(null);
 
   const fetchMyClubs = useCallback(async () => {
-    const res = await fetch("/api/clubs/my-clubs");
-    const json = await res.json();
-    if (json.data) {
-      setMyClubs(json.data);
-      setMyClubIds(new Set(json.data.map((c: Club) => c.id)));
+    try {
+      const res = await fetch("/api/clubs/my-clubs");
+      const json = await res.json();
+      if (json.data) {
+        setMyClubs(json.data);
+        setMyClubIds(new Set(json.data.map((c: Club) => c.id)));
+      }
+    } catch {
+      // network error — leave state as-is
     }
   }, []);
 
   const fetchPublicClubs = useCallback(async () => {
-    const params = new URLSearchParams();
-    if (search) params.set("search", search);
-    if (language) params.set("language", language);
-    const res = await fetch(`/api/clubs?${params.toString()}`);
-    const json = await res.json();
-    if (json.data) setPublicClubs(json.data);
+    try {
+      const params = new URLSearchParams();
+      if (search) params.set("search", search);
+      if (language) params.set("language", language);
+      const res = await fetch(`/api/clubs?${params.toString()}`);
+      const json = await res.json();
+      if (json.data) setPublicClubs(json.data);
+    } catch {
+      // network error — leave state as-is
+    }
   }, [search, language]);
 
   useEffect(() => {
@@ -100,7 +107,7 @@ export default function ClubsPage() {
             {t.dashboard.clubs.title}
           </h1>
           <p className="mt-1 text-sm text-white/30">
-            {t.dashboard.clubs.subtitle ?? "Rejoins un groupe pour apprendre ensemble"}
+            {t.dashboard.clubs.subtitle}
           </p>
         </div>
         <Link
@@ -189,7 +196,7 @@ export default function ClubsPage() {
 
           {/* Language filter pills */}
           <div className="flex flex-wrap gap-1.5">
-            {languageFilters.map((lang) => (
+            {[{ code: "", label: t.dashboard.clubs.allLanguages }, ...languageOptions].map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => setLanguage(lang.code)}
@@ -218,7 +225,7 @@ export default function ClubsPage() {
           </div>
           <p className="mt-4 text-white/30">
             {tab === "my"
-              ? (t.dashboard.clubs.noMyClubs ?? "Tu n'as rejoint aucun club")
+              ? t.dashboard.clubs.noMyClubs
               : t.dashboard.clubs.noClubs}
           </p>
           {tab === "my" && (

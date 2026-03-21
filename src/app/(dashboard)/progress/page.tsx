@@ -179,39 +179,35 @@ function RadarChart({ skills, labels }: RadarChartProps) {
 /*  Trophy card                                                        */
 /* ------------------------------------------------------------------ */
 
-const rarityConfig: Record<TrophyRarity, { border: string; glow: string; icon: string; bg: string; label: string }> = {
+const rarityStyles: Record<TrophyRarity, { border: string; glow: string; icon: string; bg: string }> = {
   bronze: {
     border: "border-amber-700/40",
     glow: "shadow-[0_0_20px_rgba(180,83,9,0.25)]",
     icon: "text-amber-600",
     bg: "bg-amber-900/20",
-    label: "Bronze",
   },
   silver: {
     border: "border-gray-400/40",
     glow: "shadow-[0_0_20px_rgba(156,163,175,0.25)]",
     icon: "text-gray-300",
     bg: "bg-gray-500/15",
-    label: "Argent",
   },
   gold: {
     border: "border-yellow-500/40",
     glow: "shadow-[0_0_20px_rgba(234,179,8,0.3)]",
     icon: "text-yellow-400",
     bg: "bg-yellow-500/15",
-    label: "Or",
   },
   platinum: {
     border: "border-blue-400/40",
     glow: "shadow-[0_0_24px_rgba(96,165,250,0.35)]",
     icon: "text-blue-400",
     bg: "bg-blue-500/15",
-    label: "Platine",
   },
 };
 
-function TrophyCard({ trophy }: { trophy: Trophy }) {
-  const config = rarityConfig[trophy.rarity];
+function TrophyCard({ trophy, rarityLabel }: { trophy: Trophy; rarityLabel: string }) {
+  const config = rarityStyles[trophy.rarity];
 
   if (!trophy.unlocked) {
     return (
@@ -221,7 +217,7 @@ function TrophyCard({ trophy }: { trophy: Trophy }) {
         </div>
         <p className="text-center text-xs text-white/20">{trophy.label}</p>
         <span className="rounded-full bg-white/[0.04] px-2 py-0.5 text-[10px] text-white/15">
-          {config.label}
+          {rarityLabel}
         </span>
       </div>
     );
@@ -238,7 +234,7 @@ function TrophyCard({ trophy }: { trophy: Trophy }) {
       </div>
       <p className={`text-center text-xs font-medium ${config.icon}`}>{trophy.label}</p>
       <span className={`rounded-full ${config.bg} px-2 py-0.5 text-[10px] ${config.icon}`}>
-        {config.label}
+        {rarityLabel}
       </span>
       {trophy.unlockedDate && (
         <p className="text-[10px] text-white/20">{trophy.unlockedDate}</p>
@@ -349,7 +345,7 @@ function StatCard({ label, value, suffix, icon: Icon, accentColor, glowColor }: 
 /*  Level badge                                                        */
 /* ------------------------------------------------------------------ */
 
-function LevelBadge({ level }: { level: string }) {
+function LevelBadge({ level, rankLabel }: { level: string; rankLabel: string }) {
   const levelColors: Record<string, string> = {
     A1: "from-green-400 to-emerald-600",
     A2: "from-teal-400 to-cyan-600",
@@ -363,7 +359,7 @@ function LevelBadge({ level }: { level: string }) {
 
   return (
     <div className={`inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r ${gradient} px-3 py-1.5 text-sm font-bold tracking-wider text-white shadow-lg`}>
-      <span className="text-[10px] uppercase opacity-80">Rank</span>
+      <span className="text-[10px] uppercase opacity-80">{rankLabel}</span>
       <span>{level}</span>
     </div>
   );
@@ -395,70 +391,79 @@ export default function ProgressPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const pp = t.dashboard.progressPage;
+
   const buildTrophies = useCallback(
     (d: ProgressData): Trophy[] => {
-      const today = new Date().toLocaleDateString("fr-FR");
+      const today = new Date().toLocaleDateString();
       return [
         {
           id: "first-lesson",
-          label: "Premiere lecon",
-          description: "Termine ta premiere lecon",
+          label: pp.trophyFirstLesson,
+          description: pp.trophyFirstLessonDesc,
           rarity: "bronze" as TrophyRarity,
           unlocked: d.lessonsCompleted >= 1,
           unlockedDate: d.lessonsCompleted >= 1 ? today : undefined,
         },
         {
           id: "10-words",
-          label: "10 mots appris",
-          description: "Apprends 10 mots",
+          label: pp.trophy10Words,
+          description: pp.trophy10WordsDesc,
           rarity: "bronze" as TrophyRarity,
           unlocked: d.wordsLearned >= 10,
           unlockedDate: d.wordsLearned >= 10 ? today : undefined,
         },
         {
           id: "first-conversation",
-          label: "Premiere conversation IA",
-          description: "Tiens ta premiere conversation avec l'IA",
+          label: pp.trophyFirstConversation,
+          description: pp.trophyFirstConversationDesc,
           rarity: "silver" as TrophyRarity,
           unlocked: d.conversationsHeld >= 1,
           unlockedDate: d.conversationsHeld >= 1 ? today : undefined,
         },
         {
           id: "level-a2",
-          label: "Niveau A2 atteint",
-          description: "Atteins le niveau A2",
+          label: pp.trophyLevelA2,
+          description: pp.trophyLevelA2Desc,
           rarity: "gold" as TrophyRarity,
           unlocked: ["A2", "B1", "B2", "C1", "C2"].includes(d.currentLevel),
           unlockedDate: ["A2", "B1", "B2", "C1", "C2"].includes(d.currentLevel) ? today : undefined,
         },
         {
           id: "7-day-streak",
-          label: "7 jours consecutifs",
-          description: "Pratique 7 jours d'affilee",
+          label: pp.trophy7DayStreak,
+          description: pp.trophy7DayStreakDesc,
           rarity: "silver" as TrophyRarity,
           unlocked: d.currentStreak >= 7,
           unlockedDate: d.currentStreak >= 7 ? today : undefined,
         },
         {
           id: "50-words-mastered",
-          label: "50 mots maitrises",
-          description: "Maitrise 50 mots de vocabulaire",
+          label: pp.trophy50WordsMastered,
+          description: pp.trophy50WordsMasteredDesc,
           rarity: "gold" as TrophyRarity,
           unlocked: d.masteredWords >= 50,
           unlockedDate: d.masteredWords >= 50 ? today : undefined,
         },
         {
           id: "perfect-exam",
-          label: "100% sur un examen",
-          description: "Obtiens un score parfait",
+          label: pp.trophyPerfectExam,
+          description: pp.trophyPerfectExamDesc,
           rarity: "platinum" as TrophyRarity,
           unlocked: d.hasPerfectScore,
           unlockedDate: d.hasPerfectScore ? today : undefined,
         },
       ];
     },
-    []
+    [pp]
   );
+
+  const rarityLabels: Record<TrophyRarity, string> = {
+    bronze: pp.rarityBronze,
+    silver: pp.raritySilver,
+    gold: pp.rarityGold,
+    platinum: pp.rarityPlatinum,
+  };
 
   if (loading) {
     return (
@@ -488,7 +493,7 @@ export default function ProgressPage() {
     : "??";
 
   const memberDate = data.memberSince
-    ? new Date(data.memberSince).toLocaleDateString("fr-FR", {
+    ? new Date(data.memberSince).toLocaleDateString(undefined, {
         month: "long",
         year: "numeric",
       })
@@ -526,10 +531,10 @@ export default function ProgressPage() {
           {/* Info */}
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-2xl font-bold text-white/95 md:text-3xl">
-              {data.userName ?? "Joueur"}
+              {data.userName ?? t.dashboard.progressPage.player}
             </h1>
             <div className="mt-2 flex flex-wrap items-center justify-center gap-3 md:justify-start">
-              <LevelBadge level={data.currentLevel} />
+              <LevelBadge level={data.currentLevel} rankLabel={pp.rank} />
               {data.language && (
                 <span className="text-sm text-white/40">
                   {data.language.flag} {data.language.name}
@@ -538,7 +543,7 @@ export default function ProgressPage() {
             </div>
             {memberDate && (
               <p className="mt-2 text-xs text-white/25">
-                Membre depuis {memberDate}
+                {t.dashboard.progressPage.memberSince} {memberDate}
               </p>
             )}
 
@@ -566,7 +571,7 @@ export default function ProgressPage() {
             <div className="mt-3 flex items-center justify-center gap-1.5 md:justify-start">
               <span className="text-sm">🏆</span>
               <span className="text-xs text-white/40">
-                {unlockedCount}/{trophies.length} trophees debloques
+                {unlockedCount}/{trophies.length} {t.dashboard.progressPage.trophiesUnlocked}
               </span>
             </div>
           </div>
@@ -576,7 +581,7 @@ export default function ProgressPage() {
       {/* ========== STATS GRID ========== */}
       <div>
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/40">
-          Statistiques
+          {t.dashboard.progressPage.statistics}
         </h2>
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-3">
           <StatCard
@@ -602,7 +607,7 @@ export default function ProgressPage() {
             glowColor="hover:shadow-[0_0_30px_rgba(16,185,129,0.1)]"
           />
           <StatCard
-            label="Score moyen"
+            label={t.dashboard.progressPage.avgScore}
             value={data.averageScore}
             suffix="%"
             icon={Target}
@@ -656,7 +661,7 @@ export default function ProgressPage() {
         {/* Activity heatmap */}
         <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6">
           <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/40">
-            Activite — 12 semaines
+            {t.dashboard.progressPage.activity}
           </h2>
           <div className="flex justify-center overflow-x-auto py-2">
             <ActivityHeatmap activityDays={data.activityDays} />
@@ -664,11 +669,11 @@ export default function ProgressPage() {
           <div className="mt-4 flex items-center justify-center gap-3 text-[10px] text-white/25">
             <div className="flex items-center gap-1">
               <div className="h-3 w-3 rounded-[2px] bg-white/[0.06]" />
-              <span>Inactif</span>
+              <span>{t.dashboard.progressPage.inactive}</span>
             </div>
             <div className="flex items-center gap-1">
               <div className="h-3 w-3 rounded-[2px] bg-emerald-500/80" />
-              <span>Actif</span>
+              <span>{t.dashboard.progressPage.active}</span>
             </div>
           </div>
 
@@ -688,7 +693,7 @@ export default function ProgressPage() {
       <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold uppercase tracking-wider text-white/40">
-            Trophees
+            {t.dashboard.progressPage.trophies}
           </h2>
           <span className="text-xs text-white/25">
             {unlockedCount}/{trophies.length}
@@ -696,7 +701,7 @@ export default function ProgressPage() {
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7">
           {trophies.map((trophy) => (
-            <TrophyCard key={trophy.id} trophy={trophy} />
+            <TrophyCard key={trophy.id} trophy={trophy} rarityLabel={rarityLabels[trophy.rarity]} />
           ))}
         </div>
       </div>

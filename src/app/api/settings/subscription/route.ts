@@ -8,15 +8,22 @@ export async function GET() {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
-  const subscription = await db.subscription.findUnique({
-    where: { userId: session.user.id },
-  });
+  const [subscription, user] = await Promise.all([
+    db.subscription.findUnique({
+      where: { userId: session.user.id },
+    }),
+    db.user.findUnique({
+      where: { id: session.user.id },
+      select: { nativeLanguage: true },
+    }),
+  ]);
 
   return NextResponse.json({
     data: {
       status: subscription?.status ?? "FREE",
       cancelAtPeriodEnd: subscription?.cancelAtPeriodEnd ?? false,
       currentPeriodEnd: subscription?.currentPeriodEnd?.toISOString() ?? null,
+      nativeLanguage: user?.nativeLanguage ?? "fr",
     },
   });
 }
