@@ -8,16 +8,27 @@ import { LevelLabel, ProgressionLabel, LessonsCount, LevelCompletedCard, Premium
 
 // Background images per chapter title keyword
 const chapterBackgrounds: Record<string, string> = {
-  "présenter": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=80",
-  "restaurant": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80",
-  "courses": "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80",
-  "chemin": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=600&q=80",
-  "hôtel": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80",
-  "transport": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=80",
-  "travail": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80",
-  "santé": "https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=600&q=80",
-  "voyage": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&q=80",
-  "famille": "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&q=80",
+  // A1 themes
+  "présenter": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&q=75",
+  "restaurant": "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=75",
+  "courses": "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=600&q=75",
+  "chemin": "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=600&q=75",
+  "hôtel": "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=75",
+  "famille": "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&q=75",
+  // A2+ themes
+  "travail": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=75",
+  "santé": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=600&q=75",
+  "voyage": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&q=75",
+  "météo": "https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=600&q=75",
+  "sport": "https://images.unsplash.com/photo-1461896836934-bd45ba3e8cfe?w=600&q=75",
+  "musique": "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600&q=75",
+  "entretien": "https://images.unsplash.com/photo-1565688534245-05d6b5be184a?w=600&q=75",
+  "débattre": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=75",
+  "opinion": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=75",
+  "histoire": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&q=75",
+  "email": "https://images.unsplash.com/photo-1596526131083-e8c633c948d2?w=600&q=75",
+  "professionnel": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=75",
+  "transport": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=600&q=75",
 };
 
 function getChapterBg(title: string): string {
@@ -25,7 +36,7 @@ function getChapterBg(title: string): string {
   for (const [key, url] of Object.entries(chapterBackgrounds)) {
     if (lower.includes(key)) return url;
   }
-  return "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&q=80";
+  return "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&q=75";
 }
 
 export default async function LearnPage() {
@@ -97,8 +108,8 @@ export default async function LearnPage() {
               {/* Overlays */}
               <div className={`absolute inset-0 transition-opacity duration-300 ${
                 isLocked
-                  ? "bg-[#0d1117]/90"
-                  : "bg-gradient-to-r from-[#0d1117]/85 via-[#0d1117]/60 to-[#0d1117]/40"
+                  ? "bg-[#0a1628]/90"
+                  : "bg-gradient-to-r from-[#0a1628]/85 via-[#0a1628]/60 to-[#0a1628]/40"
               }`} />
 
               {/* Content */}
