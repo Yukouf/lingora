@@ -318,6 +318,46 @@ interface ExerciseData {
   order: number;
 }
 
+// BCP-47 language code mapping for TTS
+const ttsLangMap: Record<string, string> = {
+  en: "en-US",
+  es: "es-ES",
+  fr: "fr-FR",
+  de: "de-DE",
+  ja: "ja-JP",
+  zh: "zh-CN",
+  ko: "ko-KR",
+  ru: "ru-RU",
+  it: "it-IT",
+  pt: "pt-BR",
+  ar: "ar-SA",
+};
+
+/**
+ * Speak text aloud using the Web Speech API with the correct language voice.
+ * Used for auto-speaking correct answers after exercise completion.
+ */
+function speakText(text: string, langCode: string, delay = 300): void {
+  if (typeof window === "undefined" || !window.speechSynthesis || !text) return;
+
+  setTimeout(() => {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    const bcp47 = ttsLangMap[langCode] ?? langCode;
+    utterance.lang = bcp47;
+    utterance.rate = 0.85;
+    utterance.pitch = 1;
+
+    // Try to find a matching voice
+    const voices = window.speechSynthesis.getVoices();
+    const langPrefix = bcp47.split("-")[0];
+    const voice = voices.find((v) => v.lang.startsWith(langPrefix));
+    if (voice) utterance.voice = voice;
+
+    window.speechSynthesis.speak(utterance);
+  }, delay);
+}
+
 interface ExerciseRendererProps {
   exercise: ExerciseData;
   onAnswer: (correct: boolean, score: number) => void;
@@ -382,6 +422,8 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
   };
 
   const checkAnswer = (answer: string, mode: "translation" | "fill_in_blank" | "spot_error" | "exact" = "exact") => {
+    let textToSpeak = "";
+
     if (mode === "spot_error") {
       // For SPOT_ERROR: check if the user's corrected text contains the correct word
       const normalizedAnswer = (answer ?? "").toLowerCase().trim();
@@ -390,21 +432,44 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       setIsCorrect(correct);
       setShowResult(true);
       onAnswer(correct, correct ? 100 : 0);
+      // Speak the correct sentence
+      textToSpeak = q.correct_sentence || q.correct_answer || "";
     } else if (mode === "translation") {
       const result = fuzzyMatchTranslation(answer, q.correct_answer ?? "");
       setIsCorrect(result.isCorrect);
       setShowResult(true);
       onAnswer(result.isCorrect, result.score);
+      // For translation: speak the original text (target language)
+      textToSpeak = q.text || "";
     } else if (mode === "fill_in_blank") {
       const result = fuzzyMatchFillInBlank(answer, q.correct_answer ?? "");
       setIsCorrect(result.isCorrect);
       setShowResult(true);
       onAnswer(result.isCorrect, result.score);
+      // Speak the correct answer word/phrase
+      textToSpeak = q.correct_answer || "";
     } else {
       const correct = (answer ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
       setIsCorrect(correct);
       setShowResult(true);
       onAnswer(correct, correct ? 100 : 0);
+
+      // Determine what to speak based on exercise type
+      if (exercise.type === "DIALOGUE_COMPLETE") {
+        textToSpeak = q.correct_answer || "";
+      } else if (exercise.type === "CONTEXT_GUESS") {
+        textToSpeak = q.word_to_guess || q.correct_answer || "";
+      } else if (exercise.type === "REORDER") {
+        textToSpeak = q.correct_answer || answer;
+      } else {
+        // MULTIPLE_CHOICE, LISTENING, etc. — speak the correct answer
+        textToSpeak = q.correct_answer || "";
+      }
+    }
+
+    // Auto-speak the correct answer with a small delay for visual feedback first
+    if (textToSpeak) {
+      speakText(textToSpeak, languageCode);
     }
   };
 
@@ -757,7 +822,11 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
                   onClick={() => {
                     if (matchedPairs.has(originalIdx) || showResult || selectedLeft === null) return;
                     if (selectedLeft === originalIdx) {
-                      // Correct match
+                      // Correct match — speak the matched pair
+                      const matchedPair = pairs[originalIdx];
+                      if (matchedPair) {
+                        speakText(matchedPair.left, languageCode, 100);
+                      }
                       setMatchedPairs((prev) => new Set([...prev, originalIdx]));
                       setSelectedLeft(null);
                       if (matchedPairs.size + 1 === pairs.length) {
@@ -1033,6 +1102,10 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
                 setIsCorrect(writingScore >= 60);
                 setShowResult(true);
                 onAnswer(writingScore >= 60, writingScore);
+                // Speak the example answer
+                if (q.correct_answer) {
+                  speakText(q.correct_answer, languageCode);
+                }
               }
             }}
             className={`w-full py-3 text-white rounded-xl font-medium transition-colors ${

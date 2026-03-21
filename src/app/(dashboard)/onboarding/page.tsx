@@ -177,12 +177,12 @@ export default function OnboardingPage() {
                 <button
                   key={lang.id}
                   onClick={() => handleSelectLanguage(lang)}
-                  className="p-4 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-[#5353ff]/40 transition-all text-left group"
+                  className="p-4 rounded-2xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.06] hover:border-[#5353ff]/40 transition-all group flex flex-col items-center text-center"
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/40 block mb-2">
-                    {lang.code}
+                  <span className="text-4xl mb-2" role="img" aria-label={lang.name}>
+                    {lang.flag}
                   </span>
-                  <span className="font-medium text-white group-hover:text-white/80 transition-colors">
+                  <span className="font-medium text-white group-hover:text-white/80 transition-colors text-sm">
                     {lang.name}
                   </span>
                 </button>
