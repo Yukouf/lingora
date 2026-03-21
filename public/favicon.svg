@@ -1,36 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#5353ff"/>
-      <stop offset="100%" stop-color="#3b3bcc"/>
+      <stop offset="0%" stop-color="#0f2744"/>
+      <stop offset="100%" stop-color="#1a3a5c"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#818cf8"/>
     </linearGradient>
     <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.15"/>
       <stop offset="50%" stop-color="#ffffff" stop-opacity="0"/>
     </linearGradient>
   </defs>
-  <!-- Background circle -->
-  <circle cx="256" cy="256" r="245" fill="url(#bg)"/>
-  <!-- Globe outline -->
-  <circle cx="256" cy="256" r="140" fill="none" stroke="#ffffff" stroke-width="14" opacity="0.95"/>
-  <!-- Vertical meridian -->
-  <ellipse cx="256" cy="256" rx="70" ry="140" fill="none" stroke="#ffffff" stroke-width="10" opacity="0.7"/>
+  <!-- Background -->
+  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
+  <!-- Globe -->
+  <circle cx="240" cy="275" r="145" fill="none" stroke="url(#accent)" stroke-width="13" opacity="0.9"/>
+  <!-- Meridian vertical -->
+  <ellipse cx="240" cy="275" rx="65" ry="145" fill="none" stroke="url(#accent)" stroke-width="9" opacity="0.55"/>
   <!-- Second meridian -->
-  <ellipse cx="256" cy="256" rx="120" ry="140" fill="none" stroke="#ffffff" stroke-width="8" opacity="0.4"/>
-  <!-- Horizontal lines (latitudes) -->
-  <line x1="116" y1="210" x2="396" y2="210" stroke="#ffffff" stroke-width="8" opacity="0.5" stroke-linecap="round"/>
-  <line x1="116" y1="302" x2="396" y2="302" stroke="#ffffff" stroke-width="8" opacity="0.5" stroke-linecap="round"/>
-  <!-- Equator -->
-  <line x1="116" y1="256" x2="396" y2="256" stroke="#ffffff" stroke-width="10" opacity="0.7" stroke-linecap="round"/>
-  <!-- Small speech bubble accent -->
-  <g transform="translate(360, 130)">
-    <rect x="0" y="0" width="95" height="65" rx="18" fill="#ffffff"/>
-    <polygon points="20,65 35,85 45,65" fill="#ffffff"/>
-    <!-- Dots in speech bubble -->
-    <circle cx="28" cy="32" r="8" fill="#5353ff"/>
-    <circle cx="50" cy="32" r="8" fill="#5353ff"/>
-    <circle cx="72" cy="32" r="8" fill="#5353ff"/>
+  <ellipse cx="240" cy="275" rx="115" ry="145" fill="none" stroke="url(#accent)" stroke-width="7" opacity="0.3"/>
+  <!-- Latitudes -->
+  <line x1="95" y1="225" x2="385" y2="225" stroke="url(#accent)" stroke-width="7" opacity="0.4" stroke-linecap="round"/>
+  <line x1="95" y1="275" x2="385" y2="275" stroke="url(#accent)" stroke-width="9" opacity="0.55" stroke-linecap="round"/>
+  <line x1="95" y1="325" x2="385" y2="325" stroke="url(#accent)" stroke-width="7" opacity="0.4" stroke-linecap="round"/>
+  <!-- Speech bubble -->
+  <g transform="translate(330, 85)">
+    <rect x="0" y="0" width="120" height="80" rx="22" fill="#818cf8"/>
+    <polygon points="22,80 40,105 55,80" fill="#818cf8"/>
+    <circle cx="35" cy="40" r="9" fill="white" opacity="0.95"/>
+    <circle cx="60" cy="40" r="9" fill="white" opacity="0.95"/>
+    <circle cx="85" cy="40" r="9" fill="white" opacity="0.95"/>
   </g>
-  <!-- Shine overlay -->
-  <circle cx="256" cy="256" r="245" fill="url(#shine)"/>
+  <!-- Shine -->
+  <rect width="512" height="512" rx="110" fill="url(#shine)"/>
 </svg>
