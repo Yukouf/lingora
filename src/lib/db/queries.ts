@@ -30,7 +30,7 @@ export async function getUserActiveCourse(userId: string) {
     include: {
       language: true,
     },
-    orderBy: { startedAt: "asc" },
+    orderBy: { startedAt: "desc" },
   });
 
   if (!userLang) return null;

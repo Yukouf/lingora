@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
     const userLang = await db.userLanguage.findFirst({
       where: { userId },
       include: { language: true },
-      orderBy: { startedAt: "asc" },
+      orderBy: { startedAt: "desc" },
     });
 
     if (!userLang) {

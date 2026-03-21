@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   // Get user's active language
   const userLang = await db.userLanguage.findFirst({
     where: { userId },
-    orderBy: { startedAt: "asc" },
+    orderBy: { startedAt: "desc" },
   });
 
   if (!userLang) {
