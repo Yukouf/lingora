@@ -56,12 +56,14 @@ export const metadata: Metadata = {
     siteName: "Lingyou",
     type: "website",
     url: baseUrl,
+    locale: "fr_FR",
   },
   twitter: {
     card: "summary_large_image",
     title: "Lingyou — Apprends une langue pour de vrai",
     description:
       "Conversations IA immersives, exercices contextuels, répétition espacée intelligente. Gratuit jusqu'au niveau A2.",
+    creator: "@lingyou",
   },
   icons: {
     icon: [
