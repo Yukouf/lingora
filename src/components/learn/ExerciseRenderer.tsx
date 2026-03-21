@@ -12,7 +12,7 @@ import {
   MessageCircle,
   PenTool,
   Search,
-  AlertTriangle,
+
   Sparkles,
   HelpCircle,
   Mic,
@@ -461,7 +461,7 @@ function ConfettiBurst() {
 export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageCode = "en" }: ExerciseRendererProps) {
   const { t } = useI18n();
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-  const [textInput, setTextInput] = useState("");
+
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showHint, setShowHint] = useState(false);
@@ -503,16 +503,16 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
   };
   const exerciseInstructions: Record<string, string> = {
     MULTIPLE_CHOICE: "Sélectionne la bonne réponse",
-    FILL_IN_BLANK: "Complète avec le mot manquant",
-    TRANSLATION: "Traduis cette expression",
+    FILL_IN_BLANK: "Sélectionne le mot manquant",
+    TRANSLATION: "Sélectionne la bonne traduction",
     LISTENING: "Écoute et choisis la bonne réponse",
     MATCHING: "Relie chaque mot à sa traduction",
     DIALOGUE_COMPLETE: "Complète le dialogue",
     CONTEXT_GUESS: "Devine le sens du mot en contexte",
-    SPOT_ERROR: "Trouve et corrige l'erreur",
+    SPOT_ERROR: "Clique sur le mot incorrect",
     REORDER: "Remets les mots dans le bon ordre",
-    WRITING: "Écris ta réponse en quelques phrases",
-    FREE_PRODUCTION: "Écris ta réponse en quelques phrases",
+    WRITING: "Choisis la meilleure réponse",
+    FREE_PRODUCTION: "Choisis la meilleure réponse",
     PRONUNCIATION: "Prononce la phrase à voix haute",
   };
   const theme = { ...baseTheme, label: exerciseTypeLabels[exercise.type] || baseTheme.label };
@@ -534,7 +534,6 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
 
   const resetState = () => {
     setSelectedAnswer(null);
-    setTextInput("");
     setShowResult(false);
     setIsCorrect(false);
     setShowHint(false);
@@ -679,7 +678,21 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
     </div>
   );
 
-  // ====== FILL IN BLANK ======
+  // ====== FILL IN BLANK (selection-based) ======
+  const fillInBlankOptions = useMemo(() => {
+    // Use q.options if available, otherwise build from correct answer
+    if (q.options && q.options.length >= 2) {
+      // Ensure correct answer is included
+      const opts = q.options.includes(q.correct_answer)
+        ? [...q.options]
+        : [q.correct_answer, ...q.options.slice(0, 3)];
+      return fisherYatesShuffle(opts.slice(0, 4).filter(Boolean));
+    }
+    // Fallback: just show the correct answer as the only option
+    return [q.correct_answer].filter(Boolean);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exercise.id]);
+
   const renderFillInBlank = () => {
     const parts = q.text.split("___");
     return (
@@ -692,10 +705,10 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
                 <span className="inline-block mx-1 px-3 py-1 rounded-lg bg-blue-500/20 border-2 border-blue-400/40 border-dashed min-w-[60px] sm:min-w-[100px] text-center">
                   {showResult ? (
                     <span className={isCorrect ? "text-emerald-400" : "text-red-400"}>
-                      {textInput || q.correct_answer}
+                      {selectedAnswer || q.correct_answer}
                     </span>
-                  ) : textInput ? (
-                    <span className="text-blue-300">{textInput}</span>
+                  ) : selectedAnswer ? (
+                    <span className="text-blue-300">{selectedAnswer}</span>
                   ) : (
                     <span className="text-blue-300/40">???</span>
                   )}
@@ -705,27 +718,59 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
           ))}
         </div>
 
-        {!showResult && (
-          <div className="flex gap-3">
-            <input
-              type="text"
-              value={textInput}
-              onChange={(e) => setTextInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && textInput && checkAnswer(textInput, "fill_in_blank")}
-              placeholder="Tape ta réponse..."
-              className="flex-1 bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-blue-400/60 transition-colors"
-              autoFocus
-            />
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => textInput && checkAnswer(textInput, "fill_in_blank")}
-              className="px-6 py-3 bg-blue-500 hover:bg-blue-400 text-white rounded-xl font-medium transition-colors"
-            >
-              Valider
-            </motion.button>
-          </div>
-        )}
+        {/* Selection options */}
+        <div className="grid gap-3">
+          {fillInBlankOptions.map((option, i) => {
+            const isSelected = selectedAnswer === option;
+            const showCorrectness = showResult;
+            const optionIsCorrect = normalizeForComparison(option ?? "") === normalizeForComparison(q.correct_answer ?? "");
+
+            return (
+              <motion.button
+                key={i}
+                whileHover={!showResult ? { scale: 1.02 } : {}}
+                whileTap={!showResult ? { scale: 0.98 } : {}}
+                onClick={() => {
+                  if (showResult) return;
+                  setSelectedAnswer(option);
+                  checkAnswer(option);
+                }}
+                className={`relative w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 ${
+                  showCorrectness && optionIsCorrect
+                    ? "border-emerald-400 bg-emerald-500/20 text-emerald-300"
+                    : showCorrectness && isSelected && !optionIsCorrect
+                    ? "border-red-400 bg-red-500/20 text-red-300"
+                    : isSelected
+                    ? `${theme.border} bg-white/10`
+                    : "border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
+                    showCorrectness && optionIsCorrect
+                      ? "bg-emerald-500 text-white"
+                      : showCorrectness && isSelected && !optionIsCorrect
+                      ? "bg-red-500 text-white"
+                      : "bg-white/10 text-white/60"
+                  }`}>
+                    {String.fromCharCode(65 + i)}
+                  </span>
+                  <span className="text-base">{option}</span>
+                  {showCorrectness && optionIsCorrect && (
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="ml-auto">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                    </motion.div>
+                  )}
+                  {showCorrectness && isSelected && !optionIsCorrect && (
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="ml-auto">
+                      <XCircle className="h-5 w-5 text-red-400" />
+                    </motion.div>
+                  )}
+                </div>
+              </motion.button>
+            );
+          })}
+        </div>
 
         {showResult && !isCorrect && (
           <motion.div
@@ -742,7 +787,19 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
     );
   };
 
-  // ====== TRANSLATION ======
+  // ====== TRANSLATION (selection-based) ======
+  const translationOptions = useMemo(() => {
+    if (q.options && q.options.length >= 2) {
+      const opts = q.options.includes(q.correct_answer)
+        ? [...q.options]
+        : [q.correct_answer, ...q.options.slice(0, 3)];
+      return fisherYatesShuffle(opts.slice(0, 4).filter(Boolean));
+    }
+    // Fallback: just the correct answer
+    return [q.correct_answer].filter(Boolean);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exercise.id]);
+
   const renderTranslation = () => (
     <div className="space-y-6">
       <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
@@ -753,31 +810,69 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
         </div>
       </div>
 
-      {!showResult ? (
-        <div className="space-y-3">
-          <textarea
-            value={textInput}
-            onChange={(e) => setTextInput(e.target.value)}
-            placeholder="Écris ta traduction..."
-            className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-emerald-400/60 transition-colors min-h-[80px] resize-none"
-            autoFocus
-          />
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => textInput && checkAnswer(textInput, "translation")}
-            className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-medium transition-colors"
-          >
-            Vérifier ma traduction
-          </motion.button>
-        </div>
-      ) : (
+      <p className="text-center text-white/60 text-sm">Sélectionne la bonne traduction</p>
+
+      {/* Selection options */}
+      <div className="grid gap-3">
+        {translationOptions.map((option, i) => {
+          const isSelected = selectedAnswer === option;
+          const showCorrectness = showResult;
+          const optionIsCorrect = normalizeForComparison(option ?? "") === normalizeForComparison(q.correct_answer ?? "");
+
+          return (
+            <motion.button
+              key={i}
+              whileHover={!showResult ? { scale: 1.02 } : {}}
+              whileTap={!showResult ? { scale: 0.98 } : {}}
+              onClick={() => {
+                if (showResult) return;
+                setSelectedAnswer(option);
+                checkAnswer(option);
+              }}
+              className={`relative w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 ${
+                showCorrectness && optionIsCorrect
+                  ? "border-emerald-400 bg-emerald-500/20 text-emerald-300"
+                  : showCorrectness && isSelected && !optionIsCorrect
+                  ? "border-red-400 bg-red-500/20 text-red-300"
+                  : isSelected
+                  ? `${theme.border} bg-white/10`
+                  : "border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
+                  showCorrectness && optionIsCorrect
+                    ? "bg-emerald-500 text-white"
+                    : showCorrectness && isSelected && !optionIsCorrect
+                    ? "bg-red-500 text-white"
+                    : "bg-white/10 text-white/60"
+                }`}>
+                  {String.fromCharCode(65 + i)}
+                </span>
+                <span className="text-base">{option}</span>
+                {showCorrectness && optionIsCorrect && (
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="ml-auto">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                  </motion.div>
+                )}
+                {showCorrectness && isSelected && !optionIsCorrect && (
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="ml-auto">
+                    <XCircle className="h-5 w-5 text-red-400" />
+                  </motion.div>
+                )}
+              </div>
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {showResult && !isCorrect && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           className="p-4 rounded-2xl bg-white/5 border border-white/10"
         >
-          <p className="text-xs text-white/40 mb-1 uppercase tracking-wide">Réponse attendue</p>
+          <p className="text-xs text-white/40 mb-1 uppercase tracking-wide">Bonne traduction</p>
           <p className="text-base text-emerald-300">{q.correct_answer}</p>
         </motion.div>
       )}
@@ -1051,55 +1146,97 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
     </div>
   );
 
-  // ====== SPOT ERROR ======
-  const renderSpotError = () => (
-    <div className="space-y-6">
-      <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-red-400 uppercase tracking-wide font-medium">🔍 Trouve l'erreur</p>
-          <SpeakButton text={q.sentence_with_error || q.text} lang={languageCode} size="sm" />
-        </div>
-        <p className="text-lg text-white font-medium">{q.sentence_with_error || q.text}</p>
-      </div>
+  // ====== SPOT ERROR (word-click selection) ======
+  const spotErrorWords = useMemo(() => {
+    const sentence = q.sentence_with_error || q.text || "";
+    return sentence.split(/\s+/).filter(Boolean);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exercise.id]);
 
-      {!showResult ? (
-        <div className="space-y-3">
-          <input
-            type="text"
-            value={textInput}
-            onChange={(e) => setTextInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && textInput && checkAnswer(textInput, "spot_error")}
-            placeholder="Écris la phrase corrigée..."
-            className="w-full bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-red-400/60 transition-colors"
-            autoFocus
-          />
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => textInput && checkAnswer(textInput, "spot_error")}
-            className="w-full py-3 bg-red-500 hover:bg-red-400 text-white rounded-xl font-medium transition-colors"
-          >
-            Vérifier ma correction
-          </motion.button>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
-            <p className="text-sm text-emerald-300">
-              <span className="font-medium">Phrase correcte :</span> {q.correct_sentence || q.correct_answer}
-            </p>
+  const renderSpotError = () => {
+    // Determine which word is the error word
+    const errorWord = q.errorWord || "";
+    // Also check correct_answer as fallback for error word identification
+    const errorWordNorm = normalizeForComparison(errorWord);
+
+    return (
+      <div className="space-y-6">
+        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-xs text-red-400 uppercase tracking-wide font-medium">Trouve l&apos;erreur</p>
+            <SpeakButton text={q.sentence_with_error || q.text} lang={languageCode} size="sm" />
           </div>
-          {q.error_explanation && (
-            <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-              <p className="text-sm text-white/70">
-                <span className="font-medium text-white">💡 Explication :</span> {q.error_explanation}
+          <p className="text-sm text-white/60 mt-1">Clique sur le mot qui contient une erreur</p>
+        </div>
+
+        {/* Words as clickable chips */}
+        <div className="flex flex-wrap gap-2 justify-center">
+          {spotErrorWords.map((word, i) => {
+            const wordNorm = normalizeForComparison(word);
+            const isErrorWord = errorWordNorm !== "" && wordNorm === errorWordNorm;
+            const isSelected = selectedAnswer === `${i}:${word}`;
+            const showCorrectness = showResult;
+
+            return (
+              <motion.button
+                key={i}
+                whileHover={!showResult ? { scale: 1.08 } : {}}
+                whileTap={!showResult ? { scale: 0.95 } : {}}
+                onClick={() => {
+                  if (showResult) return;
+                  const wordKey = `${i}:${word}`;
+                  setSelectedAnswer(wordKey);
+                  // Check if the clicked word is the error word
+                  const correct = isErrorWord;
+                  setIsCorrect(correct);
+                  setShowResult(true);
+                  onAnswer(correct, correct ? 100 : 0);
+                  if (correct) {
+                    playCorrectSound();
+                  } else {
+                    playWrongSound();
+                  }
+                  const textToSpeak = q.correct_sentence || q.correct_answer || "";
+                  if (textToSpeak) speakText(textToSpeak, languageCode, 150);
+                }}
+                className={`px-4 py-2.5 rounded-xl text-base font-medium transition-all ${
+                  showCorrectness && isErrorWord
+                    ? "border-2 border-emerald-400 bg-emerald-500/20 text-emerald-300"
+                    : showCorrectness && isSelected && !isErrorWord
+                    ? "border-2 border-red-400 bg-red-500/20 text-red-300"
+                    : isSelected
+                    ? "border-2 border-red-400/60 bg-red-500/10 text-white"
+                    : "border-2 border-white/10 bg-white/5 text-white hover:bg-white/10 hover:border-red-400/30"
+                }`}
+              >
+                {word}
+                {showCorrectness && isErrorWord && (
+                  <span className="ml-2 text-xs text-emerald-400">({q.correct_answer})</span>
+                )}
+              </motion.button>
+            );
+          })}
+        </div>
+
+        {showResult && (
+          <div className="space-y-3">
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+              <p className="text-sm text-emerald-300">
+                <span className="font-medium">Phrase correcte :</span> {q.correct_sentence || q.correct_answer}
               </p>
             </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
+            {q.error_explanation && (
+              <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+                <p className="text-sm text-white/70">
+                  <span className="font-medium text-white">Explication :</span> {q.error_explanation}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   // ====== DIALOGUE COMPLETE ======
   const renderDialogueComplete = () => (
@@ -1131,7 +1268,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
                 {isBlank && !showResult ? (
                   <span className="text-teal-300/40 text-sm italic">Ta réponse ici...</span>
                 ) : isBlank && showResult ? (
-                  <span className={isCorrect ? "text-emerald-300" : "text-red-300"}>{textInput || q.correct_answer}</span>
+                  <span className={isCorrect ? "text-emerald-300" : "text-red-300"}>{selectedAnswer || q.correct_answer}</span>
                 ) : (
                   <p className="text-sm text-white">{line.text}</p>
                 )}
@@ -1142,52 +1279,52 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       </div>
 
       {!showResult && (
-        <div className="flex gap-3">
-          {q.options ? (
-            <div className="grid gap-2 w-full">
-              {shuffledOptions.map((opt, i) => (
-                <motion.button
-                  key={i}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => {
-                    setSelectedAnswer(opt);
-                    setTextInput(opt);
-                    checkAnswer(opt);
-                  }}
-                  className="w-full text-left p-3 rounded-xl border border-white/10 bg-white/5 hover:bg-teal-500/10 hover:border-teal-400/30 text-white text-sm transition-all"
-                >
-                  {opt}
-                </motion.button>
-              ))}
-            </div>
-          ) : (
-            <>
-              <input
-                type="text"
-                value={textInput}
-                onChange={(e) => setTextInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && textInput && checkAnswer(textInput)}
-                placeholder="Ta réponse..."
-                className="flex-1 bg-white/5 border-2 border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-teal-400/60 transition-colors"
-                autoFocus
-              />
+        <div className="grid gap-2 w-full">
+          {(shuffledOptions.length > 0 ? shuffledOptions : [q.correct_answer].filter(Boolean)).map((opt, i) => {
+            const isSelected = selectedAnswer === opt;
+            const showCorrectness = showResult;
+            const optionIsCorrect = normalizeForComparison(opt ?? "") === normalizeForComparison(q.correct_answer ?? "");
+
+            return (
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => textInput && checkAnswer(textInput)}
-                className="px-6 py-3 bg-teal-500 hover:bg-teal-400 text-white rounded-xl font-medium transition-colors"
+                key={i}
+                whileHover={!showResult ? { scale: 1.02 } : {}}
+                whileTap={!showResult ? { scale: 0.98 } : {}}
+                onClick={() => {
+                  if (showResult) return;
+                  setSelectedAnswer(opt);
+                  checkAnswer(opt);
+                }}
+                className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
+                  showCorrectness && optionIsCorrect
+                    ? "border-emerald-400 bg-emerald-500/20 text-emerald-300"
+                    : showCorrectness && isSelected && !optionIsCorrect
+                    ? "border-red-400 bg-red-500/20 text-red-300"
+                    : "border-white/10 bg-white/5 hover:bg-teal-500/10 hover:border-teal-400/30 text-white"
+                } text-sm`}
               >
-                Envoyer
+                {opt}
               </motion.button>
-            </>
-          )}
+            );
+          })}
         </div>
       )}
     </div>
   );
 
-  // ====== WRITING / FREE PRODUCTION ======
+  // ====== WRITING / FREE PRODUCTION (guided MCQ) ======
+  const writingOptions = useMemo(() => {
+    if (q.options && q.options.length >= 2) {
+      const opts = q.options.includes(q.correct_answer)
+        ? [...q.options]
+        : [q.correct_answer, ...q.options.slice(0, 3)];
+      return fisherYatesShuffle(opts.slice(0, 4).filter(Boolean));
+    }
+    // Fallback: just the correct answer
+    return [q.correct_answer].filter(Boolean);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [exercise.id]);
+
   const renderWriting = () => (
     <div className="space-y-6">
       <div className={`p-4 rounded-2xl ${
@@ -1196,87 +1333,76 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
         <p className={`text-xs mb-2 uppercase tracking-wide font-medium ${
           exercise.type === "FREE_PRODUCTION" ? "text-pink-400" : "text-rose-400"
         }`}>
-          {exercise.type === "FREE_PRODUCTION" ? "✨ Production libre" : "✍️ Écris dans la langue cible"}
+          {exercise.type === "FREE_PRODUCTION" ? "Production libre" : "Choisis la meilleure réponse"}
         </p>
         <p className="text-base text-white">{q.prompt || q.text}</p>
       </div>
 
-      {q.criteria && q.criteria.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {q.criteria.map((c, i) => (
-            <span key={i} className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60">
-              {c}
-            </span>
-          ))}
-        </div>
-      )}
+      <p className="text-center text-white/60 text-sm">Choisis la meilleure réponse</p>
 
-      {!showResult ? (
-        <div className="space-y-3">
-          <textarea
-            value={textInput}
-            onChange={(e) => setTextInput(e.target.value)}
-            placeholder="Écris ta réponse ici..."
-            className={`w-full border-2 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none transition-colors min-h-[120px] resize-none bg-white/5 border-white/10 ${
-              exercise.type === "FREE_PRODUCTION" ? "focus:border-pink-400/60" : "focus:border-rose-400/60"
-            }`}
-            autoFocus
-          />
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => {
-              const trimmed = textInput.trim();
-              if (trimmed.length >= 3) {
-                // Score based on response length
-                let writingScore: number;
-                if (trimmed.length < 10) {
-                  writingScore = 40;
-                } else if (trimmed.length < 30) {
-                  writingScore = 60;
-                } else if (trimmed.length < 80) {
-                  writingScore = 80;
-                } else {
-                  writingScore = 95;
-                }
-                setIsCorrect(writingScore >= 60);
-                setShowResult(true);
-                onAnswer(writingScore >= 60, writingScore);
-                // Speak the example answer
-                if (q.correct_answer) {
-                  speakText(q.correct_answer, languageCode);
-                }
-              }
-            }}
-            className={`w-full py-3 text-white rounded-xl font-medium transition-colors ${
-              exercise.type === "FREE_PRODUCTION"
-                ? "bg-pink-500 hover:bg-pink-400"
-                : "bg-rose-500 hover:bg-rose-400"
-            }`}
-          >
-            Soumettre
-          </motion.button>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {textInput.trim().length < 10 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30"
+      {/* Selection options */}
+      <div className="grid gap-3">
+        {writingOptions.map((option, i) => {
+          const isSelected = selectedAnswer === option;
+          const showCorrectness = showResult;
+          const optionIsCorrect = normalizeForComparison(option ?? "") === normalizeForComparison(q.correct_answer ?? "");
+
+          return (
+            <motion.button
+              key={i}
+              whileHover={!showResult ? { scale: 1.02 } : {}}
+              whileTap={!showResult ? { scale: 0.98 } : {}}
+              onClick={() => {
+                if (showResult) return;
+                setSelectedAnswer(option);
+                checkAnswer(option);
+              }}
+              className={`relative w-full text-left p-4 rounded-2xl border-2 transition-all duration-300 ${
+                showCorrectness && optionIsCorrect
+                  ? "border-emerald-400 bg-emerald-500/20 text-emerald-300"
+                  : showCorrectness && isSelected && !optionIsCorrect
+                  ? "border-red-400 bg-red-500/20 text-red-300"
+                  : isSelected
+                  ? `${theme.border} bg-white/10`
+                  : "border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20"
+              }`}
             >
-              <p className="text-sm text-amber-300">Trop court, développe ta réponse</p>
-            </motion.div>
-          )}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-4 rounded-2xl bg-white/5 border border-white/10"
-          >
-            <p className="text-xs text-white/40 mb-1 uppercase tracking-wide">Exemple de réponse</p>
-            <p className="text-base text-emerald-300">{q.correct_answer}</p>
-          </motion.div>
-        </div>
+              <div className="flex items-center gap-3">
+                <span className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
+                  showCorrectness && optionIsCorrect
+                    ? "bg-emerald-500 text-white"
+                    : showCorrectness && isSelected && !optionIsCorrect
+                    ? "bg-red-500 text-white"
+                    : "bg-white/10 text-white/60"
+                }`}>
+                  {String.fromCharCode(65 + i)}
+                </span>
+                <span className="text-base">{option}</span>
+                {showCorrectness && optionIsCorrect && (
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="ml-auto">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                  </motion.div>
+                )}
+                {showCorrectness && isSelected && !optionIsCorrect && (
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="ml-auto">
+                    <XCircle className="h-5 w-5 text-red-400" />
+                  </motion.div>
+                )}
+              </div>
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {showResult && !isCorrect && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 rounded-2xl bg-white/5 border border-white/10"
+        >
+          <p className="text-xs text-white/40 mb-1 uppercase tracking-wide">Bonne réponse</p>
+          <p className="text-base text-emerald-300">{q.correct_answer}</p>
+        </motion.div>
       )}
     </div>
   );
