@@ -52,12 +52,28 @@ export async function POST(req: NextRequest) {
 
   const { text, lang } = parsed.data;
 
+  // Choose voice based on language for best accent
+  // OpenAI TTS voices handle multiple languages but some sound better for certain ones
+  const voiceMap: Record<string, "alloy" | "echo" | "fable" | "onyx" | "nova" | "shimmer"> = {
+    fr: "shimmer",  // Cleaner French pronunciation
+    en: "nova",
+    es: "nova",
+    de: "onyx",
+    ja: "nova",
+    zh: "nova",
+    ko: "nova",
+    ru: "onyx",
+    ar: "onyx",
+  };
+  const voice = voiceMap[lang] || "nova";
+
   try {
     const mp3Response = await openai.audio.speech.create({
-      model: "tts-1",
-      voice: "nova",
+      model: "tts-1-hd",
+      voice,
       input: text,
       response_format: "mp3",
+      speed: 0.95,
     });
 
     // Stream the audio back as mp3
