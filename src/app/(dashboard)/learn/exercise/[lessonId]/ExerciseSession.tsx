@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Trophy, Star, Zap, Home, RotateCcw, Layers } from "lucide-react";
 import Link from "next/link";
@@ -25,6 +25,22 @@ interface ExerciseSessionProps {
   lessonId: string;
 }
 
+// Map exercise type keys to short French labels for the overview
+const exerciseTypeShortLabels: Record<string, string> = {
+  MULTIPLE_CHOICE: "Choix multiple",
+  FILL_IN_BLANK: "Compléter",
+  TRANSLATION: "Traduction",
+  LISTENING: "Écoute",
+  MATCHING: "Associer",
+  DIALOGUE_COMPLETE: "Dialogue",
+  CONTEXT_GUESS: "Deviner",
+  SPOT_ERROR: "Corriger",
+  REORDER: "Remettre en ordre",
+  WRITING: "Écriture",
+  FREE_PRODUCTION: "Production libre",
+  PRONUNCIATION: "Prononciation",
+};
+
 export default function ExerciseSession({
   lesson,
   chapter,
@@ -37,6 +53,28 @@ export default function ExerciseSession({
   const [scores, setScores] = useState<number[]>([]);
   const [isFinished, setIsFinished] = useState(false);
   const [startTime] = useState(Date.now());
+  const [showOverview, setShowOverview] = useState(true);
+
+  // Auto-dismiss overview after 2 seconds
+  useEffect(() => {
+    if (showOverview) {
+      const timer = setTimeout(() => setShowOverview(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showOverview]);
+
+  // Compute exercise type counts for overview
+  const exerciseTypeCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const ex of exercises) {
+      counts[ex.type] = (counts[ex.type] || 0) + 1;
+    }
+    return Object.entries(counts).map(([type, count]) => ({
+      type,
+      count,
+      label: exerciseTypeShortLabels[type] || type,
+    }));
+  }, [exercises]);
 
   const totalExercises = exercises.length;
   const progress = totalExercises > 0 ? ((currentIndex) / totalExercises) * 100 : 0;
@@ -327,9 +365,35 @@ export default function ExerciseSession({
         </div>
       </div>
 
+      {/* Lesson overview flash */}
+      <AnimatePresence>
+        {showOverview && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3 }}
+            className="text-center py-12"
+          >
+            <h2 className="text-2xl font-bold text-white mb-2">{lesson.title}</h2>
+            <p className="text-white/40 text-sm mb-6">{exercises.length} exercices</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {exerciseTypeCounts.map(({ type, count, label }) => (
+                <span
+                  key={type}
+                  className="px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 border border-white/10 text-white/70"
+                >
+                  {count}x {label}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Exercise */}
       <AnimatePresence mode="wait">
-        {currentExercise && (
+        {!showOverview && currentExercise && (
           <ExerciseRenderer
             key={currentExercise.id}
             exercise={currentExercise as any}

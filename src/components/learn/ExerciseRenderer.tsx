@@ -170,9 +170,9 @@ interface ExerciseQuestionRaw {
 
 // ---- Fuzzy matching utilities ----
 
-/** Remove punctuation from a string */
+/** Remove all punctuation from a string (periods, commas, apostrophes, quotes, etc.) */
 function removePunctuation(s: string): string {
-  return s.replace(/[^\w\sÀ-ÿ]/g, "");
+  return s.replace(/[.,!?;:'"''""«»\-—–…()[\]{}/\\@#$%^&*_+=<>~`|]/g, "");
 }
 
 /** Remove diacritics/accents from a string */
@@ -197,9 +197,9 @@ function levenshteinDistance(a: string, b: string): number {
   return dp[m][n];
 }
 
-/** Normalize a string for comparison: lowercase, trim, remove punctuation */
+/** Normalize a string for comparison: lowercase, trim, remove punctuation, remove diacritics, collapse spaces */
 function normalizeForComparison(s: string): string {
-  return removePunctuation(s.toLowerCase().trim());
+  return removeAccents(removePunctuation(s.toLowerCase().trim())).replace(/\s+/g, " ").trim();
 }
 
 /**
@@ -217,13 +217,14 @@ function fuzzyMatchTranslation(userAnswer: string, expected: string): { isCorrec
   const dist = levenshteinDistance(normUser, normExpected);
   if (dist <= 2) return { isCorrect: true, score: 80 };
 
-  // Keyword match: 80%+ of expected words found in user answer
+  // Keyword match: check word overlap ratio
   const expectedWords = normExpected.split(/\s+/).filter(Boolean);
   if (expectedWords.length > 0) {
     const userWords = new Set(normUser.split(/\s+/).filter(Boolean));
     const matchCount = expectedWords.filter((w) => userWords.has(w)).length;
     const matchRatio = matchCount / expectedWords.length;
     if (matchRatio >= 0.8) return { isCorrect: true, score: 70 };
+    if (matchRatio >= 0.7) return { isCorrect: true, score: 60 };
   }
 
   return { isCorrect: false, score: 0 };
@@ -231,17 +232,18 @@ function fuzzyMatchTranslation(userAnswer: string, expected: string): { isCorrec
 
 /**
  * Fuzzy match for fill-in-blank exercises.
- * Returns a score: 100 (exact), 80 (1 char typo), 0 (wrong).
- * Also strips accents for comparison.
+ * Returns a score: 100 (exact), 90 (1 char typo), 75 (2 char typo), 0 (wrong).
+ * Strips accents and punctuation for comparison.
  */
 function fuzzyMatchFillInBlank(userAnswer: string, expected: string): { isCorrect: boolean; score: number } {
-  const normUser = removeAccents(normalizeForComparison(userAnswer));
-  const normExpected = removeAccents(normalizeForComparison(expected));
+  const normUser = normalizeForComparison(userAnswer);
+  const normExpected = normalizeForComparison(expected);
 
   if (normUser === normExpected) return { isCorrect: true, score: 100 };
 
   const dist = levenshteinDistance(normUser, normExpected);
-  if (dist <= 1) return { isCorrect: true, score: 80 };
+  if (dist <= 1) return { isCorrect: true, score: 90 };
+  if (dist <= 2) return { isCorrect: true, score: 75 };
 
   return { isCorrect: false, score: 0 };
 }
@@ -499,6 +501,20 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
     FREE_PRODUCTION: t.dashboard.exerciseTypes.freeProduction,
     PRONUNCIATION: t.dashboard.exerciseTypes.pronunciation,
   };
+  const exerciseInstructions: Record<string, string> = {
+    MULTIPLE_CHOICE: "Sélectionne la bonne réponse",
+    FILL_IN_BLANK: "Complète avec le mot manquant",
+    TRANSLATION: "Traduis cette expression",
+    LISTENING: "Écoute et choisis la bonne réponse",
+    MATCHING: "Relie chaque mot à sa traduction",
+    DIALOGUE_COMPLETE: "Complète le dialogue",
+    CONTEXT_GUESS: "Devine le sens du mot en contexte",
+    SPOT_ERROR: "Trouve et corrige l'erreur",
+    REORDER: "Remets les mots dans le bon ordre",
+    WRITING: "Écris ta réponse en quelques phrases",
+    FREE_PRODUCTION: "Écris ta réponse en quelques phrases",
+    PRONUNCIATION: "Prononce la phrase à voix haute",
+  };
   const theme = { ...baseTheme, label: exerciseTypeLabels[exercise.type] || baseTheme.label };
   const q = normalizeQuestion(exercise.question);
 
@@ -535,9 +551,9 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
     let answeredCorrectly = false;
 
     if (mode === "spot_error") {
-      // For SPOT_ERROR: check if the user's corrected text contains the correct word
-      const normalizedAnswer = (answer ?? "").toLowerCase().trim();
-      const correctWord = (q.correct_answer ?? "").toLowerCase().trim();
+      // For SPOT_ERROR: check if the user's answer contains the correct word (normalized)
+      const normalizedAnswer = normalizeForComparison(answer ?? "");
+      const correctWord = normalizeForComparison(q.correct_answer ?? "");
       const correct = correctWord !== "" && normalizedAnswer.includes(correctWord);
       answeredCorrectly = correct;
       setIsCorrect(correct);
@@ -562,7 +578,9 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       // Speak the correct answer word/phrase
       textToSpeak = q.correct_answer || "";
     } else {
-      const correct = (answer ?? "").toLowerCase().trim() === (q.correct_answer ?? "").toLowerCase().trim();
+      const normAnswer = normalizeForComparison(answer ?? "");
+      const normExpected = normalizeForComparison(q.correct_answer ?? "");
+      const correct = normAnswer === normExpected;
       answeredCorrectly = correct;
       setIsCorrect(correct);
       setShowResult(true);
@@ -588,9 +606,9 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       playWrongSound();
     }
 
-    // Auto-speak the correct answer after 500ms delay (sound effect first, then TTS)
+    // Auto-speak the correct answer after 150ms delay (sound effect first, then TTS)
     if (textToSpeak) {
-      speakText(textToSpeak, languageCode, 500);
+      speakText(textToSpeak, languageCode, 150);
     }
   };
 
@@ -947,7 +965,7 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
                       playCorrectSound();
                       const matchedPair = pairs[originalIdx];
                       if (matchedPair) {
-                        speakText(matchedPair.left, languageCode, 500);
+                        speakText(matchedPair.left, languageCode, 100);
                       }
                       setMatchedPairs((prev) => new Set([...prev, originalIdx]));
                       setSelectedLeft(null);
@@ -1335,10 +1353,12 @@ export default function ExerciseRenderer({ exercise, onAnswer, onNext, languageC
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold mb-6 ${theme.accent} text-white shadow-lg`}
+        className="mb-6"
       >
-        {theme.icon}
-        {theme.label}
+        <div className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium tracking-wide border-l-[3px] bg-white/5 ${theme.border} text-white/80`}>
+          {theme.label}
+        </div>
+        <p className="text-sm text-white/50 mt-2">{exerciseInstructions[exercise.type] || ""}</p>
       </motion.div>
 
       {/* Exercise content card */}
